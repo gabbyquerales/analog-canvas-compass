@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Archivo+Black&family=Annie+Use+Your+Telescope&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Archivo+Black&family=Annie+Use+Your+Telescope&family=Playfair+Display:wght@700;800&family=Inter:wght@400;500;600;700&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -37,8 +37,8 @@
     --radius: 0px;
 
     --card-yellow: 48 100% 50%;
-    --card-red: 356 86% 57%;
-    --heading-blue: 220 100% 33%;
+    --card-red: 4 78% 56%;
+    --heading-blue: 213 72% 59%;
 
     --sidebar-background: 0 0% 98%;
     --sidebar-foreground: 0 0% 20%;
@@ -51,6 +51,16 @@
 
     --font-headline: 'Archivo Black', sans-serif;
     --font-handwritten: 'Annie Use Your Telescope', cursive;
+    --font-serif: 'Playfair Display', serif;
+    --font-sans: 'Inter', sans-serif;
+
+    /* Curioso Labs Venezuelan palette */
+    --curioso-yellow: 48 100% 50%;
+    --curioso-blue: 213 72% 59%;
+    --curioso-red: 4 78% 56%;
+    --curioso-bg: 60 11% 97%;
+    --curioso-charcoal: 0 0% 15%;
+    --curioso-charcoal-fg: 0 0% 100%;
   }
 
   .dark {
