@@ -59,7 +59,7 @@ const SearchPage = ({ onConfirmedChange }: SearchPageProps) => {
         </p>
 
         <div className="relative w-full max-w-[380px]">
-          <h2 className="font-serif text-xl text-foreground mb-3 text-center">Estimates for Jurisdcitions, timelines & costs costs
+          <h2 className="font-serif text-foreground mb-3 text-center text-base">Estimates for Jurisdictions, timelines & costs costs
 
           </h2>
         </div>

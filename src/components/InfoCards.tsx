@@ -17,13 +17,13 @@ interface InfoCardsProps {
   specialCondition: SpecialConditionResult | null;
 }
 
-const TricolorSparkle = () => (
-  <span className="inline-flex gap-0.5 animate-sparkle-burst select-none" aria-hidden="true">
+const TricolorSparkle = () =>
+<span className="inline-flex gap-0.5 animate-sparkle-burst select-none" aria-hidden="true">
     <span className="text-secondary">✦</span>
     <span className="text-heading-blue">✧</span>
     <span className="text-card-red">✦</span>
-  </span>
-);
+  </span>;
+
 
 const InfoCards = ({ location, jurisdiction, cdtfaName, matchStatus, confirmed, onConfirm, neighborhood, specialCondition }: InfoCardsProps) => {
   const [sparkleVisible, setSparkleVisible] = useState(false);
@@ -65,17 +65,17 @@ const InfoCards = ({ location, jurisdiction, cdtfaName, matchStatus, confirmed, 
   return (
     <div className="flex flex-col gap-6 mx-4 mb-32">
       {/* Sparkle burst overlay */}
-      {sparkleVisible && (
-        <div className="fixed inset-0 pointer-events-none z-50 flex items-center justify-center">
+      {sparkleVisible &&
+      <div className="fixed inset-0 pointer-events-none z-50 flex items-center justify-center">
           <div className="text-4xl animate-sparkle-burst">
             <TricolorSparkle />
           </div>
         </div>
-      )}
+      }
 
       {/* Mini-Kingdom Alert — no match */}
-      {isUnmatched && (
-        <div className="bg-card rounded-2xl shadow-md border border-border p-5 relative overflow-hidden">
+      {isUnmatched &&
+      <div className="bg-card rounded-2xl shadow-md border border-border p-5 relative overflow-hidden">
           <div className="absolute top-3 right-3">
             <span className="inline-block bg-card-red text-white font-sans text-[10px] font-bold uppercase tracking-widest px-3 py-1 rounded-full">
               Alert
@@ -85,23 +85,23 @@ const InfoCards = ({ location, jurisdiction, cdtfaName, matchStatus, confirmed, 
             Uncharted Territory
           </h3>
           <p className="font-sans text-sm text-muted-foreground leading-relaxed">
-            {cdtfaName ? (
-              <>CDTFA says <span className="font-bold text-foreground">{cdtfaName}</span>, but we're still mapping this zone. Estimates may be rough.</>
-            ) : (
-              <>Couldn't reach the jurisdiction API. Estimates may be rough.</>
-            )}
+            {cdtfaName ?
+          <>CDTFA says <span className="font-bold text-foreground">{cdtfaName}</span>, but we're still mapping this zone. Estimates may be rough.</> :
+
+          <>Couldn't reach the jurisdiction API. Estimates may be rough.</>
+          }
           </p>
         </div>
-      )}
+      }
 
       {/* Loading state */}
-      {isLoading && (
-        <div className="bg-card rounded-2xl shadow-md border border-border p-6 text-center">
+      {isLoading &&
+      <div className="bg-card rounded-2xl shadow-md border border-border p-6 text-center">
           <p className="font-sans text-sm text-muted-foreground animate-pulse tracking-wide">
             Checking jurisdiction…
           </p>
         </div>
-      )}
+      }
 
       {/* Report Card — Mapping the Mini-Kingdoms */}
       <div className="relative">
@@ -111,24 +111,24 @@ const InfoCards = ({ location, jurisdiction, cdtfaName, matchStatus, confirmed, 
           
           <div className="p-5 relative">
             {/* Status badge — top right */}
-            {isMatched && (
-              <div className="absolute top-4 right-4">
+            {isMatched &&
+            <div className="absolute top-4 right-4">
                 <span className="inline-block bg-secondary text-secondary-foreground font-sans text-[10px] font-bold uppercase tracking-widest px-3 py-1 rounded-full shadow-sm">
                   {hasPending ? "Match Found" : "Detected"}
                 </span>
               </div>
-            )}
+            }
 
-            <h3 className="font-serif text-xl text-foreground mb-3 pr-24">
-              Mapping the Mini-Kingdoms
+            <h3 className="font-serif text-xl text-foreground mb-3 pr-24">Your Permit Assistant
+
             </h3>
 
-            {!isMatched ? (
-              <p className="font-sans text-sm text-muted-foreground leading-relaxed">
-                LA is a jigsaw of 88 cities. We map the maze so your production doesn't get lost at the border.
-              </p>
-            ) : (
-              <>
+            {!isMatched ?
+            <p className="font-sans text-sm text-muted-foreground leading-relaxed">Don't waste budget on non-refundable mistakes. We pinpoint jurisdictions, estimate fees, and track timelines across cities.
+
+            </p> :
+
+            <>
                 <p className="font-sans text-sm text-muted-foreground leading-relaxed">
                   Located in{' '}
                   <span className="font-bold text-foreground">
@@ -139,61 +139,61 @@ const InfoCards = ({ location, jurisdiction, cdtfaName, matchStatus, confirmed, 
                   Beat the clock.
                 </p>
               </>
-            )}
+            }
           </div>
         </div>
 
         {/* Confirm button */}
-        {hasPending && (
-          <div className="flex flex-col items-center gap-3 mt-4">
+        {hasPending &&
+        <div className="flex flex-col items-center gap-3 mt-4">
             <button
-              onClick={handleConfirmClick}
-              className="w-full py-4 rounded-xl font-sans text-sm font-bold uppercase tracking-widest cursor-pointer transition-all active:scale-95 shadow-lg bg-heading-blue text-white hover:opacity-90"
-            >
+            onClick={handleConfirmClick}
+            className="w-full py-4 rounded-xl font-sans text-sm font-bold uppercase tracking-widest cursor-pointer transition-all active:scale-95 shadow-lg bg-heading-blue text-white hover:opacity-90">
+
               <span className="flex items-center justify-center gap-2">
                 Confirm This Location
                 <span className="text-secondary">✦</span>
               </span>
             </button>
             <button
-              onClick={() => {
-                window.scrollTo({ top: 0, behavior: 'smooth' });
-                toast("Try searching for a different address above!", { icon: "🔍" });
-              }}
-              className="font-sans text-xs text-muted-foreground underline underline-offset-4 cursor-pointer hover:text-foreground transition-colors"
-            >
+            onClick={() => {
+              window.scrollTo({ top: 0, behavior: 'smooth' });
+              toast("Try searching for a different address above!", { icon: "🔍" });
+            }}
+            className="font-sans text-xs text-muted-foreground underline underline-offset-4 cursor-pointer hover:text-foreground transition-colors">
+
               Not the right spot? Search again ↑
             </button>
           </div>
-        )}
+        }
       </div>
 
       {/* Production Brief Slide-Up */}
-      {currentStep === 'brief' && confirmed && location && jurisdiction && (
-        <ProductionBrief
-          jurisdiction={jurisdiction}
-          location={location}
-          neighborhood={neighborhood}
-          specialCondition={specialCondition}
-          onBack={() => setCurrentStep('search')}
-        />
-      )}
+      {currentStep === 'brief' && confirmed && location && jurisdiction &&
+      <ProductionBrief
+        jurisdiction={jurisdiction}
+        location={location}
+        neighborhood={neighborhood}
+        specialCondition={specialCondition}
+        onBack={() => setCurrentStep('search')} />
+
+      }
 
       {/* Sticky "Return to Brief" CTA */}
-      {confirmed && currentStep === 'search' && jurisdiction && (
-        <div className="fixed bottom-0 left-0 right-0 z-40 p-4 bg-curioso-charcoal/95 backdrop-blur-sm border-t border-border/20 safe-area-bottom">
+      {confirmed && currentStep === 'search' && jurisdiction &&
+      <div className="fixed bottom-0 left-0 right-0 z-40 p-4 bg-curioso-charcoal/95 backdrop-blur-sm border-t border-border/20 safe-area-bottom">
           <div className="max-w-[430px] mx-auto">
             <button
-              onClick={() => setCurrentStep('brief')}
-              className="w-full py-3.5 rounded-xl font-sans text-sm font-bold uppercase tracking-widest cursor-pointer transition-all active:scale-95 shadow-lg bg-heading-blue text-white hover:opacity-90"
-            >
+            onClick={() => setCurrentStep('brief')}
+            className="w-full py-3.5 rounded-xl font-sans text-sm font-bold uppercase tracking-widest cursor-pointer transition-all active:scale-95 shadow-lg bg-heading-blue text-white hover:opacity-90">
+
               📋 Return to Brief
             </button>
           </div>
         </div>
-      )}
-    </div>
-  );
+      }
+    </div>);
+
 };
 
 export default InfoCards;
