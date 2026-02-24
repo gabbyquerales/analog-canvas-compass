@@ -1,0 +1,516 @@
+{
+  "lastUpdated": "2026-01-30",
+  "jurisdictions": {
+    "los_angeles_city": {
+      "name": "Los Angeles",
+      "displayName": "City of Los Angeles",
+      "cdtfaName": "LOS ANGELES",
+      "slug": "los-angeles",
+      "filmlaServed": true,
+      "permitAuthority": "FilmLA (on behalf of City of LA)",
+      "feeSourceUrl": "https://info.filmla.com/filming-related-fees/common-fees-la-city",
+      "feeSourceDate": "2025-11-11",
+      "standardFilmingHours": "7:00 AM - 10:00 PM",
+      "minLeadDaysStandard": 5,
+      "minLeadDaysComplex": 10,
+      "businessDaysOnly": true,
+      "microShootEligible": true,
+      "microShootMaxCrew": 15,
+      "holdHarmlessRequired": true,
+      "insuranceAdditionalInsured": "City of Los Angeles",
+      "applicationDeadlineTime": "12:00 PM",
+      "fees": {
+        "fire_spot_check": {
+          "rate": 287,
+          "per": "permit",
+          "department": "LA City Fire Department",
+          "note": "Assessed for crews of 16+"
+        },
+        "fire_safety_officer": {
+          "rate": 127,
+          "per": "hour",
+          "minimumHours": 4,
+          "travelHours": 1,
+          "overtime": true,
+          "department": "LA City Fire Department"
+        },
+        "lane_street_closure": {
+          "rate": 312,
+          "per": "involved_location",
+          "department": "LA City"
+        },
+        "posting_fee": {
+          "rate": 69,
+          "per": "300ft_linear_curbside",
+          "note": "Paid directly to provider, not collected by FilmLA"
+        },
+        "lapd_retired_off_duty": {
+          "rateMin": 67.19,
+          "rateMax": 77.90,
+          "per": "hour",
+          "minimumHours": 8,
+          "overtime": "OT after 8 hrs, DT after 12 hrs",
+          "note": "Paid directly to provider"
+        },
+        "lapd_motorcycle": {
+          "rate": 75,
+          "per": "day",
+          "note": "Paid directly to provider"
+        },
+        "lapd_active_duty": {
+          "rate": 74,
+          "per": "hour",
+          "minimumHours": 2,
+          "maximumHours": 4,
+          "overtime": false,
+          "note": "Flat Rate, No OT/DT, No Motorcycle Fee. Paid directly to provider"
+        },
+        "rec_parks_film_use": {
+          "rate": 450,
+          "per": "day",
+          "department": "LA Dept of Rec & Parks"
+        },
+        "rec_parks_still_photo_small": {
+          "rate": 75,
+          "per": "day",
+          "note": "1-14 People",
+          "department": "LA Dept of Rec & Parks"
+        },
+        "rec_parks_still_photo_large": {
+          "rate": 150,
+          "per": "day",
+          "note": "15+ People",
+          "department": "LA Dept of Rec & Parks"
+        },
+        "rec_parks_prep_strike": {
+          "rate": 150,
+          "per": "day",
+          "department": "LA Dept of Rec & Parks"
+        },
+        "rec_parks_basecamp": {
+          "rate": 450,
+          "per": "day",
+          "department": "LA Dept of Rec & Parks"
+        },
+        "rec_parks_crew_parking_small": {
+          "rate": 100,
+          "per": "day",
+          "note": "1-15 Cars",
+          "department": "LA Dept of Rec & Parks"
+        },
+        "rec_parks_crew_parking_large": {
+          "rate": 300,
+          "per": "day",
+          "note": "16+ Cars",
+          "department": "LA Dept of Rec & Parks"
+        },
+        "rec_parks_catering_small": {
+          "rate": 225,
+          "per": "day",
+          "note": "1-74 People",
+          "department": "LA Dept of Rec & Parks"
+        },
+        "rec_parks_catering_large": {
+          "rate": 450,
+          "per": "day",
+          "note": "75+ People",
+          "department": "LA Dept of Rec & Parks"
+        },
+        "rec_parks_special_facility": {
+          "rate": 150,
+          "per": "day",
+          "note": "Standard use fee waived if Special Facility Fee already collected",
+          "department": "LA Dept of Rec & Parks"
+        },
+        "rec_parks_monitor": {
+          "rate": 38,
+          "per": "hour",
+          "department": "LA Dept of Rec & Parks"
+        },
+        "rec_parks_monitor_reporting": {
+          "rate": 76,
+          "per": "monitor_shift",
+          "department": "LA Dept of Rec & Parks"
+        },
+        "dwp_facility_film": {
+          "rateMin": 800,
+          "rateMax": 2000,
+          "per": "day",
+          "department": "LA Dept of Water & Power"
+        },
+        "dwp_facility_still": {
+          "rate": 500,
+          "per": "day",
+          "department": "LA Dept of Water & Power"
+        },
+        "dwp_monitor": {
+          "rateMin": 50,
+          "rateMax": 70,
+          "per": "hour",
+          "department": "LA Dept of Water & Power"
+        },
+        "port_use_fee": {
+          "rate": 300,
+          "per": "day",
+          "department": "Port of Los Angeles"
+        },
+        "port_prep_strike": {
+          "rate": 100,
+          "per": "day",
+          "department": "Port of Los Angeles"
+        },
+        "port_case_camp": {
+          "rate": 300,
+          "per": "day",
+          "department": "Port of Los Angeles"
+        },
+        "port_crew_parking": {
+          "rate": 150,
+          "per": "day",
+          "department": "Port of Los Angeles"
+        },
+        "port_police": {
+          "rate": 112,
+          "per": "hour",
+          "department": "Port of Los Angeles"
+        }
+      },
+      "whatPeopleMiss": [
+        "LAFD Spot Check Surcharge ($287) is automatic for crews of 16+ — most coordinators don't budget for it",
+        "Application fee ($931) is non-refundable even if you withdraw",
+        "Posting fees ($69/300ft) are paid directly to the provider, NOT through FilmLA — easy to miss in budgeting",
+        "LAPD retired officers have an 8-hour minimum — even for a 2-hour street scene",
+        "Rec & Parks has separate fees for filming, basecamp, catering, AND parking — they stack fast",
+        "Payment must be received before 6PM the business day BEFORE your first shoot day"
+      ]
+    },
+    "los_angeles_county": {
+      "name": "Los Angeles County",
+      "displayName": "LA County (Unincorporated)",
+      "cdtfaName": "LOS ANGELES COUNTY",
+      "slug": "los-angeles-county",
+      "filmlaServed": true,
+      "permitAuthority": "FilmLA (on behalf of LA County)",
+      "feeSourceUrl": "https://info.filmla.com/filming-related-fees/common-fees-la-county",
+      "feeSourceDate": "2026-01-30",
+      "standardFilmingHours": "7:00 AM - 10:00 PM",
+      "minLeadDaysStandard": 5,
+      "minLeadDaysComplex": 10,
+      "businessDaysOnly": true,
+      "microShootEligible": true,
+      "microShootMaxCrew": 15,
+      "holdHarmlessRequired": true,
+      "insuranceAdditionalInsured": "County of Los Angeles",
+      "applicationDeadlineTime": "12:00 PM",
+      "fees": {
+        "fire_filming_review": {
+          "rate": 343.30,
+          "per": "permit",
+          "department": "LA County Fire"
+        },
+        "fire_still_photo_review": {
+          "rate": 277,
+          "per": "permit",
+          "note": "For Shoots Involving 16+ People",
+          "department": "LA County Fire"
+        },
+        "fire_special_effects_permit": {
+          "rate": 350,
+          "per": "involved_location",
+          "department": "LA County Fire"
+        },
+        "fire_safety_advisor": {
+          "rate": 63.51,
+          "per": "hour",
+          "minimumHours": 4,
+          "overtime": true,
+          "note": "Paid directly to provider",
+          "department": "LA County Fire"
+        },
+        "fire_safety_officer": {
+          "rate": 230.19,
+          "per": "hour",
+          "minimumHours": 4,
+          "overtime": false,
+          "note": "Flat Rate, No OT/DT. Paid directly to provider",
+          "department": "LA County Fire"
+        },
+        "roads_inspection_use": {
+          "rate": 468,
+          "per": "day",
+          "department": "LA County Roads"
+        },
+        "roads_encroachment_processing": {
+          "rate": 387,
+          "per": "area",
+          "department": "LA County Roads"
+        },
+        "roads_application_issuance": {
+          "rate": 214,
+          "per": "involved_location",
+          "department": "LA County Roads"
+        },
+        "beaches_filming_use": {
+          "rate": 400,
+          "per": "day",
+          "department": "LA County Beaches"
+        },
+        "beaches_still_photo_use": {
+          "rate": 100,
+          "per": "day",
+          "note": "1-15 People",
+          "department": "LA County Beaches"
+        },
+        "beaches_prep_strike": {
+          "rate": 100,
+          "per": "day",
+          "note": "Basic Rate, first 3 days of activity",
+          "department": "LA County Beaches"
+        },
+        "beaches_prep_strike_extended": {
+          "rate": 400,
+          "per": "day",
+          "note": "Beginning 4th day of activity",
+          "department": "LA County Beaches"
+        },
+        "lifeguards": {
+          "rate": 230,
+          "per": "hour",
+          "minimumHoursBeachOpen": 4,
+          "minimumHoursBeachClosed": 8,
+          "note": "Paid directly to provider",
+          "department": "LA County"
+        },
+        "parks_filming_use": {
+          "rate": 400,
+          "per": "day",
+          "department": "LA County Parks"
+        },
+        "parks_still_photo_use": {
+          "rate": 100,
+          "per": "day",
+          "department": "LA County Parks"
+        },
+        "parks_prep_strike": {
+          "rate": 100,
+          "per": "day",
+          "note": "Basic Rate, first 3 days",
+          "department": "LA County Parks"
+        },
+        "parks_prep_strike_extended": {
+          "rate": 400,
+          "per": "day",
+          "note": "Beginning 4th day",
+          "department": "LA County Parks"
+        },
+        "building_filming_use": {
+          "rate": 400,
+          "per": "day",
+          "department": "LA County Building/Facility"
+        },
+        "building_still_photo_use": {
+          "rate": 100,
+          "per": "day",
+          "note": "1-15 People",
+          "department": "LA County Building/Facility"
+        },
+        "building_prep_strike": {
+          "rate": 100,
+          "per": "day",
+          "note": "Basic Rate, first 3 days",
+          "department": "LA County Building/Facility"
+        },
+        "building_prep_strike_extended": {
+          "rate": 400,
+          "per": "day",
+          "note": "Beginning 4th day",
+          "department": "LA County Building/Facility"
+        },
+        "flood_control_permit": {
+          "rate": 174,
+          "per": "permit",
+          "department": "LA County Flood Control"
+        },
+        "flood_control_use": {
+          "rate": 1181,
+          "per": "day",
+          "note": "Applies to All Prep, Strike, Still Photo & Filming Days",
+          "department": "LA County Flood Control"
+        },
+        "sheriff_officer": {
+          "rate": 95.11,
+          "per": "hour",
+          "minimumHours": 6,
+          "overtime": false,
+          "mileage": 1.22,
+          "note": "Flat Rate + Mileage @ $1.22/mile. Paid directly to provider",
+          "department": "LA County Sheriff"
+        },
+        "chp_officer": {
+          "rateMin": 133.51,
+          "rateMax": 170.52,
+          "per": "hour",
+          "minimumHours": 4,
+          "overtime": false,
+          "mileage": 2.07,
+          "note": "Flat Rate + Mileage @ $2.07/mile. Rate depends on officer type. Paid directly to provider",
+          "department": "California Highway Patrol"
+        }
+      },
+      "whatPeopleMiss": [
+        "LA County Fire has TWO different personnel types — Safety Advisor ($63.51/hr) vs Safety Officer ($230.19/hr) — massive price difference, easy to confuse",
+        "Flood Control locations cost $1,181/DAY — one of the highest daily rates in any jurisdiction",
+        "Beach prep/strike fees QUADRUPLE from $100 to $400/day starting on the 4th day",
+        "Sheriff officers require 6-hour minimum PLUS mileage charges on top",
+        "Fire filming review ($343.30) is a flat permit fee you pay even for simple shoots",
+        "CHP rates vary by officer type ($133-$170/hr) — you won't know the rate until assigned"
+      ]
+    },
+    "culver_city": {
+      "name": "Culver City",
+      "displayName": "City of Culver City",
+      "cdtfaName": "CULVER CITY",
+      "slug": "culver-city",
+      "filmlaServed": true,
+      "permitAuthority": "FilmLA (on behalf of Culver City)",
+      "feeSourceUrl": "https://info.filmla.com/filming-related-fees/common-fees-culver-city",
+      "feeSourceDate": "2025-12-09",
+      "standardFilmingHours": "7:00 AM - 10:00 PM",
+      "minLeadDaysStandard": 5,
+      "minLeadDaysComplex": 10,
+      "businessDaysOnly": true,
+      "microShootEligible": false,
+      "microShootMaxCrew": null,
+      "holdHarmlessRequired": true,
+      "insuranceAdditionalInsured": "City of Culver City",
+      "applicationDeadlineTime": "12:00 PM",
+      "fees": {
+        "city_application": {
+          "rate": 660,
+          "per": "permit",
+          "note": "Film / Still Photo Application Fee",
+          "department": "Culver City"
+        },
+        "filming_daily_use": {
+          "rate": 350,
+          "per": "day",
+          "department": "Culver City"
+        },
+        "still_photo_daily_use": {
+          "rate": 75,
+          "per": "day",
+          "department": "Culver City"
+        },
+        "change_fee": {
+          "rate": 105,
+          "per": "request",
+          "department": "Culver City"
+        },
+        "cancellation_fee": {
+          "rate": 432,
+          "per": "request",
+          "department": "Culver City"
+        },
+        "fire_spot_check": {
+          "rate": 95,
+          "per": "involved_location",
+          "department": "Culver City Fire Department"
+        },
+        "police_officer_weekday": {
+          "rate": 630,
+          "per": "8_hours",
+          "minimumHours": 8,
+          "department": "Culver City Police",
+          "note": "Weekday Rate"
+        },
+        "police_officer_additional_hours": {
+          "rate": 108,
+          "per": "hour",
+          "note": "Weekday Rate",
+          "department": "Culver City Police"
+        },
+        "police_officer_weekend_holiday": {
+          "rate": 840,
+          "per": "day",
+          "note": "Weekends, Holidays",
+          "department": "Culver City Police"
+        },
+        "fire_officer_weekday": {
+          "rate": 695,
+          "per": "8_hours",
+          "minimumHours": 8,
+          "department": "Culver City Fire",
+          "note": "Weekday Rate"
+        },
+        "fire_officer_additional_hours": {
+          "rate": 108,
+          "per": "hour",
+          "note": "Weekday Rate",
+          "department": "Culver City Fire"
+        },
+        "fire_officer_weekend_holiday": {
+          "rate": 925,
+          "per": "day",
+          "note": "Weekends, Holidays",
+          "department": "Culver City Fire"
+        },
+        "posting_metered": {
+          "rate": 16,
+          "per": "day_per_space",
+          "note": "Metered Spaces",
+          "department": "Culver City"
+        },
+        "posting_non_metered": {
+          "rate": 8,
+          "per": "day_per_space",
+          "note": "Non-Metered Spaces",
+          "department": "Culver City"
+        },
+        "posting_downtown_metered": {
+          "rate": 22,
+          "per": "day_per_space",
+          "note": "Downtown Metered Spaces",
+          "department": "Culver City"
+        },
+        "posting_downtown_non_metered": {
+          "rate": 11,
+          "per": "day_per_space",
+          "note": "Downtown Non-Metered Spaces",
+          "department": "Culver City"
+        },
+        "civic_center_exterior": {
+          "rate": 500,
+          "per": "day",
+          "note": "City Hall - Exterior",
+          "department": "Culver City"
+        },
+        "civic_center_interior": {
+          "rate": 750,
+          "per": "day",
+          "note": "City Hall - Interior",
+          "department": "Culver City"
+        },
+        "town_plaza": {
+          "rate": 500,
+          "per": "day",
+          "department": "Culver City"
+        },
+        "main_street_3800": {
+          "rate": 400,
+          "per": "day",
+          "note": "3800 Block",
+          "department": "Culver City"
+        }
+      },
+      "whatPeopleMiss": [
+        "Culver City charges its OWN application fee ($660) ON TOP of FilmLA's $931 — that's $1,591 before you've done anything",
+        "Cancellation fee is $432 — almost half the application cost, lost if plans change",
+        "Weekend/holiday police rate ($840/day) is 33% more than weekday 8-hour rate ($630) — schedule around it",
+        "Fire officer weekend rate ($925/day) is the highest single-day personnel cost across LA jurisdictions",
+        "Downtown parking posting costs nearly 3x regular metered ($22 vs $8) — adds up fast on multi-day shoots",
+        "Change fee ($105/request) means every modification costs money — get your application right the first time"
+      ]
+    }
+  }
+}
+
