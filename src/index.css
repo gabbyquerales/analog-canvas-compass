@@ -1,0 +1,155 @@
+@import url('https://fonts.googleapis.com/css2?family=Archivo+Black&family=Annie+Use+Your+Telescope&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 0 0% 5%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 0 0% 5%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 0 0% 5%;
+
+    --primary: 0 0% 5%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 48 100% 50%;
+    --secondary-foreground: 0 0% 5%;
+
+    --muted: 0 0% 96%;
+    --muted-foreground: 0 0% 40%;
+
+    --accent: 48 100% 50%;
+    --accent-foreground: 0 0% 5%;
+
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 0 0% 5%;
+    --input: 0 0% 5%;
+    --ring: 0 0% 5%;
+
+    --radius: 0px;
+
+    --card-yellow: 48 100% 50%;
+    --card-red: 356 86% 57%;
+    --heading-blue: 220 100% 33%;
+
+    --sidebar-background: 0 0% 98%;
+    --sidebar-foreground: 0 0% 20%;
+    --sidebar-primary: 0 0% 10%;
+    --sidebar-primary-foreground: 0 0% 98%;
+    --sidebar-accent: 0 0% 95%;
+    --sidebar-accent-foreground: 0 0% 10%;
+    --sidebar-border: 0 0% 85%;
+    --sidebar-ring: 0 0% 5%;
+
+    --font-headline: 'Archivo Black', sans-serif;
+    --font-handwritten: 'Annie Use Your Telescope', cursive;
+  }
+
+  .dark {
+    --background: 0 0% 5%;
+    --foreground: 0 0% 95%;
+    --card: 0 0% 8%;
+    --card-foreground: 0 0% 95%;
+    --popover: 0 0% 8%;
+    --popover-foreground: 0 0% 95%;
+    --primary: 0 0% 95%;
+    --primary-foreground: 0 0% 5%;
+    --secondary: 48 100% 50%;
+    --secondary-foreground: 0 0% 5%;
+    --muted: 0 0% 15%;
+    --muted-foreground: 0 0% 60%;
+    --accent: 48 100% 50%;
+    --accent-foreground: 0 0% 5%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 0 0% 95%;
+    --border: 0 0% 80%;
+    --input: 0 0% 80%;
+    --ring: 0 0% 80%;
+    --sidebar-background: 0 0% 8%;
+    --sidebar-foreground: 0 0% 90%;
+    --sidebar-primary: 48 100% 50%;
+    --sidebar-primary-foreground: 0 0% 5%;
+    --sidebar-accent: 0 0% 15%;
+    --sidebar-accent-foreground: 0 0% 90%;
+    --sidebar-border: 0 0% 15%;
+    --sidebar-ring: 0 0% 80%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+    font-family: var(--font-handwritten);
+  }
+}
+
+@layer utilities {
+  /* Wobbly hand-drawn border using SVG filter */
+  .wobbly-border {
+    position: relative;
+    border: 2px solid hsl(var(--foreground));
+    border-radius: 2px;
+    filter: url(#wobbly);
+  }
+
+  .wobbly-border-bottom {
+    position: relative;
+    border-bottom: 2px solid hsl(var(--foreground));
+    filter: url(#wobbly);
+  }
+
+  .wobbly-border-top {
+    position: relative;
+    border-top: 2px solid hsl(var(--foreground));
+    filter: url(#wobbly);
+  }
+
+  .font-headline {
+    font-family: var(--font-headline);
+  }
+
+  .font-handwritten {
+    font-family: var(--font-handwritten);
+  }
+
+  .tape-note {
+    background-color: hsl(var(--secondary));
+    padding: 4px 12px;
+    transform: rotate(-2deg);
+    display: inline-block;
+    filter: url(#wobbly);
+    border: 1.5px solid hsl(var(--foreground));
+  }
+
+  @keyframes sparkle-burst {
+    0% { opacity: 0; transform: scale(0.5); }
+    30% { opacity: 1; transform: scale(1.3); }
+    70% { opacity: 1; transform: scale(1); }
+    100% { opacity: 0; transform: scale(0.5) rotate(20deg); }
+  }
+
+  .animate-sparkle-burst {
+    animation: sparkle-burst 1.2s ease-out forwards;
+  }
+
+  @keyframes tab-flip-in {
+    0% { opacity: 0; transform: rotateY(8deg) translateX(12px); }
+    100% { opacity: 1; transform: rotateY(0deg) translateX(0); }
+  }
+
+  .animate-tab-flip {
+    animation: tab-flip-in 0.3s ease-out;
+  }
+}
