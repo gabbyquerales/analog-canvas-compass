@@ -284,11 +284,11 @@ const MapEngine = ({ onSelectionChange }: MapEngineProps) => {
   return (
     <div className="flex flex-col w-full">
       <div className="px-6 mb-4 relative z-20">
-        <div className="wobbly-border flex items-center px-4 py-3 bg-background">
+        <div className="flex items-center px-4 py-3 bg-background rounded-xl border-2 border-border shadow-sm transition-all focus-within:border-heading-blue focus-within:shadow-md">
           {loading ? (
-            <Loader2 size={18} className="text-muted-foreground mr-3 flex-shrink-0 animate-spin" />
+            <Loader2 size={18} className="text-secondary mr-3 flex-shrink-0 animate-spin" />
           ) : (
-            <Search size={18} className="text-muted-foreground mr-3 flex-shrink-0" />
+            <Search size={18} className="text-secondary mr-3 flex-shrink-0" />
           )}
           <input
             type="text"
@@ -296,8 +296,8 @@ const MapEngine = ({ onSelectionChange }: MapEngineProps) => {
             onChange={(e) => handleInputChange(e.target.value)}
             onFocus={() => { setQuery(""); setSuggestions([]); }}
             onKeyDown={handleKeyDown}
-            placeholder="Search an LA address or landmark..."
-            className="bg-transparent w-full font-handwritten text-base text-foreground placeholder:text-muted-foreground focus:outline-none"
+            placeholder="Enter a landmark (e.g., Hollywood Sign)..."
+            className="bg-transparent w-full font-sans text-sm text-foreground placeholder:text-muted-foreground focus:outline-none"
           />
           {query.length > 0 && (
             <button
@@ -333,12 +333,12 @@ const MapEngine = ({ onSelectionChange }: MapEngineProps) => {
           )}
         </div>
         {suggestions.length > 0 && (
-          <div className="absolute left-6 right-6 mt-1 bg-background wobbly-border max-h-[200px] overflow-y-auto z-30 shadow-md">
+          <div className="absolute left-6 right-6 mt-1 bg-background rounded-xl border-2 border-border max-h-[200px] overflow-y-auto z-30 shadow-lg">
             {suggestions.map((s: any, index: number) => (
               <button
                 key={s.id}
                 onClick={() => selectPlace(s)}
-                className={`w-full text-left px-4 py-3 font-handwritten text-sm text-foreground hover:bg-muted transition-colors border-b border-border last:border-b-0 ${index === highlightedIndex ? "bg-muted" : ""}`}
+                className={`w-full text-left px-4 py-3 font-sans text-sm text-foreground hover:bg-muted transition-colors border-b border-border/50 last:border-b-0 ${index === highlightedIndex ? "bg-muted" : ""}`}
               >
                 {s.place_name}
               </button>
@@ -360,10 +360,10 @@ const MapEngine = ({ onSelectionChange }: MapEngineProps) => {
           </div>
         )}
       </div>
-      <div className="mx-6 wobbly-border overflow-hidden relative" style={{ height: "280px" }}>
+      <div className="mx-6 overflow-hidden relative rounded-2xl border-2 border-border shadow-lg" style={{ height: "40vh", minHeight: "220px" }}>
         <div ref={mapContainer} className="w-full h-full" />
         {targetAcquired && (
-          <span className="absolute bottom-2 right-3 font-handwritten text-xs text-foreground/70 pointer-events-none select-none">
+          <span className="absolute bottom-2 right-3 font-sans text-[10px] font-medium tracking-widest uppercase text-foreground/50 pointer-events-none select-none">
             Target Acquired ✦
           </span>
         )}

@@ -134,6 +134,14 @@
     font-family: var(--font-handwritten);
   }
 
+  .font-serif {
+    font-family: var(--font-serif);
+  }
+
+  .font-sans {
+    font-family: var(--font-sans);
+  }
+
   .tape-note {
     background-color: hsl(var(--secondary));
     padding: 4px 12px;
@@ -141,6 +149,38 @@
     display: inline-block;
     filter: url(#wobbly);
     border: 1.5px solid hsl(var(--foreground));
+  }
+
+  /* Topographic background pattern */
+  .topo-bg {
+    background-color: hsl(var(--curioso-bg));
+    background-image:
+      repeating-radial-gradient(
+        circle at 20% 30%,
+        transparent 0,
+        transparent 38px,
+        hsla(var(--foreground) / 0.03) 39px,
+        transparent 40px
+      ),
+      repeating-radial-gradient(
+        circle at 70% 60%,
+        transparent 0,
+        transparent 52px,
+        hsla(var(--foreground) / 0.025) 53px,
+        transparent 54px
+      ),
+      repeating-radial-gradient(
+        circle at 50% 80%,
+        transparent 0,
+        transparent 28px,
+        hsla(var(--foreground) / 0.02) 29px,
+        transparent 30px
+      );
+  }
+
+  /* Safe area bottom padding for iOS */
+  .safe-area-bottom {
+    padding-bottom: max(16px, env(safe-area-inset-bottom));
   }
 
   @keyframes sparkle-burst {
