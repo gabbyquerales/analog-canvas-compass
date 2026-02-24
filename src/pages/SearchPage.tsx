@@ -33,7 +33,7 @@ const SearchPage = ({ onConfirmedChange }: SearchPageProps) => {
   };
 
   return (
-    <div className="flex flex-col min-h-screen bg-curioso-bg relative overflow-hidden">
+    <div className="flex flex-col min-h-screen bg-background relative overflow-hidden">
       {/* Topographic background pattern */}
       <div className="topo-bg absolute inset-0 pointer-events-none" aria-hidden="true" />
 
