@@ -45,17 +45,17 @@ const SearchPage = ({ onConfirmedChange }: SearchPageProps) => {
         </span>
 
         <h1 className="font-serif text-3xl text-foreground text-center tracking-tight leading-tight mb-2">
-          Your Permit{' '}
+          Keep the magic in{' '}
           <span className="relative inline-block text-heading-blue">
-            Assistant
+            LA.
             <svg className="absolute -bottom-1 left-0 w-full" height="6" viewBox="0 0 40 6" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
               <path d="M2 4C8 2.5 14 2 20 2.8C26 3.5 32 3 38 2" stroke="hsl(var(--heading-blue))" strokeWidth="1.5" strokeLinecap="round" fill="none" />
             </svg>
           </span>
         </h1>
 
-        <p className="font-sans text-sm text-muted-foreground text-center max-w-[280px] mx-auto mb-6 leading-relaxed">
-          Don't waste budget on non-refundable mistakes. We pinpoint jurisdictions, estimate costs, and track timelines—before you hit submit.
+        <p className="font-sans text-sm text-muted-foreground text-center max-w-[280px] mx-auto mb-6 tracking-wide uppercase">
+          Navigating the 88 · Keeping it LA
         </p>
 
         <div className="relative w-full max-w-[380px]">
