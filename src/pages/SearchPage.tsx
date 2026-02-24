@@ -54,9 +54,9 @@ const SearchPage = ({ onConfirmedChange }: SearchPageProps) => {
           </span>
         </h1>
 
-        <p className="font-sans text-sm text-muted-foreground text-center max-w-[280px] mx-auto mb-6 tracking-wide uppercase">YOUR ASSITANT FILM PERMIT
+        
 
-        </p>
+
 
         <div className="relative w-full max-w-[380px]">
           <h2 className="font-serif text-foreground mb-3 text-center text-base">Estimates for Jurisdictions, timelines & costs costs
