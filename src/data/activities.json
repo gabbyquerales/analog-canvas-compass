@@ -1,0 +1,92 @@
+{
+  "activities": [
+    {
+      "id": "street_closure",
+      "name": "Street/Lane Closure",
+      "slug": "street_closure",
+      "icon": "🚧",
+      "description": "Partial or full street/lane closure for filming",
+      "triggersComplexTimeline": true,
+      "additionalLeadDays": 5,
+      "requiresPersonnel": "Police officer required for traffic control",
+      "insuranceImpact": "Additional liability coverage may be required"
+    },
+    {
+      "id": "gunfire_sfx",
+      "name": "Simulated Gunfire / SFX",
+      "slug": "gunfire_sfx",
+      "icon": "💥",
+      "description": "Blank gunfire, simulated weapons fire",
+      "triggersComplexTimeline": true,
+      "additionalLeadDays": 5,
+      "requiresPersonnel": "Fire safety officer required",
+      "insuranceImpact": "Pyrotechnic rider required"
+    },
+    {
+      "id": "pyrotechnics",
+      "name": "Pyrotechnics / Explosions",
+      "slug": "pyrotechnics",
+      "icon": "🔥",
+      "description": "Pyrotechnic effects, controlled explosions, open flame",
+      "triggersComplexTimeline": true,
+      "additionalLeadDays": 10,
+      "requiresPersonnel": "Fire safety officer mandatory",
+      "insuranceImpact": "Special pyrotechnic insurance rider required"
+    },
+    {
+      "id": "drone_aerial",
+      "name": "Drone / Aerial",
+      "slug": "drone_aerial",
+      "icon": "🛸",
+      "description": "Drone filming, helicopter shots, aerial platforms",
+      "triggersComplexTimeline": true,
+      "additionalLeadDays": 5,
+      "requiresPersonnel": "FAA Part 107 certification required",
+      "insuranceImpact": "Aviation liability required"
+    },
+    {
+      "id": "night_shoot",
+      "name": "Night Shoot",
+      "slug": "night_shoot",
+      "icon": "🌙",
+      "description": "Filming outside standard permitted hours",
+      "triggersComplexTimeline": false,
+      "additionalLeadDays": 3,
+      "requiresPersonnel": null,
+      "insuranceImpact": null
+    },
+    {
+      "id": "water_effects",
+      "name": "Water Effects",
+      "slug": "water_effects",
+      "icon": "💧",
+      "description": "Rain effects, flooding, water stunts",
+      "triggersComplexTimeline": false,
+      "additionalLeadDays": 3,
+      "requiresPersonnel": null,
+      "insuranceImpact": null
+    },
+    {
+      "id": "animals",
+      "name": "Animals on Set",
+      "slug": "animals",
+      "icon": "🐎",
+      "description": "Live animals on set (non-domestic)",
+      "triggersComplexTimeline": false,
+      "additionalLeadDays": 3,
+      "requiresPersonnel": "Animal handler required",
+      "insuranceImpact": "Animal liability rider"
+    },
+    {
+      "id": "stunts",
+      "name": "Stunts / High Falls",
+      "slug": "stunts",
+      "icon": "🤸",
+      "description": "Physical stunts, high falls, fight choreography",
+      "triggersComplexTimeline": true,
+      "additionalLeadDays": 5,
+      "requiresPersonnel": "Stunt coordinator required",
+      "insuranceImpact": "Stunt rider required"
+    }
+  ]
+}
