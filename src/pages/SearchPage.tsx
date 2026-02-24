@@ -71,7 +71,7 @@ const SearchPage = ({ onConfirmedChange }: SearchPageProps) => {
       </div>
 
       {/* Info Cards — overlapping report card */}
-      <div className="relative z-20 -mt-6">
+      <div className="relative z-20 mt-4">
         <InfoCards
           location={location}
           jurisdiction={jurisdiction}
