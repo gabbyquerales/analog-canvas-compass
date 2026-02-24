@@ -54,13 +54,13 @@ const SearchPage = ({ onConfirmedChange }: SearchPageProps) => {
           </span>
         </h1>
 
-        <p className="font-sans text-sm text-muted-foreground text-center max-w-[280px] mx-auto mb-6 tracking-wide uppercase">
-          Navigating the 88 · Keeping it LA
+        <p className="font-sans text-sm text-muted-foreground text-center max-w-[280px] mx-auto mb-6 tracking-wide uppercase">YOUR ASSITANT FILM PERMIT
+
         </p>
 
         <div className="relative w-full max-w-[380px]">
-          <h2 className="font-serif text-xl text-foreground mb-3 text-center">
-            Where are we shooting?
+          <h2 className="font-serif text-xl text-foreground mb-3 text-center">Estimates for Jurisdcitions, timelines & costs costs
+
           </h2>
         </div>
       </div>
@@ -80,11 +80,11 @@ const SearchPage = ({ onConfirmedChange }: SearchPageProps) => {
           confirmed={confirmed}
           onConfirm={handleConfirm}
           neighborhood={neighborhood}
-          specialCondition={specialCondition}
-        />
+          specialCondition={specialCondition} />
+
       </div>
-    </div>
-  );
+    </div>);
+
 };
 
 export default SearchPage;
