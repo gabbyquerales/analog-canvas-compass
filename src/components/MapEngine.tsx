@@ -120,12 +120,6 @@ const MapEngine = ({ onSelectionChange }: MapEngineProps) => {
         pendingFlyTo.current = null;
       }
     });
-    map.current.on("click", () => {
-      setQuery("");
-      setSuggestions([]);
-      setNoResults(false);
-      setOutsideMessage(false);
-    });
     return () => { map.current?.remove(); map.current = null; };
   }, []);
 
