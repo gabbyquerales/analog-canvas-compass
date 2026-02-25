@@ -66,20 +66,17 @@ function InlineStepper({
       <button
         type="button"
         onClick={() => onChange(Math.max(min, value - 1))}
-        className="cursor-pointer select-none flex items-center justify-center transition-all active:scale-95 shrink-0"
+        className="cursor-pointer select-none flex items-center justify-center transition-all active:scale-95 active:bg-black/[0.03] shrink-0"
         style={{
           width: btnSize,
           height: btnSize,
           borderRadius: "50%",
           background: "transparent",
-          border: "2px solid hsl(0, 0%, 10%)",
+          border: "1px solid hsla(0, 0%, 0%, 0.1)",
           fontSize: "16px",
           fontWeight: 700,
           color: "hsl(0, 0%, 10%)",
         }}
-        onMouseDown={(e) => { (e.currentTarget as HTMLElement).style.background = "hsla(0, 0%, 0%, 0.05)"; }}
-        onMouseUp={(e) => { (e.currentTarget as HTMLElement).style.background = "transparent"; }}
-        onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.background = "transparent"; }}
       >
         −
       </button>
@@ -89,13 +86,12 @@ function InlineStepper({
         max={max}
         value={value}
         onChange={(e) => onChange(Math.max(min, Math.min(max, parseInt(e.target.value) || min)))}
-        className="bg-transparent outline-none text-center"
+        className="bg-transparent outline-none text-center font-mono"
         style={{
           width: inputW,
-          fontSize,
-          fontWeight: 800,
+          fontSize: size === "lg" ? "20px" : "14px",
+          fontWeight: 600,
           color: "hsl(0, 0%, 10%)",
-          fontFamily: "var(--font-serif)",
           MozAppearance: "textfield",
           WebkitAppearance: "none" as any,
         }}
@@ -103,20 +99,17 @@ function InlineStepper({
       <button
         type="button"
         onClick={() => onChange(Math.min(max, value + 1))}
-        className="cursor-pointer select-none flex items-center justify-center transition-all active:scale-95 shrink-0"
+        className="cursor-pointer select-none flex items-center justify-center transition-all active:scale-95 active:bg-black/[0.03] shrink-0"
         style={{
           width: btnSize,
           height: btnSize,
           borderRadius: "50%",
           background: "transparent",
-          border: "2px solid hsl(0, 0%, 10%)",
+          border: "1px solid hsla(0, 0%, 0%, 0.1)",
           fontSize: "16px",
           fontWeight: 700,
           color: "hsl(0, 0%, 10%)",
         }}
-        onMouseDown={(e) => { (e.currentTarget as HTMLElement).style.background = "hsla(0, 0%, 0%, 0.05)"; }}
-        onMouseUp={(e) => { (e.currentTarget as HTMLElement).style.background = "transparent"; }}
-        onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.background = "transparent"; }}
       >
         +
       </button>
@@ -249,10 +242,24 @@ const ProductionBrief = ({ jurisdiction, location, neighborhood, onBack }: Produ
     prep: "hsl(0, 84%, 60%)",
   };
 
-  const getCardStyle = (section: string): React.CSSProperties => ({
-    ...cardStyleBase,
-    borderTop: `4px solid ${sectionBorders[section] || "hsl(213, 72%, 59%)"}`,
-  });
+  const sectionBorderOpacity: Record<string, number> = {
+    shoot: 0.6,
+    activities: 0.65,
+    production: 0.65,
+    location: 0.6,
+    prep: 0.6,
+  };
+
+  const getCardStyle = (section: string): React.CSSProperties => {
+    const color = sectionBorders[section] || "hsl(213, 72%, 59%)";
+    const opacity = sectionBorderOpacity[section] || 0.6;
+    // Extract HSL values and apply opacity
+    const opaqueColor = color.replace("hsl(", "hsla(").replace(")", `, ${opacity})`);
+    return {
+      ...cardStyleBase,
+      borderTop: `2px solid ${opaqueColor}`,
+    };
+  };
 
   const sectionHeadingStyle: React.CSSProperties = {
     fontFamily: "var(--font-sans)",
@@ -709,22 +716,21 @@ const ProductionBrief = ({ jurisdiction, location, neighborhood, onBack }: Produ
               <span
                 style={{
                   fontFamily: "var(--font-sans)",
-                  fontSize: "11px",
-                  fontWeight: 700,
+                  fontSize: "9px",
+                  fontWeight: 600,
                   textTransform: "uppercase" as const,
-                  letterSpacing: "0.12em",
-                  color: "hsl(0, 0%, 100%)",
+                  letterSpacing: "0.18em",
+                  color: "hsla(0, 0%, 100%, 0.7)",
                 }}
               >
                 Est. Permit Costs
               </span>
-              <span className="flex-1 mx-3 border-b border-dotted" style={{ borderColor: "hsla(0, 0%, 100%, 0.2)", marginBottom: "4px" }} />
+              <span className="flex-1 mx-3 border-b border-dotted" style={{ borderColor: "hsla(0, 0%, 100%, 0.15)", marginBottom: "4px" }} />
               <span
-                className="transition-all duration-300"
+                className="transition-all duration-300 font-mono"
                 style={{
-                  fontFamily: "var(--font-serif)",
                   fontSize: "22px",
-                  fontWeight: 800,
+                  fontWeight: 700,
                   color: totalPulse ? "hsl(0, 0%, 100%)" : "hsl(225, 100%, 65%)",
                   textShadow: totalPulse ? "0 0 16px hsla(225, 100%, 50%, 0.8)" : "none",
                   transform: totalPulse ? "scale(1.08)" : "scale(1)",
