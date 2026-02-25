@@ -2,7 +2,7 @@
 // Separates fee LOGIC from fee DATA
 // JSON files store rates, this module applies conditional rules
 
-import filmlaBaseFees from 'A/data/filmla-base-fees.json';
+import filmlaBaseFees from '@/data/filmla-base-fees.json';
 import jurisdictionsData from '@/data/jurisdictions.json';
 import activitiesData from '@/data/activities.json';
 
@@ -434,7 +434,7 @@ export function calculateFees(inputs: ShootInputs): FeeCalculationResult {
     }
 
     // Street closure â roads fees
-    if (inputs.selectedActivities.includes("street_closure')) {
+    if (inputs.selectedActivities.includes('street_closure')) {
       lineItems.push({
         id: 'lac_roads_inspection',
         name: 'County Roads â Inspection/Use',
