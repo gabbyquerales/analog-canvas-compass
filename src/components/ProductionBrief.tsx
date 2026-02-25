@@ -30,6 +30,27 @@ const ProductionBrief = ({ jurisdiction, location, neighborhood, onBack }: Produ
   const [hoursPerDay, setHoursPerDay] = useState(12);
   const [ledgerExpanded, setLedgerExpanded] = useState(false);
 
+  // Production Type state
+  const [isMotion, setIsMotion] = useState(true);
+  const [crewSize, setCrewSize] = useState(20);
+  const [isWeekend, setIsWeekend] = useState(false);
+  const [isStudent, setIsStudent] = useState(false);
+  const [isNonProfit, setIsNonProfit] = useState(false);
+
+  // Location Details state
+  const [numberOfLocations, setNumberOfLocations] = useState(1);
+  const [isParksLocation, setIsParksLocation] = useState(false);
+  const [isBeachLocation, setIsBeachLocation] = useState(false);
+  const [isPortLocation, setIsPortLocation] = useState(false);
+  const [isFloodControlLocation, setIsFloodControlLocation] = useState(false);
+  const [numberOfParkingSpaces, setNumberOfParkingSpaces] = useState(0);
+
+  // Prep & Strike state
+  const [prepDays, setPrepDays] = useState(0);
+  const [strikeDays, setStrikeDays] = useState(0);
+
+  const jurisdictionSlug = jurisdiction.jurisdictionId;
+
   // Static activity list from JSON
   const availableActivities = useMemo(() => {
     const raw = getActivities();
@@ -53,30 +74,30 @@ const ProductionBrief = ({ jurisdiction, location, neighborhood, onBack }: Produ
   // Calculate fees using the static fee calculator
   const feeResult = useMemo(() => {
     const inputs: ShootInputs = {
-      jurisdictionSlug: jurisdiction.jurisdictionId,
+      jurisdictionSlug,
       shootDays,
       hoursPerDay,
-      crewSize: 20,
-      isMotion: true,
-      isStudent: false,
-      isNonProfit: false,
+      crewSize,
+      isMotion,
+      isStudent,
+      isNonProfit,
       selectedActivities: Array.from(selectedActivities),
-      isWeekend: false,
-      isParksLocation: false,
-      isBeachLocation: false,
+      isWeekend,
+      isParksLocation,
+      isBeachLocation,
       isBuildingLocation: false,
-      isPortLocation: false,
+      isPortLocation,
       isDWPLocation: false,
-      isFloodControlLocation: false,
-      numberOfLocations: 1,
-      numberOfParkingSpaces: 0,
+      isFloodControlLocation,
+      numberOfLocations,
+      numberOfParkingSpaces,
       cateringCrewSize: 0,
       numberOfCars: 0,
-      prepDays: 0,
-      strikeDays: 0,
+      prepDays,
+      strikeDays,
     };
     return calculateFees(inputs);
-  }, [jurisdiction.jurisdictionId, shootDays, hoursPerDay, selectedActivities]);
+  }, [jurisdictionSlug, shootDays, hoursPerDay, crewSize, isMotion, isStudent, isNonProfit, selectedActivities, isWeekend, isParksLocation, isBeachLocation, isPortLocation, isFloodControlLocation, numberOfLocations, numberOfParkingSpaces, prepDays, strikeDays]);
 
   const { lineItems, estimatedTotal, subtotalFilmLA, subtotalJurisdiction, subtotalPersonnel, subtotalLocation, warnings, whatPeopleMiss } = feeResult;
 
@@ -371,6 +392,589 @@ const ProductionBrief = ({ jurisdiction, location, neighborhood, onBack }: Produ
                   </label>
                 );
               })}
+            </div>
+          </div>
+
+          {/* ─── Production Type Card ─── */}
+          <div
+            style={{
+              background: "hsl(0, 0%, 100%)",
+              borderRadius: "12px",
+              borderTop: "2px solid hsl(213, 72%, 59%)",
+              boxShadow: "0 1px 4px hsla(0, 0%, 0%, 0.06), 0 4px 12px hsla(0, 0%, 0%, 0.04)",
+              padding: "20px",
+              marginBottom: "16px",
+            }}
+          >
+            <h3
+              style={{
+                fontFamily: "var(--font-sans)",
+                fontSize: "11px",
+                fontWeight: 700,
+                textTransform: "uppercase" as const,
+                letterSpacing: "0.15em",
+                color: "hsl(213, 72%, 59%)",
+                marginBottom: "16px",
+              }}
+            >
+              Production Type
+            </h3>
+
+            {/* Motion / Still Photo segmented toggle */}
+            <div style={{ marginBottom: "20px" }}>
+              <p style={{ fontFamily: "var(--font-sans)", fontSize: "12px", fontWeight: 600, color: "hsl(0, 0%, 35%)", marginBottom: "8px" }}>
+                Format
+              </p>
+              <div className="flex" style={{ borderRadius: "8px", overflow: "hidden", border: "1.5px solid hsl(0, 0%, 85%)" }}>
+                <button
+                  type="button"
+                  onClick={() => setIsMotion(true)}
+                  className="flex-1 cursor-pointer transition-colors"
+                  style={{
+                    minHeight: "44px",
+                    fontFamily: "var(--font-sans)",
+                    fontSize: "13px",
+                    fontWeight: 600,
+                    background: isMotion ? "hsl(48, 100%, 50%)" : "hsl(0, 0%, 97%)",
+                    color: "hsl(0, 0%, 10%)",
+                    border: "none",
+                    borderRight: "1px solid hsl(0, 0%, 85%)",
+                  }}
+                >
+                  🎬 Motion
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setIsMotion(false)}
+                  className="flex-1 cursor-pointer transition-colors"
+                  style={{
+                    minHeight: "44px",
+                    fontFamily: "var(--font-sans)",
+                    fontSize: "13px",
+                    fontWeight: 600,
+                    background: !isMotion ? "hsl(48, 100%, 50%)" : "hsl(0, 0%, 97%)",
+                    color: "hsl(0, 0%, 10%)",
+                    border: "none",
+                  }}
+                >
+                  📷 Still Photo
+                </button>
+              </div>
+            </div>
+
+            {/* Crew Size stepper */}
+            <div style={{ marginBottom: "20px" }}>
+              <p style={{ fontFamily: "var(--font-sans)", fontSize: "12px", fontWeight: 600, color: "hsl(0, 0%, 35%)", marginBottom: "8px" }}>
+                Crew Size
+              </p>
+              <div className="flex items-center gap-3">
+                <button
+                  type="button"
+                  onClick={() => setCrewSize(Math.max(1, crewSize - 1))}
+                  className="cursor-pointer select-none flex items-center justify-center transition-all active:scale-95"
+                  style={{
+                    width: "40px",
+                    height: "40px",
+                    borderRadius: "50%",
+                    background: "hsl(48, 100%, 50%)",
+                    border: "none",
+                    fontSize: "18px",
+                    fontWeight: 700,
+                    color: "hsl(0, 0%, 10%)",
+                    boxShadow: "0 2px 6px hsla(48, 100%, 50%, 0.3)",
+                  }}
+                >
+                  −
+                </button>
+                <div className="text-center" style={{ minWidth: "48px" }}>
+                  <input
+                    type="number"
+                    min={1}
+                    max={500}
+                    value={crewSize}
+                    onChange={(e) => setCrewSize(Math.max(1, Math.min(500, parseInt(e.target.value) || 1)))}
+                    className="bg-transparent outline-none text-center"
+                    style={{
+                      width: "48px",
+                      fontSize: "24px",
+                      fontWeight: 800,
+                      color: "hsl(0, 0%, 10%)",
+                      fontFamily: "var(--font-serif)",
+                      MozAppearance: "textfield",
+                      WebkitAppearance: "none" as any,
+                    }}
+                  />
+                  <p style={{ fontFamily: "var(--font-sans)", fontSize: "10px", fontWeight: 600, color: "hsl(0, 0%, 50%)", textTransform: "uppercase" as const, letterSpacing: "0.08em" }}>
+                    Crew
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setCrewSize(Math.min(500, crewSize + 1))}
+                  className="cursor-pointer select-none flex items-center justify-center transition-all active:scale-95"
+                  style={{
+                    width: "40px",
+                    height: "40px",
+                    borderRadius: "50%",
+                    background: "hsl(48, 100%, 50%)",
+                    border: "none",
+                    fontSize: "18px",
+                    fontWeight: 700,
+                    color: "hsl(0, 0%, 10%)",
+                    boxShadow: "0 2px 6px hsla(48, 100%, 50%, 0.3)",
+                  }}
+                >
+                  +
+                </button>
+                {crewSize <= 16 && (
+                  <span style={{ fontFamily: "var(--font-sans)", fontSize: "11px", color: "hsl(213, 72%, 59%)", fontWeight: 500 }}>
+                    ≤16 crew
+                  </span>
+                )}
+              </div>
+            </div>
+
+            {/* Weekend / Holiday toggle */}
+            <label className="flex items-center justify-between cursor-pointer" style={{ minHeight: "44px", marginBottom: "12px" }}>
+              <span style={{ fontFamily: "var(--font-sans)", fontSize: "13px", fontWeight: 600, color: "hsl(0, 0%, 15%)" }}>
+                Weekend / Holiday
+              </span>
+              <Switch checked={isWeekend} onCheckedChange={setIsWeekend} />
+            </label>
+
+            {/* Student / Non-Profit toggles */}
+            <label className="flex items-center justify-between cursor-pointer" style={{ minHeight: "44px", marginBottom: "8px" }}>
+              <span style={{ fontFamily: "var(--font-sans)", fontSize: "13px", fontWeight: 600, color: "hsl(0, 0%, 15%)" }}>
+                Student Production
+              </span>
+              <Switch
+                checked={isStudent}
+                onCheckedChange={(v) => {
+                  setIsStudent(v);
+                  if (v) setIsNonProfit(false);
+                }}
+              />
+            </label>
+            <label className="flex items-center justify-between cursor-pointer" style={{ minHeight: "44px" }}>
+              <span style={{ fontFamily: "var(--font-sans)", fontSize: "13px", fontWeight: 600, color: "hsl(0, 0%, 15%)" }}>
+                Non-Profit
+              </span>
+              <Switch
+                checked={isNonProfit}
+                onCheckedChange={(v) => {
+                  setIsNonProfit(v);
+                  if (v) setIsStudent(false);
+                }}
+              />
+            </label>
+          </div>
+
+          {/* ─── Location Details Card ─── */}
+          <div
+            style={{
+              background: "hsl(0, 0%, 100%)",
+              borderRadius: "12px",
+              borderTop: "2px solid hsl(213, 72%, 59%)",
+              boxShadow: "0 1px 4px hsla(0, 0%, 0%, 0.06), 0 4px 12px hsla(0, 0%, 0%, 0.04)",
+              padding: "20px",
+              marginBottom: "16px",
+            }}
+          >
+            <h3
+              style={{
+                fontFamily: "var(--font-sans)",
+                fontSize: "11px",
+                fontWeight: 700,
+                textTransform: "uppercase" as const,
+                letterSpacing: "0.15em",
+                color: "hsl(213, 72%, 59%)",
+                marginBottom: "16px",
+              }}
+            >
+              Location Details
+            </h3>
+
+            {/* Number of Locations stepper */}
+            <div style={{ marginBottom: "20px" }}>
+              <p style={{ fontFamily: "var(--font-sans)", fontSize: "12px", fontWeight: 600, color: "hsl(0, 0%, 35%)", marginBottom: "8px" }}>
+                Number of Locations
+              </p>
+              <div className="flex items-center gap-3">
+                <button
+                  type="button"
+                  onClick={() => setNumberOfLocations(Math.max(1, numberOfLocations - 1))}
+                  className="cursor-pointer select-none flex items-center justify-center transition-all active:scale-95"
+                  style={{
+                    width: "40px",
+                    height: "40px",
+                    borderRadius: "50%",
+                    background: "hsl(48, 100%, 50%)",
+                    border: "none",
+                    fontSize: "18px",
+                    fontWeight: 700,
+                    color: "hsl(0, 0%, 10%)",
+                    boxShadow: "0 2px 6px hsla(48, 100%, 50%, 0.3)",
+                  }}
+                >
+                  −
+                </button>
+                <div className="text-center" style={{ minWidth: "48px" }}>
+                  <input
+                    type="number"
+                    min={1}
+                    max={20}
+                    value={numberOfLocations}
+                    onChange={(e) => setNumberOfLocations(Math.max(1, Math.min(20, parseInt(e.target.value) || 1)))}
+                    className="bg-transparent outline-none text-center"
+                    style={{
+                      width: "48px",
+                      fontSize: "24px",
+                      fontWeight: 800,
+                      color: "hsl(0, 0%, 10%)",
+                      fontFamily: "var(--font-serif)",
+                      MozAppearance: "textfield",
+                      WebkitAppearance: "none" as any,
+                    }}
+                  />
+                  <p style={{ fontFamily: "var(--font-sans)", fontSize: "10px", fontWeight: 600, color: "hsl(0, 0%, 50%)", textTransform: "uppercase" as const, letterSpacing: "0.08em" }}>
+                    Locations
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setNumberOfLocations(Math.min(20, numberOfLocations + 1))}
+                  className="cursor-pointer select-none flex items-center justify-center transition-all active:scale-95"
+                  style={{
+                    width: "40px",
+                    height: "40px",
+                    borderRadius: "50%",
+                    background: "hsl(48, 100%, 50%)",
+                    border: "none",
+                    fontSize: "18px",
+                    fontWeight: 700,
+                    color: "hsl(0, 0%, 10%)",
+                    boxShadow: "0 2px 6px hsla(48, 100%, 50%, 0.3)",
+                  }}
+                >
+                  +
+                </button>
+              </div>
+            </div>
+
+            {/* Location Type chips — jurisdiction-dependent */}
+            {(jurisdictionSlug === "los-angeles" || jurisdictionSlug === "los-angeles-county" || jurisdictionSlug === "culver-city") && (
+              <div style={{ marginBottom: "16px" }}>
+                <p style={{ fontFamily: "var(--font-sans)", fontSize: "12px", fontWeight: 600, color: "hsl(0, 0%, 35%)", marginBottom: "8px" }}>
+                  Location Type
+                </p>
+                <div className="flex flex-wrap gap-2">
+                  {(jurisdictionSlug === "los-angeles" || jurisdictionSlug === "los-angeles-county") && (
+                    <button
+                      type="button"
+                      onClick={() => setIsParksLocation(!isParksLocation)}
+                      className="cursor-pointer transition-colors"
+                      style={{
+                        minHeight: "44px",
+                        padding: "8px 16px",
+                        borderRadius: "22px",
+                        fontFamily: "var(--font-sans)",
+                        fontSize: "13px",
+                        fontWeight: 600,
+                        border: isParksLocation ? "1.5px solid hsl(48, 100%, 50%)" : "1.5px solid hsl(0, 0%, 85%)",
+                        background: isParksLocation ? "hsla(48, 100%, 50%, 0.08)" : "hsl(0, 0%, 100%)",
+                        color: "hsl(0, 0%, 15%)",
+                      }}
+                    >
+                      🌳 Parks
+                    </button>
+                  )}
+                  {jurisdictionSlug === "los-angeles" && (
+                    <button
+                      type="button"
+                      onClick={() => setIsPortLocation(!isPortLocation)}
+                      className="cursor-pointer transition-colors"
+                      style={{
+                        minHeight: "44px",
+                        padding: "8px 16px",
+                        borderRadius: "22px",
+                        fontFamily: "var(--font-sans)",
+                        fontSize: "13px",
+                        fontWeight: 600,
+                        border: isPortLocation ? "1.5px solid hsl(48, 100%, 50%)" : "1.5px solid hsl(0, 0%, 85%)",
+                        background: isPortLocation ? "hsla(48, 100%, 50%, 0.08)" : "hsl(0, 0%, 100%)",
+                        color: "hsl(0, 0%, 15%)",
+                      }}
+                    >
+                      ⚓ Port of LA
+                    </button>
+                  )}
+                  {jurisdictionSlug === "los-angeles-county" && (
+                    <>
+                      <button
+                        type="button"
+                        onClick={() => setIsBeachLocation(!isBeachLocation)}
+                        className="cursor-pointer transition-colors"
+                        style={{
+                          minHeight: "44px",
+                          padding: "8px 16px",
+                          borderRadius: "22px",
+                          fontFamily: "var(--font-sans)",
+                          fontSize: "13px",
+                          fontWeight: 600,
+                          border: isBeachLocation ? "1.5px solid hsl(48, 100%, 50%)" : "1.5px solid hsl(0, 0%, 85%)",
+                          background: isBeachLocation ? "hsla(48, 100%, 50%, 0.08)" : "hsl(0, 0%, 100%)",
+                          color: "hsl(0, 0%, 15%)",
+                        }}
+                      >
+                        🏖️ Beach
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setIsFloodControlLocation(!isFloodControlLocation)}
+                        className="cursor-pointer transition-colors"
+                        style={{
+                          minHeight: "44px",
+                          padding: "8px 16px",
+                          borderRadius: "22px",
+                          fontFamily: "var(--font-sans)",
+                          fontSize: "13px",
+                          fontWeight: 600,
+                          border: isFloodControlLocation ? "1.5px solid hsl(48, 100%, 50%)" : "1.5px solid hsl(0, 0%, 85%)",
+                          background: isFloodControlLocation ? "hsla(48, 100%, 50%, 0.08)" : "hsl(0, 0%, 100%)",
+                          color: "hsl(0, 0%, 15%)",
+                        }}
+                      >
+                        🌊 Flood Control
+                      </button>
+                    </>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {/* Parking Spaces — Culver City only */}
+            {jurisdictionSlug === "culver-city" && (
+              <div>
+                <p style={{ fontFamily: "var(--font-sans)", fontSize: "12px", fontWeight: 600, color: "hsl(0, 0%, 35%)", marginBottom: "8px" }}>
+                  Parking Spaces
+                </p>
+                <div className="flex items-center gap-3">
+                  <button
+                    type="button"
+                    onClick={() => setNumberOfParkingSpaces(Math.max(0, numberOfParkingSpaces - 1))}
+                    className="cursor-pointer select-none flex items-center justify-center transition-all active:scale-95"
+                    style={{
+                      width: "40px",
+                      height: "40px",
+                      borderRadius: "50%",
+                      background: "hsl(48, 100%, 50%)",
+                      border: "none",
+                      fontSize: "18px",
+                      fontWeight: 700,
+                      color: "hsl(0, 0%, 10%)",
+                      boxShadow: "0 2px 6px hsla(48, 100%, 50%, 0.3)",
+                    }}
+                  >
+                    −
+                  </button>
+                  <div className="text-center" style={{ minWidth: "48px" }}>
+                    <input
+                      type="number"
+                      min={0}
+                      max={100}
+                      value={numberOfParkingSpaces}
+                      onChange={(e) => setNumberOfParkingSpaces(Math.max(0, Math.min(100, parseInt(e.target.value) || 0)))}
+                      className="bg-transparent outline-none text-center"
+                      style={{
+                        width: "48px",
+                        fontSize: "24px",
+                        fontWeight: 800,
+                        color: "hsl(0, 0%, 10%)",
+                        fontFamily: "var(--font-serif)",
+                        MozAppearance: "textfield",
+                        WebkitAppearance: "none" as any,
+                      }}
+                    />
+                    <p style={{ fontFamily: "var(--font-sans)", fontSize: "10px", fontWeight: 600, color: "hsl(0, 0%, 50%)", textTransform: "uppercase" as const, letterSpacing: "0.08em" }}>
+                      Spaces
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setNumberOfParkingSpaces(Math.min(100, numberOfParkingSpaces + 1))}
+                    className="cursor-pointer select-none flex items-center justify-center transition-all active:scale-95"
+                    style={{
+                      width: "40px",
+                      height: "40px",
+                      borderRadius: "50%",
+                      background: "hsl(48, 100%, 50%)",
+                      border: "none",
+                      fontSize: "18px",
+                      fontWeight: 700,
+                      color: "hsl(0, 0%, 10%)",
+                      boxShadow: "0 2px 6px hsla(48, 100%, 50%, 0.3)",
+                    }}
+                  >
+                    +
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* ─── Prep & Strike Card ─── */}
+          <div
+            style={{
+              background: "hsl(0, 0%, 100%)",
+              borderRadius: "12px",
+              borderTop: "2px solid hsl(213, 72%, 59%)",
+              boxShadow: "0 1px 4px hsla(0, 0%, 0%, 0.06), 0 4px 12px hsla(0, 0%, 0%, 0.04)",
+              padding: "20px",
+              marginBottom: "16px",
+            }}
+          >
+            <h3
+              style={{
+                fontFamily: "var(--font-sans)",
+                fontSize: "11px",
+                fontWeight: 700,
+                textTransform: "uppercase" as const,
+                letterSpacing: "0.15em",
+                color: "hsl(213, 72%, 59%)",
+                marginBottom: "16px",
+              }}
+            >
+              Prep & Strike
+            </h3>
+
+            <div className="flex items-center justify-around">
+              {/* Prep Days */}
+              <div>
+                <div className="flex items-center gap-3">
+                  <button
+                    type="button"
+                    onClick={() => setPrepDays(Math.max(0, prepDays - 1))}
+                    className="cursor-pointer select-none flex items-center justify-center transition-all active:scale-95"
+                    style={{
+                      width: "40px",
+                      height: "40px",
+                      borderRadius: "50%",
+                      background: "hsl(48, 100%, 50%)",
+                      border: "none",
+                      fontSize: "18px",
+                      fontWeight: 700,
+                      color: "hsl(0, 0%, 10%)",
+                      boxShadow: "0 2px 6px hsla(48, 100%, 50%, 0.3)",
+                    }}
+                  >
+                    −
+                  </button>
+                  <div className="text-center" style={{ minWidth: "40px" }}>
+                    <input
+                      type="number"
+                      min={0}
+                      max={30}
+                      value={prepDays}
+                      onChange={(e) => setPrepDays(Math.max(0, Math.min(30, parseInt(e.target.value) || 0)))}
+                      className="bg-transparent outline-none text-center"
+                      style={{
+                        width: "40px",
+                        fontSize: "24px",
+                        fontWeight: 800,
+                        color: "hsl(0, 0%, 10%)",
+                        fontFamily: "var(--font-serif)",
+                        MozAppearance: "textfield",
+                        WebkitAppearance: "none" as any,
+                      }}
+                    />
+                    <p style={{ fontFamily: "var(--font-sans)", fontSize: "10px", fontWeight: 600, color: "hsl(0, 0%, 50%)", textTransform: "uppercase" as const, letterSpacing: "0.08em" }}>
+                      Prep
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setPrepDays(Math.min(30, prepDays + 1))}
+                    className="cursor-pointer select-none flex items-center justify-center transition-all active:scale-95"
+                    style={{
+                      width: "40px",
+                      height: "40px",
+                      borderRadius: "50%",
+                      background: "hsl(48, 100%, 50%)",
+                      border: "none",
+                      fontSize: "18px",
+                      fontWeight: 700,
+                      color: "hsl(0, 0%, 10%)",
+                      boxShadow: "0 2px 6px hsla(48, 100%, 50%, 0.3)",
+                    }}
+                  >
+                    +
+                  </button>
+                </div>
+              </div>
+
+              {/* Strike Days */}
+              <div>
+                <div className="flex items-center gap-3">
+                  <button
+                    type="button"
+                    onClick={() => setStrikeDays(Math.max(0, strikeDays - 1))}
+                    className="cursor-pointer select-none flex items-center justify-center transition-all active:scale-95"
+                    style={{
+                      width: "40px",
+                      height: "40px",
+                      borderRadius: "50%",
+                      background: "hsl(48, 100%, 50%)",
+                      border: "none",
+                      fontSize: "18px",
+                      fontWeight: 700,
+                      color: "hsl(0, 0%, 10%)",
+                      boxShadow: "0 2px 6px hsla(48, 100%, 50%, 0.3)",
+                    }}
+                  >
+                    −
+                  </button>
+                  <div className="text-center" style={{ minWidth: "40px" }}>
+                    <input
+                      type="number"
+                      min={0}
+                      max={30}
+                      value={strikeDays}
+                      onChange={(e) => setStrikeDays(Math.max(0, Math.min(30, parseInt(e.target.value) || 0)))}
+                      className="bg-transparent outline-none text-center"
+                      style={{
+                        width: "40px",
+                        fontSize: "24px",
+                        fontWeight: 800,
+                        color: "hsl(0, 0%, 10%)",
+                        fontFamily: "var(--font-serif)",
+                        MozAppearance: "textfield",
+                        WebkitAppearance: "none" as any,
+                      }}
+                    />
+                    <p style={{ fontFamily: "var(--font-sans)", fontSize: "10px", fontWeight: 600, color: "hsl(0, 0%, 50%)", textTransform: "uppercase" as const, letterSpacing: "0.08em" }}>
+                      Strike
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setStrikeDays(Math.min(30, strikeDays + 1))}
+                    className="cursor-pointer select-none flex items-center justify-center transition-all active:scale-95"
+                    style={{
+                      width: "40px",
+                      height: "40px",
+                      borderRadius: "50%",
+                      background: "hsl(48, 100%, 50%)",
+                      border: "none",
+                      fontSize: "18px",
+                      fontWeight: 700,
+                      color: "hsl(0, 0%, 10%)",
+                      boxShadow: "0 2px 6px hsla(48, 100%, 50%, 0.3)",
+                    }}
+                  >
+                    +
+                  </button>
+                </div>
+              </div>
             </div>
           </div>
 
