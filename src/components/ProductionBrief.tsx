@@ -705,34 +705,35 @@ const ProductionBrief = ({ jurisdiction, location, neighborhood, onBack }: Produ
         <div className="shrink-0 max-w-[430px] mx-auto w-full z-[60]">
           <button
             onClick={() => setLedgerExpanded(!ledgerExpanded)}
-            className="w-full cursor-pointer transition-opacity hover:opacity-95 px-6 py-4 backdrop-blur-md"
+            className="w-full cursor-pointer transition-opacity hover:opacity-95 px-6 py-4 backdrop-blur-xl"
             style={{
-              background: "hsla(0, 0%, 0%, 0.88)",
+              background: "hsla(0, 0%, 98%, 0.4)",
               borderRadius: "16px 16px 0 0",
-              boxShadow: "0 -8px 24px hsla(0, 0%, 0%, 0.12)",
+              boxShadow: "0 -4px 20px hsla(0, 0%, 0%, 0.03)",
+              borderTop: "0.5px solid hsla(0, 0%, 0%, 0.05)",
             }}
           >
             <div className="flex justify-between items-baseline">
               <span
                 style={{
                   fontFamily: "var(--font-sans)",
-                  fontSize: "9px",
+                  fontSize: "10px",
                   fontWeight: 600,
                   textTransform: "uppercase" as const,
-                  letterSpacing: "0.18em",
-                  color: "hsla(0, 0%, 100%, 0.7)",
+                  letterSpacing: "0.2em",
+                  color: "hsl(0, 0%, 45%)",
                 }}
               >
                 Est. Permit Costs
               </span>
-              <span className="flex-1 mx-3 border-b border-dotted" style={{ borderColor: "hsla(0, 0%, 100%, 0.15)", marginBottom: "4px" }} />
+              <span className="flex-1 mx-3 border-b border-dotted" style={{ borderColor: "hsla(0, 0%, 0%, 0.08)", marginBottom: "4px" }} />
               <span
                 className="transition-all duration-300 font-mono"
                 style={{
                   fontSize: "22px",
                   fontWeight: 700,
-                  color: totalPulse ? "hsl(0, 0%, 100%)" : "hsl(225, 100%, 65%)",
-                  textShadow: totalPulse ? "0 0 16px hsla(225, 100%, 50%, 0.8)" : "none",
+                  color: totalPulse ? "hsl(225, 100%, 50%)" : "hsl(0, 0%, 10%)",
+                  textShadow: totalPulse ? "0 0 12px hsla(225, 100%, 50%, 0.4)" : "none",
                   transform: totalPulse ? "scale(1.08)" : "scale(1)",
                 }}
               >
@@ -745,7 +746,7 @@ const ProductionBrief = ({ jurisdiction, location, neighborhood, onBack }: Produ
                   fontFamily: "var(--font-sans)",
                   fontSize: "11px",
                   fontWeight: 500,
-                  color: "hsl(213, 72%, 59%)",
+                  color: "hsl(225, 100%, 50%)",
                   textDecoration: "underline",
                   textUnderlineOffset: "2px",
                 }}
