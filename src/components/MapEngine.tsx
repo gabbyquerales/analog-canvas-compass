@@ -86,9 +86,10 @@ function isInsideBbox(lng: number, lat: number): boolean {
 
 interface MapEngineProps {
   onSelectionChange: (result: MapSelectionResult) => void;
+  clearSearchRef?: React.MutableRefObject<(() => void) | null>;
 }
 
-const MapEngine = ({ onSelectionChange }: MapEngineProps) => {
+const MapEngine = ({ onSelectionChange, clearSearchRef }: MapEngineProps) => {
   const mapContainer = useRef<HTMLDivElement>(null);
   const map = useRef<mapboxgl.Map | null>(null);
   const marker = useRef<mapboxgl.Marker | null>(null);
@@ -122,6 +123,35 @@ const MapEngine = ({ onSelectionChange }: MapEngineProps) => {
     });
     return () => { map.current?.remove(); map.current = null; };
   }, []);
+
+  // Expose clear function to parent
+  useEffect(() => {
+    if (clearSearchRef) {
+      clearSearchRef.current = () => {
+        setQuery("");
+        setSuggestions([]);
+        setNoResults(false);
+        setOutsideMessage(false);
+        setTargetAcquired(false);
+        setLoading(false);
+        if (marker.current) { marker.current.remove(); marker.current = null; }
+        if (map.current) {
+          if (map.current.getLayer("radius-circle-fill")) map.current.removeLayer("radius-circle-fill");
+          if (map.current.getLayer("radius-circle-stroke")) map.current.removeLayer("radius-circle-stroke");
+          if (map.current.getSource("radius-circle")) map.current.removeSource("radius-circle");
+          map.current.flyTo({ center: [LA_CENTER.lng, LA_CENTER.lat], zoom: 10, duration: 1200 });
+        }
+        onSelectionChange({
+          location: { lng: LA_CENTER.lng, lat: LA_CENTER.lat, placeName: "" },
+          jurisdiction: null,
+          cdtfaName: null,
+          matchStatus: "idle",
+          neighborhood: null,
+          specialCondition: null,
+        });
+      };
+    }
+  }, [clearSearchRef, onSelectionChange]);
 
   const searchAddress = useCallback(async (text: string) => {
     if (text.length < 2) { setSuggestions([]); setNoResults(false); return; }
