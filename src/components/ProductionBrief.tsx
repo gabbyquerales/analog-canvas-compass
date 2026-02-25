@@ -1,5 +1,7 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect, useRef } from "react";
 import { Switch } from "@/components/ui/switch";
+import { Progress } from "@/components/ui/progress";
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { type JurisdictionResult, type SpecialConditionResult } from "@/lib/jurisdiction";
 import type { LocationResult } from "@/components/MapEngine";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
@@ -23,6 +25,100 @@ const ACTIVITY_ICONS: Record<string, string> = {
   animals: "🐎",
   stunts: "🤸",
 };
+
+/* ─── Section IDs for progress tracking ─── */
+const SECTIONS = ["shoot", "activities", "production", "location", "prep"] as const;
+type SectionId = (typeof SECTIONS)[number];
+
+/* ─── Reusable inline stepper ─── */
+function InlineStepper({
+  value,
+  onChange,
+  min = 0,
+  max = 99,
+  label,
+  size = "sm",
+}: {
+  value: number;
+  onChange: (v: number) => void;
+  min?: number;
+  max?: number;
+  label: string;
+  size?: "sm" | "lg";
+}) {
+  const btnSize = size === "lg" ? "48px" : "36px";
+  const fontSize = size === "lg" ? "28px" : "20px";
+  const inputW = size === "lg" ? "50px" : "40px";
+
+  return (
+    <div className="flex items-center gap-2">
+      <span
+        style={{
+          fontFamily: "var(--font-sans)",
+          fontSize: "12px",
+          fontWeight: 600,
+          color: "hsl(0, 0%, 35%)",
+          minWidth: "64px",
+        }}
+      >
+        {label}
+      </span>
+      <button
+        type="button"
+        onClick={() => onChange(Math.max(min, value - 1))}
+        className="cursor-pointer select-none flex items-center justify-center transition-all active:scale-95 shrink-0"
+        style={{
+          width: btnSize,
+          height: btnSize,
+          borderRadius: "50%",
+          background: "hsl(48, 100%, 50%)",
+          border: "none",
+          fontSize: "16px",
+          fontWeight: 700,
+          color: "hsl(0, 0%, 10%)",
+          boxShadow: "0 2px 6px hsla(48, 100%, 50%, 0.3)",
+        }}
+      >
+        −
+      </button>
+      <input
+        type="number"
+        min={min}
+        max={max}
+        value={value}
+        onChange={(e) => onChange(Math.max(min, Math.min(max, parseInt(e.target.value) || min)))}
+        className="bg-transparent outline-none text-center"
+        style={{
+          width: inputW,
+          fontSize,
+          fontWeight: 800,
+          color: "hsl(0, 0%, 10%)",
+          fontFamily: "var(--font-serif)",
+          MozAppearance: "textfield",
+          WebkitAppearance: "none" as any,
+        }}
+      />
+      <button
+        type="button"
+        onClick={() => onChange(Math.min(max, value + 1))}
+        className="cursor-pointer select-none flex items-center justify-center transition-all active:scale-95 shrink-0"
+        style={{
+          width: btnSize,
+          height: btnSize,
+          borderRadius: "50%",
+          background: "hsl(48, 100%, 50%)",
+          border: "none",
+          fontSize: "16px",
+          fontWeight: 700,
+          color: "hsl(0, 0%, 10%)",
+          boxShadow: "0 2px 6px hsla(48, 100%, 50%, 0.3)",
+        }}
+      >
+        +
+      </button>
+    </div>
+  );
+}
 
 const ProductionBrief = ({ jurisdiction, location, neighborhood, onBack }: ProductionBriefProps) => {
   const [selectedActivities, setSelectedActivities] = useState<Set<string>>(new Set());
@@ -49,9 +145,15 @@ const ProductionBrief = ({ jurisdiction, location, neighborhood, onBack }: Produ
   const [prepDays, setPrepDays] = useState(0);
   const [strikeDays, setStrikeDays] = useState(0);
 
+  // Accordion state — only shoot expanded by default
+  const [openSections, setOpenSections] = useState<string[]>(["shoot"]);
+
+  // Pulse animation on total change
+  const [totalPulse, setTotalPulse] = useState(false);
+  const prevTotal = useRef<number | null>(null);
+
   const jurisdictionSlug = jurisdiction.jurisdictionId;
 
-  // Static activity list from JSON
   const availableActivities = useMemo(() => {
     const raw = getActivities();
     return raw.map((a) => ({
@@ -71,7 +173,7 @@ const ProductionBrief = ({ jurisdiction, location, neighborhood, onBack }: Produ
     });
   };
 
-  // Calculate fees using the static fee calculator
+  // Calculate fees
   const feeResult = useMemo(() => {
     const inputs: ShootInputs = {
       jurisdictionSlug,
@@ -101,11 +203,49 @@ const ProductionBrief = ({ jurisdiction, location, neighborhood, onBack }: Produ
 
   const { lineItems, estimatedTotal, subtotalFilmLA, subtotalJurisdiction, subtotalPersonnel, subtotalLocation, warnings, whatPeopleMiss } = feeResult;
 
-  // Group line items by category for the ledger
+  // Pulse animation when total changes
+  useEffect(() => {
+    if (prevTotal.current !== null && prevTotal.current !== estimatedTotal) {
+      setTotalPulse(true);
+      const t = setTimeout(() => setTotalPulse(false), 600);
+      return () => clearTimeout(t);
+    }
+    prevTotal.current = estimatedTotal;
+  }, [estimatedTotal]);
+
+  // Progress: count sections user has interacted with
+  const sectionProgress = useMemo(() => {
+    let touched = 1; // shoot is always "touched" (it's open by default)
+    if (selectedActivities.size > 0) touched++;
+    if (!isMotion || crewSize !== 20 || isWeekend || isStudent || isNonProfit) touched++;
+    if (numberOfLocations > 1 || isParksLocation || isBeachLocation || isPortLocation || isFloodControlLocation || numberOfParkingSpaces > 0) touched++;
+    if (prepDays > 0 || strikeDays > 0) touched++;
+    return (touched / SECTIONS.length) * 100;
+  }, [selectedActivities, isMotion, crewSize, isWeekend, isStudent, isNonProfit, numberOfLocations, isParksLocation, isBeachLocation, isPortLocation, isFloodControlLocation, numberOfParkingSpaces, prepDays, strikeDays]);
+
   const filmlaItems = lineItems.filter((i) => i.category === "filmla");
   const jurisdictionItems = lineItems.filter((i) => i.category === "jurisdiction");
   const personnelItems = lineItems.filter((i) => i.category === "personnel");
   const locationItems = lineItems.filter((i) => i.category === "location");
+
+  /* ─── Card style applied to AccordionItem ─── */
+  const cardStyle: React.CSSProperties = {
+    background: "hsl(0, 0%, 100%)",
+    borderRadius: "12px",
+    borderTop: "2px solid hsl(213, 72%, 59%)",
+    boxShadow: "0 1px 4px hsla(0, 0%, 0%, 0.06), 0 4px 12px hsla(0, 0%, 0%, 0.04)",
+    marginBottom: "12px",
+    overflow: "hidden",
+  };
+
+  const sectionHeadingStyle: React.CSSProperties = {
+    fontFamily: "var(--font-sans)",
+    fontSize: "11px",
+    fontWeight: 700,
+    textTransform: "uppercase",
+    letterSpacing: "0.15em",
+    color: "hsl(213, 72%, 59%)",
+  };
 
   return (
     <TooltipProvider>
@@ -113,8 +253,17 @@ const ProductionBrief = ({ jurisdiction, location, neighborhood, onBack }: Produ
         className="fixed inset-0 z-40 flex flex-col animate-slide-up-full"
         style={{ background: "hsl(60, 11%, 97%)" }}
       >
+        {/* ─── Progress Bar ─── */}
+        <div className="shrink-0 max-w-[430px] mx-auto w-full">
+          <Progress
+            value={sectionProgress}
+            className="h-1 rounded-none"
+            style={{ background: "hsl(0, 0%, 90%)" }}
+          />
+        </div>
+
         {/* ─── Header ─── */}
-        <div className="shrink-0 max-w-[430px] mx-auto w-full px-5 pt-5 pb-4" style={{ background: "hsl(0, 0%, 100%)" }}>
+        <div className="shrink-0 max-w-[430px] mx-auto w-full px-5 pt-4 pb-3" style={{ background: "hsl(0, 0%, 100%)" }}>
           <div className="flex items-center justify-between mb-1">
             <button
               onClick={onBack}
@@ -157,15 +306,14 @@ const ProductionBrief = ({ jurisdiction, location, neighborhood, onBack }: Produ
               {jurisdiction.regionalProfile}
             </p>
           )}
-          {/* Blue accent line */}
-          <div style={{ height: "2px", background: "hsl(213, 72%, 59%)", borderRadius: "1px", marginTop: "12px" }} />
+          <div style={{ height: "2px", background: "hsl(213, 72%, 59%)", borderRadius: "1px", marginTop: "10px" }} />
         </div>
 
         {/* ─── Scrollable Content ─── */}
-        <div className="flex-1 overflow-y-auto max-w-[430px] mx-auto w-full px-4 pt-4 pb-48" style={{ background: "hsl(60, 11%, 97%)" }}>
+        <div className="flex-1 overflow-y-auto max-w-[430px] mx-auto w-full px-4 pt-3 pb-48" style={{ background: "hsl(60, 11%, 97%)" }}>
           {/* Warnings */}
           {warnings.length > 0 && (
-            <div style={{ marginBottom: "16px" }}>
+            <div style={{ marginBottom: "12px" }}>
               {warnings.map((w, i) => (
                 <div
                   key={i}
@@ -173,8 +321,8 @@ const ProductionBrief = ({ jurisdiction, location, neighborhood, onBack }: Produ
                     background: "hsla(4, 78%, 56%, 0.08)",
                     border: "1px solid hsla(4, 78%, 56%, 0.25)",
                     borderRadius: "8px",
-                    padding: "10px 14px",
-                    marginBottom: "8px",
+                    padding: "8px 12px",
+                    marginBottom: "6px",
                     fontFamily: "var(--font-sans)",
                     fontSize: "12px",
                     color: "hsl(4, 50%, 35%)",
@@ -186,797 +334,228 @@ const ProductionBrief = ({ jurisdiction, location, neighborhood, onBack }: Produ
             </div>
           )}
 
-          {/* Shoot Parameters Card */}
-          <div
-            style={{
-              background: "hsl(0, 0%, 100%)",
-              borderRadius: "12px",
-              borderTop: "2px solid hsl(213, 72%, 59%)",
-              boxShadow: "0 1px 4px hsla(0, 0%, 0%, 0.06), 0 4px 12px hsla(0, 0%, 0%, 0.04)",
-              padding: "20px",
-              marginBottom: "16px",
-            }}
+          <Accordion
+            type="multiple"
+            value={openSections}
+            onValueChange={setOpenSections}
+            className="space-y-0"
           >
-            <h3
-              style={{
-                fontFamily: "var(--font-sans)",
-                fontSize: "11px",
-                fontWeight: 700,
-                textTransform: "uppercase" as const,
-                letterSpacing: "0.15em",
-                color: "hsl(213, 72%, 59%)",
-                marginBottom: "16px",
-              }}
-            >
-              Shoot Parameters
-            </h3>
-
-            {/* Days stepper */}
-            <div className="flex flex-col items-center gap-4">
-              <div className="flex items-center gap-4">
-                <button
-                  type="button"
-                  onClick={() => setShootDays(Math.max(1, shootDays - 1))}
-                  className="cursor-pointer select-none flex items-center justify-center transition-all active:scale-95"
-                  style={{
-                    width: "52px",
-                    height: "52px",
-                    borderRadius: "50%",
-                    background: "hsl(48, 100%, 50%)",
-                    border: "none",
-                    fontSize: "22px",
-                    fontWeight: 700,
-                    color: "hsl(0, 0%, 10%)",
-                    boxShadow: "0 2px 8px hsla(48, 100%, 50%, 0.35)",
-                  }}
-                >
-                  −
-                </button>
-                <div className="text-center" style={{ minWidth: "64px" }}>
-                  <input
-                    type="number"
-                    min={1}
-                    max={90}
-                    value={shootDays}
-                    onChange={(e) => setShootDays(Math.max(1, Math.min(90, parseInt(e.target.value) || 1)))}
-                    className="bg-transparent outline-none text-center"
-                    style={{
-                      width: "50px",
-                      fontSize: "32px",
-                      fontWeight: 800,
-                      color: "hsl(0, 0%, 10%)",
-                      fontFamily: "var(--font-serif)",
-                      MozAppearance: "textfield",
-                      WebkitAppearance: "none" as any,
-                    }}
-                  />
-                  <p style={{ fontFamily: "var(--font-sans)", fontSize: "11px", fontWeight: 600, color: "hsl(0, 0%, 50%)", textTransform: "uppercase" as const, letterSpacing: "0.08em" }}>
-                    Days
-                  </p>
+            {/* ─── 1. Shoot Parameters ─── */}
+            <AccordionItem value="shoot" className="border-b-0" style={cardStyle}>
+              <AccordionTrigger className="px-5 py-3 hover:no-underline" style={sectionHeadingStyle}>
+                Shoot Parameters
+              </AccordionTrigger>
+              <AccordionContent className="px-5 pb-5 pt-0">
+                <div className="space-y-4">
+                  <InlineStepper label="Days" value={shootDays} onChange={setShootDays} min={1} max={90} size="lg" />
+                  <InlineStepper label="Hrs / Day" value={hoursPerDay} onChange={setHoursPerDay} min={1} max={24} size="lg" />
                 </div>
-                <button
-                  onClick={() => setShootDays(Math.min(90, shootDays + 1))}
-                  className="cursor-pointer select-none flex items-center justify-center transition-all active:scale-95"
-                  style={{
-                    width: "52px",
-                    height: "52px",
-                    borderRadius: "50%",
-                    background: "hsl(48, 100%, 50%)",
-                    border: "none",
-                    fontSize: "22px",
-                    fontWeight: 700,
-                    color: "hsl(0, 0%, 10%)",
-                    boxShadow: "0 2px 8px hsla(48, 100%, 50%, 0.35)",
-                  }}
-                >
-                  +
-                </button>
-              </div>
+              </AccordionContent>
+            </AccordionItem>
 
-              <span style={{ fontFamily: "var(--font-sans)", fontSize: "18px", color: "hsl(0, 0%, 70%)", fontWeight: 300 }}>×</span>
-
-              {/* Hours stepper */}
-              <div className="flex items-center gap-4">
-                <button
-                  type="button"
-                  onClick={() => setHoursPerDay(Math.max(1, hoursPerDay - 1))}
-                  className="cursor-pointer select-none flex items-center justify-center transition-all active:scale-95"
-                  style={{
-                    width: "52px",
-                    height: "52px",
-                    borderRadius: "50%",
-                    background: "hsl(48, 100%, 50%)",
-                    border: "none",
-                    fontSize: "22px",
-                    fontWeight: 700,
-                    color: "hsl(0, 0%, 10%)",
-                    boxShadow: "0 2px 8px hsla(48, 100%, 50%, 0.35)",
-                  }}
-                >
-                  −
-                </button>
-                <div className="text-center" style={{ minWidth: "64px" }}>
-                  <input
-                    type="number"
-                    min={1}
-                    max={24}
-                    value={hoursPerDay}
-                    onChange={(e) => setHoursPerDay(Math.max(1, Math.min(24, parseInt(e.target.value) || 1)))}
-                    className="bg-transparent outline-none text-center"
+            {/* ─── 2. Special Activities ─── */}
+            <AccordionItem value="activities" className="border-b-0" style={cardStyle}>
+              <AccordionTrigger className="px-5 py-3 hover:no-underline" style={sectionHeadingStyle}>
+                Special Activities
+                {selectedActivities.size > 0 && (
+                  <span
+                    className="ml-2 inline-flex items-center justify-center"
                     style={{
-                      width: "50px",
-                      fontSize: "32px",
-                      fontWeight: 800,
+                      width: "20px",
+                      height: "20px",
+                      borderRadius: "50%",
+                      background: "hsl(48, 100%, 50%)",
+                      fontSize: "11px",
+                      fontWeight: 700,
                       color: "hsl(0, 0%, 10%)",
-                      fontFamily: "var(--font-serif)",
-                      MozAppearance: "textfield",
-                      WebkitAppearance: "none" as any,
-                    }}
-                  />
-                  <p style={{ fontFamily: "var(--font-sans)", fontSize: "11px", fontWeight: 600, color: "hsl(0, 0%, 50%)", textTransform: "uppercase" as const, letterSpacing: "0.08em" }}>
-                    Hrs / Day
-                  </p>
-                </div>
-                <button
-                  onClick={() => setHoursPerDay(Math.min(24, hoursPerDay + 1))}
-                  className="cursor-pointer select-none flex items-center justify-center transition-all active:scale-95"
-                  style={{
-                    width: "52px",
-                    height: "52px",
-                    borderRadius: "50%",
-                    background: "hsl(48, 100%, 50%)",
-                    border: "none",
-                    fontSize: "22px",
-                    fontWeight: 700,
-                    color: "hsl(0, 0%, 10%)",
-                    boxShadow: "0 2px 8px hsla(48, 100%, 50%, 0.35)",
-                  }}
-                >
-                  +
-                </button>
-              </div>
-            </div>
-          </div>
-
-          {/* Special Activities Card */}
-          <div
-            style={{
-              background: "hsl(0, 0%, 100%)",
-              borderRadius: "12px",
-              borderTop: "2px solid hsl(213, 72%, 59%)",
-              boxShadow: "0 1px 4px hsla(0, 0%, 0%, 0.06), 0 4px 12px hsla(0, 0%, 0%, 0.04)",
-              padding: "20px",
-              marginBottom: "16px",
-            }}
-          >
-            <h3
-              style={{
-                fontFamily: "var(--font-sans)",
-                fontSize: "11px",
-                fontWeight: 700,
-                textTransform: "uppercase" as const,
-                letterSpacing: "0.15em",
-                color: "hsl(213, 72%, 59%)",
-                marginBottom: "16px",
-              }}
-            >
-              Special Activities
-            </h3>
-            <div className="space-y-2.5">
-              {availableActivities.map((activity) => {
-                const isActive = selectedActivities.has(activity.id);
-                return (
-                  <label
-                    key={activity.id}
-                    className="flex items-center gap-3 px-4 cursor-pointer transition-colors"
-                    style={{
-                      minHeight: "52px",
-                      borderRadius: "10px",
-                      border: isActive ? "1.5px solid hsl(48, 100%, 50%)" : "1px solid hsl(0, 0%, 90%)",
-                      background: isActive ? "hsla(48, 100%, 50%, 0.05)" : "hsl(0, 0%, 100%)",
                     }}
                   >
-                    <span className="text-lg leading-none">{activity.icon}</span>
-                    <span
-                      className="flex-1"
-                      style={{
-                        fontFamily: "var(--font-sans)",
-                        fontSize: "13px",
-                        fontWeight: 600,
-                        color: "hsl(0, 0%, 15%)",
-                      }}
-                    >
-                      {activity.activity_name}
-                    </span>
-                    <Switch checked={isActive} onCheckedChange={() => toggleActivity(activity.id)} />
-                  </label>
-                );
-              })}
-            </div>
-          </div>
-
-          {/* ─── Production Type Card ─── */}
-          <div
-            style={{
-              background: "hsl(0, 0%, 100%)",
-              borderRadius: "12px",
-              borderTop: "2px solid hsl(213, 72%, 59%)",
-              boxShadow: "0 1px 4px hsla(0, 0%, 0%, 0.06), 0 4px 12px hsla(0, 0%, 0%, 0.04)",
-              padding: "20px",
-              marginBottom: "16px",
-            }}
-          >
-            <h3
-              style={{
-                fontFamily: "var(--font-sans)",
-                fontSize: "11px",
-                fontWeight: 700,
-                textTransform: "uppercase" as const,
-                letterSpacing: "0.15em",
-                color: "hsl(213, 72%, 59%)",
-                marginBottom: "16px",
-              }}
-            >
-              Production Type
-            </h3>
-
-            {/* Motion / Still Photo segmented toggle */}
-            <div style={{ marginBottom: "20px" }}>
-              <p style={{ fontFamily: "var(--font-sans)", fontSize: "12px", fontWeight: 600, color: "hsl(0, 0%, 35%)", marginBottom: "8px" }}>
-                Format
-              </p>
-              <div className="flex" style={{ borderRadius: "8px", overflow: "hidden", border: "1.5px solid hsl(0, 0%, 85%)" }}>
-                <button
-                  type="button"
-                  onClick={() => setIsMotion(true)}
-                  className="flex-1 cursor-pointer transition-colors"
-                  style={{
-                    minHeight: "44px",
-                    fontFamily: "var(--font-sans)",
-                    fontSize: "13px",
-                    fontWeight: 600,
-                    background: isMotion ? "hsl(48, 100%, 50%)" : "hsl(0, 0%, 97%)",
-                    color: "hsl(0, 0%, 10%)",
-                    border: "none",
-                    borderRight: "1px solid hsl(0, 0%, 85%)",
-                  }}
-                >
-                  🎬 Motion
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setIsMotion(false)}
-                  className="flex-1 cursor-pointer transition-colors"
-                  style={{
-                    minHeight: "44px",
-                    fontFamily: "var(--font-sans)",
-                    fontSize: "13px",
-                    fontWeight: 600,
-                    background: !isMotion ? "hsl(48, 100%, 50%)" : "hsl(0, 0%, 97%)",
-                    color: "hsl(0, 0%, 10%)",
-                    border: "none",
-                  }}
-                >
-                  📷 Still Photo
-                </button>
-              </div>
-            </div>
-
-            {/* Crew Size stepper */}
-            <div style={{ marginBottom: "20px" }}>
-              <p style={{ fontFamily: "var(--font-sans)", fontSize: "12px", fontWeight: 600, color: "hsl(0, 0%, 35%)", marginBottom: "8px" }}>
-                Crew Size
-              </p>
-              <div className="flex items-center gap-3">
-                <button
-                  type="button"
-                  onClick={() => setCrewSize(Math.max(1, crewSize - 1))}
-                  className="cursor-pointer select-none flex items-center justify-center transition-all active:scale-95"
-                  style={{
-                    width: "40px",
-                    height: "40px",
-                    borderRadius: "50%",
-                    background: "hsl(48, 100%, 50%)",
-                    border: "none",
-                    fontSize: "18px",
-                    fontWeight: 700,
-                    color: "hsl(0, 0%, 10%)",
-                    boxShadow: "0 2px 6px hsla(48, 100%, 50%, 0.3)",
-                  }}
-                >
-                  −
-                </button>
-                <div className="text-center" style={{ minWidth: "48px" }}>
-                  <input
-                    type="number"
-                    min={1}
-                    max={500}
-                    value={crewSize}
-                    onChange={(e) => setCrewSize(Math.max(1, Math.min(500, parseInt(e.target.value) || 1)))}
-                    className="bg-transparent outline-none text-center"
-                    style={{
-                      width: "48px",
-                      fontSize: "24px",
-                      fontWeight: 800,
-                      color: "hsl(0, 0%, 10%)",
-                      fontFamily: "var(--font-serif)",
-                      MozAppearance: "textfield",
-                      WebkitAppearance: "none" as any,
-                    }}
-                  />
-                  <p style={{ fontFamily: "var(--font-sans)", fontSize: "10px", fontWeight: 600, color: "hsl(0, 0%, 50%)", textTransform: "uppercase" as const, letterSpacing: "0.08em" }}>
-                    Crew
-                  </p>
-                </div>
-                <button
-                  type="button"
-                  onClick={() => setCrewSize(Math.min(500, crewSize + 1))}
-                  className="cursor-pointer select-none flex items-center justify-center transition-all active:scale-95"
-                  style={{
-                    width: "40px",
-                    height: "40px",
-                    borderRadius: "50%",
-                    background: "hsl(48, 100%, 50%)",
-                    border: "none",
-                    fontSize: "18px",
-                    fontWeight: 700,
-                    color: "hsl(0, 0%, 10%)",
-                    boxShadow: "0 2px 6px hsla(48, 100%, 50%, 0.3)",
-                  }}
-                >
-                  +
-                </button>
-                {crewSize <= 16 && (
-                  <span style={{ fontFamily: "var(--font-sans)", fontSize: "11px", color: "hsl(213, 72%, 59%)", fontWeight: 500 }}>
-                    ≤16 crew
+                    {selectedActivities.size}
                   </span>
                 )}
-              </div>
-            </div>
-
-            {/* Weekend / Holiday toggle */}
-            <label className="flex items-center justify-between cursor-pointer" style={{ minHeight: "44px", marginBottom: "12px" }}>
-              <span style={{ fontFamily: "var(--font-sans)", fontSize: "13px", fontWeight: 600, color: "hsl(0, 0%, 15%)" }}>
-                Weekend / Holiday
-              </span>
-              <Switch checked={isWeekend} onCheckedChange={setIsWeekend} />
-            </label>
-
-            {/* Student / Non-Profit toggles */}
-            <label className="flex items-center justify-between cursor-pointer" style={{ minHeight: "44px", marginBottom: "8px" }}>
-              <span style={{ fontFamily: "var(--font-sans)", fontSize: "13px", fontWeight: 600, color: "hsl(0, 0%, 15%)" }}>
-                Student Production
-              </span>
-              <Switch
-                checked={isStudent}
-                onCheckedChange={(v) => {
-                  setIsStudent(v);
-                  if (v) setIsNonProfit(false);
-                }}
-              />
-            </label>
-            <label className="flex items-center justify-between cursor-pointer" style={{ minHeight: "44px" }}>
-              <span style={{ fontFamily: "var(--font-sans)", fontSize: "13px", fontWeight: 600, color: "hsl(0, 0%, 15%)" }}>
-                Non-Profit
-              </span>
-              <Switch
-                checked={isNonProfit}
-                onCheckedChange={(v) => {
-                  setIsNonProfit(v);
-                  if (v) setIsStudent(false);
-                }}
-              />
-            </label>
-          </div>
-
-          {/* ─── Location Details Card ─── */}
-          <div
-            style={{
-              background: "hsl(0, 0%, 100%)",
-              borderRadius: "12px",
-              borderTop: "2px solid hsl(213, 72%, 59%)",
-              boxShadow: "0 1px 4px hsla(0, 0%, 0%, 0.06), 0 4px 12px hsla(0, 0%, 0%, 0.04)",
-              padding: "20px",
-              marginBottom: "16px",
-            }}
-          >
-            <h3
-              style={{
-                fontFamily: "var(--font-sans)",
-                fontSize: "11px",
-                fontWeight: 700,
-                textTransform: "uppercase" as const,
-                letterSpacing: "0.15em",
-                color: "hsl(213, 72%, 59%)",
-                marginBottom: "16px",
-              }}
-            >
-              Location Details
-            </h3>
-
-            {/* Number of Locations stepper */}
-            <div style={{ marginBottom: "20px" }}>
-              <p style={{ fontFamily: "var(--font-sans)", fontSize: "12px", fontWeight: 600, color: "hsl(0, 0%, 35%)", marginBottom: "8px" }}>
-                Number of Locations
-              </p>
-              <div className="flex items-center gap-3">
-                <button
-                  type="button"
-                  onClick={() => setNumberOfLocations(Math.max(1, numberOfLocations - 1))}
-                  className="cursor-pointer select-none flex items-center justify-center transition-all active:scale-95"
-                  style={{
-                    width: "40px",
-                    height: "40px",
-                    borderRadius: "50%",
-                    background: "hsl(48, 100%, 50%)",
-                    border: "none",
-                    fontSize: "18px",
-                    fontWeight: 700,
-                    color: "hsl(0, 0%, 10%)",
-                    boxShadow: "0 2px 6px hsla(48, 100%, 50%, 0.3)",
-                  }}
-                >
-                  −
-                </button>
-                <div className="text-center" style={{ minWidth: "48px" }}>
-                  <input
-                    type="number"
-                    min={1}
-                    max={20}
-                    value={numberOfLocations}
-                    onChange={(e) => setNumberOfLocations(Math.max(1, Math.min(20, parseInt(e.target.value) || 1)))}
-                    className="bg-transparent outline-none text-center"
-                    style={{
-                      width: "48px",
-                      fontSize: "24px",
-                      fontWeight: 800,
-                      color: "hsl(0, 0%, 10%)",
-                      fontFamily: "var(--font-serif)",
-                      MozAppearance: "textfield",
-                      WebkitAppearance: "none" as any,
-                    }}
-                  />
-                  <p style={{ fontFamily: "var(--font-sans)", fontSize: "10px", fontWeight: 600, color: "hsl(0, 0%, 50%)", textTransform: "uppercase" as const, letterSpacing: "0.08em" }}>
-                    Locations
-                  </p>
+              </AccordionTrigger>
+              <AccordionContent className="px-5 pb-5 pt-0">
+                <div className="grid grid-cols-3 gap-2">
+                  {availableActivities.map((activity) => {
+                    const isActive = selectedActivities.has(activity.id);
+                    return (
+                      <button
+                        key={activity.id}
+                        type="button"
+                        onClick={() => toggleActivity(activity.id)}
+                        className="cursor-pointer flex flex-col items-center justify-center gap-1 transition-colors"
+                        style={{
+                          minHeight: "68px",
+                          borderRadius: "10px",
+                          border: isActive ? "1.5px solid hsl(48, 100%, 50%)" : "1px solid hsl(0, 0%, 90%)",
+                          background: isActive ? "hsla(48, 100%, 50%, 0.08)" : "hsl(0, 0%, 100%)",
+                          padding: "8px 4px",
+                        }}
+                      >
+                        <span style={{ fontSize: "22px", lineHeight: 1 }}>{activity.icon}</span>
+                        <span
+                          style={{
+                            fontFamily: "var(--font-sans)",
+                            fontSize: "10px",
+                            fontWeight: 600,
+                            color: isActive ? "hsl(0, 0%, 10%)" : "hsl(0, 0%, 45%)",
+                            textAlign: "center",
+                            lineHeight: 1.2,
+                          }}
+                        >
+                          {activity.activity_name}
+                        </span>
+                      </button>
+                    );
+                  })}
                 </div>
-                <button
-                  type="button"
-                  onClick={() => setNumberOfLocations(Math.min(20, numberOfLocations + 1))}
-                  className="cursor-pointer select-none flex items-center justify-center transition-all active:scale-95"
-                  style={{
-                    width: "40px",
-                    height: "40px",
-                    borderRadius: "50%",
-                    background: "hsl(48, 100%, 50%)",
-                    border: "none",
-                    fontSize: "18px",
-                    fontWeight: 700,
-                    color: "hsl(0, 0%, 10%)",
-                    boxShadow: "0 2px 6px hsla(48, 100%, 50%, 0.3)",
-                  }}
-                >
-                  +
-                </button>
-              </div>
-            </div>
+              </AccordionContent>
+            </AccordionItem>
 
-            {/* Location Type chips — jurisdiction-dependent */}
-            {(jurisdictionSlug === "los-angeles" || jurisdictionSlug === "los-angeles-county" || jurisdictionSlug === "culver-city") && (
-              <div style={{ marginBottom: "16px" }}>
-                <p style={{ fontFamily: "var(--font-sans)", fontSize: "12px", fontWeight: 600, color: "hsl(0, 0%, 35%)", marginBottom: "8px" }}>
-                  Location Type
-                </p>
-                <div className="flex flex-wrap gap-2">
-                  {(jurisdictionSlug === "los-angeles" || jurisdictionSlug === "los-angeles-county") && (
+            {/* ─── 3. Production Type ─── */}
+            <AccordionItem value="production" className="border-b-0" style={cardStyle}>
+              <AccordionTrigger className="px-5 py-3 hover:no-underline" style={sectionHeadingStyle}>
+                Production Type
+              </AccordionTrigger>
+              <AccordionContent className="px-5 pb-5 pt-0">
+                <div className="space-y-4">
+                  {/* Motion / Still segmented toggle */}
+                  <div className="flex" style={{ borderRadius: "8px", overflow: "hidden", border: "1.5px solid hsl(0, 0%, 85%)" }}>
                     <button
                       type="button"
-                      onClick={() => setIsParksLocation(!isParksLocation)}
-                      className="cursor-pointer transition-colors"
+                      onClick={() => setIsMotion(true)}
+                      className="flex-1 cursor-pointer transition-colors"
                       style={{
                         minHeight: "44px",
-                        padding: "8px 16px",
-                        borderRadius: "22px",
                         fontFamily: "var(--font-sans)",
                         fontSize: "13px",
                         fontWeight: 600,
-                        border: isParksLocation ? "1.5px solid hsl(48, 100%, 50%)" : "1.5px solid hsl(0, 0%, 85%)",
-                        background: isParksLocation ? "hsla(48, 100%, 50%, 0.08)" : "hsl(0, 0%, 100%)",
-                        color: "hsl(0, 0%, 15%)",
+                        background: isMotion ? "hsl(48, 100%, 50%)" : "hsl(0, 0%, 97%)",
+                        color: "hsl(0, 0%, 10%)",
+                        border: "none",
+                        borderRight: "1px solid hsl(0, 0%, 85%)",
                       }}
                     >
-                      🌳 Parks
+                      🎬 Motion
                     </button>
-                  )}
-                  {jurisdictionSlug === "los-angeles" && (
                     <button
                       type="button"
-                      onClick={() => setIsPortLocation(!isPortLocation)}
-                      className="cursor-pointer transition-colors"
+                      onClick={() => setIsMotion(false)}
+                      className="flex-1 cursor-pointer transition-colors"
                       style={{
                         minHeight: "44px",
-                        padding: "8px 16px",
-                        borderRadius: "22px",
                         fontFamily: "var(--font-sans)",
                         fontSize: "13px",
                         fontWeight: 600,
-                        border: isPortLocation ? "1.5px solid hsl(48, 100%, 50%)" : "1.5px solid hsl(0, 0%, 85%)",
-                        background: isPortLocation ? "hsla(48, 100%, 50%, 0.08)" : "hsl(0, 0%, 100%)",
-                        color: "hsl(0, 0%, 15%)",
+                        background: !isMotion ? "hsl(48, 100%, 50%)" : "hsl(0, 0%, 97%)",
+                        color: "hsl(0, 0%, 10%)",
+                        border: "none",
                       }}
                     >
-                      ⚓ Port of LA
+                      📷 Still Photo
                     </button>
-                  )}
-                  {jurisdictionSlug === "los-angeles-county" && (
-                    <>
-                      <button
-                        type="button"
-                        onClick={() => setIsBeachLocation(!isBeachLocation)}
-                        className="cursor-pointer transition-colors"
-                        style={{
-                          minHeight: "44px",
-                          padding: "8px 16px",
-                          borderRadius: "22px",
-                          fontFamily: "var(--font-sans)",
-                          fontSize: "13px",
-                          fontWeight: 600,
-                          border: isBeachLocation ? "1.5px solid hsl(48, 100%, 50%)" : "1.5px solid hsl(0, 0%, 85%)",
-                          background: isBeachLocation ? "hsla(48, 100%, 50%, 0.08)" : "hsl(0, 0%, 100%)",
-                          color: "hsl(0, 0%, 15%)",
+                  </div>
+
+                  {/* Crew Size */}
+                  <div className="flex items-center gap-2">
+                    <InlineStepper label="Crew" value={crewSize} onChange={setCrewSize} min={1} max={500} />
+                    {crewSize <= 16 && (
+                      <span style={{ fontFamily: "var(--font-sans)", fontSize: "10px", color: "hsl(213, 72%, 59%)", fontWeight: 500, whiteSpace: "nowrap" }}>
+                        ≤16
+                      </span>
+                    )}
+                  </div>
+
+                  {/* Switches row */}
+                  <div className="space-y-2">
+                    <label className="flex items-center justify-between cursor-pointer" style={{ minHeight: "40px" }}>
+                      <span style={{ fontFamily: "var(--font-sans)", fontSize: "13px", fontWeight: 600, color: "hsl(0, 0%, 15%)" }}>
+                        Weekend / Holiday
+                      </span>
+                      <Switch checked={isWeekend} onCheckedChange={setIsWeekend} />
+                    </label>
+                    <label className="flex items-center justify-between cursor-pointer" style={{ minHeight: "40px" }}>
+                      <span style={{ fontFamily: "var(--font-sans)", fontSize: "13px", fontWeight: 600, color: "hsl(0, 0%, 15%)" }}>
+                        Student Production
+                      </span>
+                      <Switch
+                        checked={isStudent}
+                        onCheckedChange={(v) => {
+                          setIsStudent(v);
+                          if (v) setIsNonProfit(false);
                         }}
-                      >
-                        🏖️ Beach
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => setIsFloodControlLocation(!isFloodControlLocation)}
-                        className="cursor-pointer transition-colors"
-                        style={{
-                          minHeight: "44px",
-                          padding: "8px 16px",
-                          borderRadius: "22px",
-                          fontFamily: "var(--font-sans)",
-                          fontSize: "13px",
-                          fontWeight: 600,
-                          border: isFloodControlLocation ? "1.5px solid hsl(48, 100%, 50%)" : "1.5px solid hsl(0, 0%, 85%)",
-                          background: isFloodControlLocation ? "hsla(48, 100%, 50%, 0.08)" : "hsl(0, 0%, 100%)",
-                          color: "hsl(0, 0%, 15%)",
+                      />
+                    </label>
+                    <label className="flex items-center justify-between cursor-pointer" style={{ minHeight: "40px" }}>
+                      <span style={{ fontFamily: "var(--font-sans)", fontSize: "13px", fontWeight: 600, color: "hsl(0, 0%, 15%)" }}>
+                        Non-Profit
+                      </span>
+                      <Switch
+                        checked={isNonProfit}
+                        onCheckedChange={(v) => {
+                          setIsNonProfit(v);
+                          if (v) setIsStudent(false);
                         }}
-                      >
-                        🌊 Flood Control
-                      </button>
-                    </>
+                      />
+                    </label>
+                  </div>
+                </div>
+              </AccordionContent>
+            </AccordionItem>
+
+            {/* ─── 4. Location Details ─── */}
+            <AccordionItem value="location" className="border-b-0" style={cardStyle}>
+              <AccordionTrigger className="px-5 py-3 hover:no-underline" style={sectionHeadingStyle}>
+                Location Details
+              </AccordionTrigger>
+              <AccordionContent className="px-5 pb-5 pt-0">
+                <div className="space-y-4">
+                  <InlineStepper label="Locations" value={numberOfLocations} onChange={setNumberOfLocations} min={1} max={20} />
+
+                  {/* Location type chips */}
+                  {(jurisdictionSlug === "los-angeles" || jurisdictionSlug === "los-angeles-county" || jurisdictionSlug === "culver-city") && (
+                    <div>
+                      <p style={{ fontFamily: "var(--font-sans)", fontSize: "11px", fontWeight: 600, color: "hsl(0, 0%, 40%)", marginBottom: "6px" }}>
+                        Location Type
+                      </p>
+                      <div className="flex flex-wrap gap-2">
+                        {(jurisdictionSlug === "los-angeles" || jurisdictionSlug === "los-angeles-county") && (
+                          <ChipButton active={isParksLocation} onClick={() => setIsParksLocation(!isParksLocation)} label="🌳 Parks" />
+                        )}
+                        {jurisdictionSlug === "los-angeles" && (
+                          <ChipButton active={isPortLocation} onClick={() => setIsPortLocation(!isPortLocation)} label="⚓ Port of LA" />
+                        )}
+                        {jurisdictionSlug === "los-angeles-county" && (
+                          <>
+                            <ChipButton active={isBeachLocation} onClick={() => setIsBeachLocation(!isBeachLocation)} label="🏖️ Beach" />
+                            <ChipButton active={isFloodControlLocation} onClick={() => setIsFloodControlLocation(!isFloodControlLocation)} label="🌊 Flood Control" />
+                          </>
+                        )}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Parking — Culver City only */}
+                  {jurisdictionSlug === "culver-city" && (
+                    <InlineStepper label="Parking" value={numberOfParkingSpaces} onChange={setNumberOfParkingSpaces} min={0} max={100} />
                   )}
                 </div>
-              </div>
-            )}
+              </AccordionContent>
+            </AccordionItem>
 
-            {/* Parking Spaces — Culver City only */}
-            {jurisdictionSlug === "culver-city" && (
-              <div>
-                <p style={{ fontFamily: "var(--font-sans)", fontSize: "12px", fontWeight: 600, color: "hsl(0, 0%, 35%)", marginBottom: "8px" }}>
-                  Parking Spaces
-                </p>
-                <div className="flex items-center gap-3">
-                  <button
-                    type="button"
-                    onClick={() => setNumberOfParkingSpaces(Math.max(0, numberOfParkingSpaces - 1))}
-                    className="cursor-pointer select-none flex items-center justify-center transition-all active:scale-95"
-                    style={{
-                      width: "40px",
-                      height: "40px",
-                      borderRadius: "50%",
-                      background: "hsl(48, 100%, 50%)",
-                      border: "none",
-                      fontSize: "18px",
-                      fontWeight: 700,
-                      color: "hsl(0, 0%, 10%)",
-                      boxShadow: "0 2px 6px hsla(48, 100%, 50%, 0.3)",
-                    }}
-                  >
-                    −
-                  </button>
-                  <div className="text-center" style={{ minWidth: "48px" }}>
-                    <input
-                      type="number"
-                      min={0}
-                      max={100}
-                      value={numberOfParkingSpaces}
-                      onChange={(e) => setNumberOfParkingSpaces(Math.max(0, Math.min(100, parseInt(e.target.value) || 0)))}
-                      className="bg-transparent outline-none text-center"
-                      style={{
-                        width: "48px",
-                        fontSize: "24px",
-                        fontWeight: 800,
-                        color: "hsl(0, 0%, 10%)",
-                        fontFamily: "var(--font-serif)",
-                        MozAppearance: "textfield",
-                        WebkitAppearance: "none" as any,
-                      }}
-                    />
-                    <p style={{ fontFamily: "var(--font-sans)", fontSize: "10px", fontWeight: 600, color: "hsl(0, 0%, 50%)", textTransform: "uppercase" as const, letterSpacing: "0.08em" }}>
-                      Spaces
-                    </p>
-                  </div>
-                  <button
-                    type="button"
-                    onClick={() => setNumberOfParkingSpaces(Math.min(100, numberOfParkingSpaces + 1))}
-                    className="cursor-pointer select-none flex items-center justify-center transition-all active:scale-95"
-                    style={{
-                      width: "40px",
-                      height: "40px",
-                      borderRadius: "50%",
-                      background: "hsl(48, 100%, 50%)",
-                      border: "none",
-                      fontSize: "18px",
-                      fontWeight: 700,
-                      color: "hsl(0, 0%, 10%)",
-                      boxShadow: "0 2px 6px hsla(48, 100%, 50%, 0.3)",
-                    }}
-                  >
-                    +
-                  </button>
+            {/* ─── 5. Prep & Strike ─── */}
+            <AccordionItem value="prep" className="border-b-0" style={cardStyle}>
+              <AccordionTrigger className="px-5 py-3 hover:no-underline" style={sectionHeadingStyle}>
+                Prep & Strike
+              </AccordionTrigger>
+              <AccordionContent className="px-5 pb-5 pt-0">
+                <div className="space-y-3">
+                  <InlineStepper label="Prep Days" value={prepDays} onChange={setPrepDays} min={0} max={30} />
+                  <InlineStepper label="Strike Days" value={strikeDays} onChange={setStrikeDays} min={0} max={30} />
                 </div>
-              </div>
-            )}
-          </div>
-
-          {/* ─── Prep & Strike Card ─── */}
-          <div
-            style={{
-              background: "hsl(0, 0%, 100%)",
-              borderRadius: "12px",
-              borderTop: "2px solid hsl(213, 72%, 59%)",
-              boxShadow: "0 1px 4px hsla(0, 0%, 0%, 0.06), 0 4px 12px hsla(0, 0%, 0%, 0.04)",
-              padding: "20px",
-              marginBottom: "16px",
-            }}
-          >
-            <h3
-              style={{
-                fontFamily: "var(--font-sans)",
-                fontSize: "11px",
-                fontWeight: 700,
-                textTransform: "uppercase" as const,
-                letterSpacing: "0.15em",
-                color: "hsl(213, 72%, 59%)",
-                marginBottom: "16px",
-              }}
-            >
-              Prep & Strike
-            </h3>
-
-            <div className="flex items-center justify-around">
-              {/* Prep Days */}
-              <div>
-                <div className="flex items-center gap-3">
-                  <button
-                    type="button"
-                    onClick={() => setPrepDays(Math.max(0, prepDays - 1))}
-                    className="cursor-pointer select-none flex items-center justify-center transition-all active:scale-95"
-                    style={{
-                      width: "40px",
-                      height: "40px",
-                      borderRadius: "50%",
-                      background: "hsl(48, 100%, 50%)",
-                      border: "none",
-                      fontSize: "18px",
-                      fontWeight: 700,
-                      color: "hsl(0, 0%, 10%)",
-                      boxShadow: "0 2px 6px hsla(48, 100%, 50%, 0.3)",
-                    }}
-                  >
-                    −
-                  </button>
-                  <div className="text-center" style={{ minWidth: "40px" }}>
-                    <input
-                      type="number"
-                      min={0}
-                      max={30}
-                      value={prepDays}
-                      onChange={(e) => setPrepDays(Math.max(0, Math.min(30, parseInt(e.target.value) || 0)))}
-                      className="bg-transparent outline-none text-center"
-                      style={{
-                        width: "40px",
-                        fontSize: "24px",
-                        fontWeight: 800,
-                        color: "hsl(0, 0%, 10%)",
-                        fontFamily: "var(--font-serif)",
-                        MozAppearance: "textfield",
-                        WebkitAppearance: "none" as any,
-                      }}
-                    />
-                    <p style={{ fontFamily: "var(--font-sans)", fontSize: "10px", fontWeight: 600, color: "hsl(0, 0%, 50%)", textTransform: "uppercase" as const, letterSpacing: "0.08em" }}>
-                      Prep
-                    </p>
-                  </div>
-                  <button
-                    type="button"
-                    onClick={() => setPrepDays(Math.min(30, prepDays + 1))}
-                    className="cursor-pointer select-none flex items-center justify-center transition-all active:scale-95"
-                    style={{
-                      width: "40px",
-                      height: "40px",
-                      borderRadius: "50%",
-                      background: "hsl(48, 100%, 50%)",
-                      border: "none",
-                      fontSize: "18px",
-                      fontWeight: 700,
-                      color: "hsl(0, 0%, 10%)",
-                      boxShadow: "0 2px 6px hsla(48, 100%, 50%, 0.3)",
-                    }}
-                  >
-                    +
-                  </button>
-                </div>
-              </div>
-
-              {/* Strike Days */}
-              <div>
-                <div className="flex items-center gap-3">
-                  <button
-                    type="button"
-                    onClick={() => setStrikeDays(Math.max(0, strikeDays - 1))}
-                    className="cursor-pointer select-none flex items-center justify-center transition-all active:scale-95"
-                    style={{
-                      width: "40px",
-                      height: "40px",
-                      borderRadius: "50%",
-                      background: "hsl(48, 100%, 50%)",
-                      border: "none",
-                      fontSize: "18px",
-                      fontWeight: 700,
-                      color: "hsl(0, 0%, 10%)",
-                      boxShadow: "0 2px 6px hsla(48, 100%, 50%, 0.3)",
-                    }}
-                  >
-                    −
-                  </button>
-                  <div className="text-center" style={{ minWidth: "40px" }}>
-                    <input
-                      type="number"
-                      min={0}
-                      max={30}
-                      value={strikeDays}
-                      onChange={(e) => setStrikeDays(Math.max(0, Math.min(30, parseInt(e.target.value) || 0)))}
-                      className="bg-transparent outline-none text-center"
-                      style={{
-                        width: "40px",
-                        fontSize: "24px",
-                        fontWeight: 800,
-                        color: "hsl(0, 0%, 10%)",
-                        fontFamily: "var(--font-serif)",
-                        MozAppearance: "textfield",
-                        WebkitAppearance: "none" as any,
-                      }}
-                    />
-                    <p style={{ fontFamily: "var(--font-sans)", fontSize: "10px", fontWeight: 600, color: "hsl(0, 0%, 50%)", textTransform: "uppercase" as const, letterSpacing: "0.08em" }}>
-                      Strike
-                    </p>
-                  </div>
-                  <button
-                    type="button"
-                    onClick={() => setStrikeDays(Math.min(30, strikeDays + 1))}
-                    className="cursor-pointer select-none flex items-center justify-center transition-all active:scale-95"
-                    style={{
-                      width: "40px",
-                      height: "40px",
-                      borderRadius: "50%",
-                      background: "hsl(48, 100%, 50%)",
-                      border: "none",
-                      fontSize: "18px",
-                      fontWeight: 700,
-                      color: "hsl(0, 0%, 10%)",
-                      boxShadow: "0 2px 6px hsla(48, 100%, 50%, 0.3)",
-                    }}
-                  >
-                    +
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
+              </AccordionContent>
+            </AccordionItem>
+          </Accordion>
 
           {/* What People Miss Tips */}
           {whatPeopleMiss.length > 0 && (
@@ -985,8 +564,8 @@ const ProductionBrief = ({ jurisdiction, location, neighborhood, onBack }: Produ
                 background: "hsla(48, 100%, 50%, 0.08)",
                 border: "1px solid hsla(48, 100%, 50%, 0.3)",
                 borderRadius: "12px",
-                padding: "16px",
-                marginBottom: "16px",
+                padding: "14px",
+                marginBottom: "12px",
               }}
             >
               <h3
@@ -997,7 +576,7 @@ const ProductionBrief = ({ jurisdiction, location, neighborhood, onBack }: Produ
                   textTransform: "uppercase" as const,
                   letterSpacing: "0.15em",
                   color: "hsl(40, 60%, 40%)",
-                  marginBottom: "10px",
+                  marginBottom: "8px",
                 }}
               >
                 💡 What People Miss
@@ -1009,7 +588,7 @@ const ProductionBrief = ({ jurisdiction, location, neighborhood, onBack }: Produ
                     fontFamily: "var(--font-sans)",
                     fontSize: "12px",
                     color: "hsl(40, 30%, 30%)",
-                    marginBottom: i < whatPeopleMiss.length - 1 ? "6px" : 0,
+                    marginBottom: i < whatPeopleMiss.length - 1 ? "4px" : 0,
                   }}
                 >
                   • {tip}
@@ -1070,25 +649,10 @@ const ProductionBrief = ({ jurisdiction, location, neighborhood, onBack }: Produ
                   </div>
 
                   <div className="space-y-3" style={{ fontFamily: "var(--font-sans)", fontSize: "13px", color: "hsl(0, 0%, 15%)" }}>
-                    {/* FilmLA Section */}
-                    {filmlaItems.length > 0 && (
-                      <LedgerSection title="FilmLA Fees" items={filmlaItems} subtotal={subtotalFilmLA} />
-                    )}
-
-                    {/* Jurisdiction Section */}
-                    {jurisdictionItems.length > 0 && (
-                      <LedgerSection title="Jurisdiction Fees" items={jurisdictionItems} subtotal={subtotalJurisdiction} />
-                    )}
-
-                    {/* Personnel Section */}
-                    {personnelItems.length > 0 && (
-                      <LedgerSection title="Personnel" items={personnelItems} subtotal={subtotalPersonnel} />
-                    )}
-
-                    {/* Location Section */}
-                    {locationItems.length > 0 && (
-                      <LedgerSection title="Location Fees" items={locationItems} subtotal={subtotalLocation} />
-                    )}
+                    {filmlaItems.length > 0 && <LedgerSection title="FilmLA Fees" items={filmlaItems} subtotal={subtotalFilmLA} />}
+                    {jurisdictionItems.length > 0 && <LedgerSection title="Jurisdiction Fees" items={jurisdictionItems} subtotal={subtotalJurisdiction} />}
+                    {personnelItems.length > 0 && <LedgerSection title="Personnel" items={personnelItems} subtotal={subtotalPersonnel} />}
+                    {locationItems.length > 0 && <LedgerSection title="Location Fees" items={locationItems} subtotal={subtotalLocation} />}
 
                     {lineItems.length === 0 && (
                       <div className="flex justify-between items-baseline" style={{ color: "hsl(0, 0%, 55%)" }}>
@@ -1099,7 +663,6 @@ const ProductionBrief = ({ jurisdiction, location, neighborhood, onBack }: Produ
                     )}
 
                     <div style={{ borderTop: "2px solid hsl(0, 0%, 10%)", margin: "12px 0" }} />
-
                     <div className="flex justify-between items-baseline" style={{ fontSize: "15px" }}>
                       <span style={{ fontWeight: 800 }}>Total Permit Costs</span>
                       <span className="flex-1 mx-3" />
@@ -1138,11 +701,14 @@ const ProductionBrief = ({ jurisdiction, location, neighborhood, onBack }: Produ
               </span>
               <span className="flex-1 mx-3 border-b border-dotted" style={{ borderColor: "hsla(0, 0%, 100%, 0.2)", marginBottom: "4px" }} />
               <span
+                className="transition-all duration-300"
                 style={{
                   fontFamily: "var(--font-serif)",
                   fontSize: "22px",
                   fontWeight: 800,
-                  color: "hsl(48, 100%, 50%)",
+                  color: totalPulse ? "hsl(0, 0%, 100%)" : "hsl(48, 100%, 50%)",
+                  textShadow: totalPulse ? "0 0 16px hsla(48, 100%, 50%, 0.8)" : "none",
+                  transform: totalPulse ? "scale(1.08)" : "scale(1)",
                 }}
               >
                 ${estimatedTotal.toLocaleString()}
@@ -1168,6 +734,30 @@ const ProductionBrief = ({ jurisdiction, location, neighborhood, onBack }: Produ
     </TooltipProvider>
   );
 };
+
+/* ─── Chip button for location types ─── */
+function ChipButton({ active, onClick, label }: { active: boolean; onClick: () => void; label: string }) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className="cursor-pointer transition-colors"
+      style={{
+        minHeight: "40px",
+        padding: "6px 14px",
+        borderRadius: "20px",
+        fontFamily: "var(--font-sans)",
+        fontSize: "12px",
+        fontWeight: 600,
+        border: active ? "1.5px solid hsl(48, 100%, 50%)" : "1.5px solid hsl(0, 0%, 85%)",
+        background: active ? "hsla(48, 100%, 50%, 0.08)" : "hsl(0, 0%, 100%)",
+        color: "hsl(0, 0%, 15%)",
+      }}
+    >
+      {label}
+    </button>
+  );
+}
 
 /** Reusable ledger section component */
 function LedgerSection({ title, items, subtotal }: { title: string; items: FeeLineItem[]; subtotal: number }) {
