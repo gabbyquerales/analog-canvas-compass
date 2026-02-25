@@ -71,12 +71,12 @@ function InlineStepper({
           width: btnSize,
           height: btnSize,
           borderRadius: "50%",
-          background: "hsl(48, 100%, 50%)",
+          background: "hsl(0, 0%, 10%)",
           border: "none",
           fontSize: "16px",
           fontWeight: 700,
-          color: "hsl(0, 0%, 10%)",
-          boxShadow: "0 2px 6px hsla(48, 100%, 50%, 0.3)",
+          color: "hsl(42, 30%, 95%)",
+          boxShadow: "0 2px 6px hsla(0, 0%, 0%, 0.2)",
         }}
       >
         −
@@ -106,12 +106,12 @@ function InlineStepper({
           width: btnSize,
           height: btnSize,
           borderRadius: "50%",
-          background: "hsl(48, 100%, 50%)",
+          background: "hsl(0, 0%, 10%)",
           border: "none",
           fontSize: "16px",
           fontWeight: 700,
-          color: "hsl(0, 0%, 10%)",
-          boxShadow: "0 2px 6px hsla(48, 100%, 50%, 0.3)",
+          color: "hsl(42, 30%, 95%)",
+          boxShadow: "0 2px 6px hsla(0, 0%, 0%, 0.2)",
         }}
       >
         +
@@ -257,7 +257,7 @@ const ProductionBrief = ({ jurisdiction, location, neighborhood, onBack }: Produ
         <div className="shrink-0 max-w-[430px] mx-auto w-full">
           <Progress
             value={sectionProgress}
-            className="h-1 rounded-none"
+            className="h-1 rounded-none [&>div]:bg-[hsl(225,100%,50%)]"
             style={{ background: "hsl(0, 0%, 90%)" }}
           />
         </div>
@@ -364,10 +364,10 @@ const ProductionBrief = ({ jurisdiction, location, neighborhood, onBack }: Produ
                       width: "20px",
                       height: "20px",
                       borderRadius: "50%",
-                      background: "hsl(48, 100%, 50%)",
+                      background: "hsl(225, 100%, 50%)",
                       fontSize: "11px",
                       fontWeight: 700,
-                      color: "hsl(0, 0%, 10%)",
+                      color: "hsl(0, 0%, 100%)",
                     }}
                   >
                     {selectedActivities.size}
@@ -387,8 +387,8 @@ const ProductionBrief = ({ jurisdiction, location, neighborhood, onBack }: Produ
                         style={{
                           minHeight: "68px",
                           borderRadius: "10px",
-                          border: isActive ? "1.5px solid hsl(48, 100%, 50%)" : "1px solid hsl(0, 0%, 90%)",
-                          background: isActive ? "hsla(48, 100%, 50%, 0.08)" : "hsl(0, 0%, 100%)",
+                          border: isActive ? "1.5px solid hsl(225, 100%, 50%)" : "1px solid hsl(0, 0%, 90%)",
+                          background: isActive ? "hsla(225, 100%, 50%, 0.06)" : "hsl(0, 0%, 100%)",
                           padding: "8px 4px",
                         }}
                       >
@@ -430,8 +430,8 @@ const ProductionBrief = ({ jurisdiction, location, neighborhood, onBack }: Produ
                         fontFamily: "var(--font-sans)",
                         fontSize: "13px",
                         fontWeight: 600,
-                        background: isMotion ? "hsl(48, 100%, 50%)" : "hsl(0, 0%, 97%)",
-                        color: "hsl(0, 0%, 10%)",
+                        background: isMotion ? "hsl(225, 100%, 50%)" : "hsl(0, 0%, 97%)",
+                        color: isMotion ? "hsl(0, 0%, 100%)" : "hsl(0, 0%, 10%)",
                         border: "none",
                         borderRight: "1px solid hsl(0, 0%, 85%)",
                       }}
@@ -447,8 +447,8 @@ const ProductionBrief = ({ jurisdiction, location, neighborhood, onBack }: Produ
                         fontFamily: "var(--font-sans)",
                         fontSize: "13px",
                         fontWeight: 600,
-                        background: !isMotion ? "hsl(48, 100%, 50%)" : "hsl(0, 0%, 97%)",
-                        color: "hsl(0, 0%, 10%)",
+                        background: !isMotion ? "hsl(225, 100%, 50%)" : "hsl(0, 0%, 97%)",
+                        color: !isMotion ? "hsl(0, 0%, 100%)" : "hsl(0, 0%, 10%)",
                         border: "none",
                       }}
                     >
@@ -561,8 +561,8 @@ const ProductionBrief = ({ jurisdiction, location, neighborhood, onBack }: Produ
           {whatPeopleMiss.length > 0 && (
             <div
               style={{
-                background: "hsla(48, 100%, 50%, 0.08)",
-                border: "1px solid hsla(48, 100%, 50%, 0.3)",
+                background: "hsla(225, 100%, 50%, 0.05)",
+                border: "1px solid hsla(225, 100%, 50%, 0.2)",
                 borderRadius: "12px",
                 padding: "14px",
                 marginBottom: "12px",
@@ -575,7 +575,7 @@ const ProductionBrief = ({ jurisdiction, location, neighborhood, onBack }: Produ
                   fontWeight: 700,
                   textTransform: "uppercase" as const,
                   letterSpacing: "0.15em",
-                  color: "hsl(40, 60%, 40%)",
+                  color: "hsl(225, 60%, 40%)",
                   marginBottom: "8px",
                 }}
               >
@@ -587,7 +587,7 @@ const ProductionBrief = ({ jurisdiction, location, neighborhood, onBack }: Produ
                   style={{
                     fontFamily: "var(--font-sans)",
                     fontSize: "12px",
-                    color: "hsl(40, 30%, 30%)",
+                    color: "hsl(225, 20%, 30%)",
                     marginBottom: i < whatPeopleMiss.length - 1 ? "4px" : 0,
                   }}
                 >
@@ -706,8 +706,8 @@ const ProductionBrief = ({ jurisdiction, location, neighborhood, onBack }: Produ
                   fontFamily: "var(--font-serif)",
                   fontSize: "22px",
                   fontWeight: 800,
-                  color: totalPulse ? "hsl(0, 0%, 100%)" : "hsl(48, 100%, 50%)",
-                  textShadow: totalPulse ? "0 0 16px hsla(48, 100%, 50%, 0.8)" : "none",
+                  color: totalPulse ? "hsl(0, 0%, 100%)" : "hsl(225, 100%, 65%)",
+                  textShadow: totalPulse ? "0 0 16px hsla(225, 100%, 50%, 0.8)" : "none",
                   transform: totalPulse ? "scale(1.08)" : "scale(1)",
                 }}
               >
@@ -749,8 +749,8 @@ function ChipButton({ active, onClick, label }: { active: boolean; onClick: () =
         fontFamily: "var(--font-sans)",
         fontSize: "12px",
         fontWeight: 600,
-        border: active ? "1.5px solid hsl(48, 100%, 50%)" : "1.5px solid hsl(0, 0%, 85%)",
-        background: active ? "hsla(48, 100%, 50%, 0.08)" : "hsl(0, 0%, 100%)",
+        border: active ? "1.5px solid hsl(225, 100%, 50%)" : "1.5px solid hsl(0, 0%, 85%)",
+        background: active ? "hsla(225, 100%, 50%, 0.06)" : "hsl(0, 0%, 100%)",
         color: "hsl(0, 0%, 15%)",
       }}
     >
