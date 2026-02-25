@@ -13,6 +13,7 @@ interface InfoCardsProps {
   matchStatus: MatchStatus;
   confirmed: boolean;
   onConfirm: () => void;
+  onClearSearch?: () => void;
   neighborhood: string | null;
   specialCondition: SpecialConditionResult | null;
 }
@@ -25,7 +26,7 @@ const TricolorSparkle = () =>
   </span>;
 
 
-const InfoCards = ({ location, jurisdiction, cdtfaName, matchStatus, confirmed, onConfirm, neighborhood, specialCondition }: InfoCardsProps) => {
+const InfoCards = ({ location, jurisdiction, cdtfaName, matchStatus, confirmed, onConfirm, onClearSearch, neighborhood, specialCondition }: InfoCardsProps) => {
   const [sparkleVisible, setSparkleVisible] = useState(false);
   const [currentStep, setCurrentStep] = useState<Step>('search');
 
@@ -158,7 +159,7 @@ const InfoCards = ({ location, jurisdiction, cdtfaName, matchStatus, confirmed, 
             <button
             onClick={() => {
               window.scrollTo({ top: 0, behavior: 'smooth' });
-              toast("Try searching for a different address above!", { icon: "🔍" });
+              onClearSearch?.();
             }}
             className="font-sans text-xs text-muted-foreground underline underline-offset-4 cursor-pointer hover:text-foreground transition-colors">
 
