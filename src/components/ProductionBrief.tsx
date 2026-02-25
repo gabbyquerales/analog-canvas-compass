@@ -71,13 +71,15 @@ function InlineStepper({
           width: btnSize,
           height: btnSize,
           borderRadius: "50%",
-          background: "hsl(0, 0%, 10%)",
-          border: "none",
+          background: "transparent",
+          border: "2px solid hsl(0, 0%, 10%)",
           fontSize: "16px",
           fontWeight: 700,
-          color: "hsl(42, 30%, 95%)",
-          boxShadow: "0 2px 6px hsla(0, 0%, 0%, 0.2)",
+          color: "hsl(0, 0%, 10%)",
         }}
+        onMouseDown={(e) => { (e.currentTarget as HTMLElement).style.background = "hsla(0, 0%, 0%, 0.05)"; }}
+        onMouseUp={(e) => { (e.currentTarget as HTMLElement).style.background = "transparent"; }}
+        onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.background = "transparent"; }}
       >
         −
       </button>
@@ -106,13 +108,15 @@ function InlineStepper({
           width: btnSize,
           height: btnSize,
           borderRadius: "50%",
-          background: "hsl(0, 0%, 10%)",
-          border: "none",
+          background: "transparent",
+          border: "2px solid hsl(0, 0%, 10%)",
           fontSize: "16px",
           fontWeight: 700,
-          color: "hsl(42, 30%, 95%)",
-          boxShadow: "0 2px 6px hsla(0, 0%, 0%, 0.2)",
+          color: "hsl(0, 0%, 10%)",
         }}
+        onMouseDown={(e) => { (e.currentTarget as HTMLElement).style.background = "hsla(0, 0%, 0%, 0.05)"; }}
+        onMouseUp={(e) => { (e.currentTarget as HTMLElement).style.background = "transparent"; }}
+        onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.background = "transparent"; }}
       >
         +
       </button>
@@ -229,14 +233,26 @@ const ProductionBrief = ({ jurisdiction, location, neighborhood, onBack }: Produ
   const locationItems = lineItems.filter((i) => i.category === "location");
 
   /* ─── Card style applied to AccordionItem ─── */
-  const cardStyle: React.CSSProperties = {
+  const cardStyleBase: React.CSSProperties = {
     background: "hsl(0, 0%, 100%)",
     borderRadius: "12px",
-    borderTop: "2px solid hsl(213, 72%, 59%)",
     boxShadow: "0 1px 4px hsla(0, 0%, 0%, 0.06), 0 4px 12px hsla(0, 0%, 0%, 0.04)",
     marginBottom: "12px",
     overflow: "hidden",
   };
+
+  const sectionBorders: Record<string, string> = {
+    shoot: "hsl(48, 96%, 53%)",
+    activities: "hsl(225, 100%, 50%)",
+    production: "hsl(225, 100%, 50%)",
+    location: "hsl(0, 84%, 60%)",
+    prep: "hsl(0, 84%, 60%)",
+  };
+
+  const getCardStyle = (section: string): React.CSSProperties => ({
+    ...cardStyleBase,
+    borderTop: `4px solid ${sectionBorders[section] || "hsl(213, 72%, 59%)"}`,
+  });
 
   const sectionHeadingStyle: React.CSSProperties = {
     fontFamily: "var(--font-sans)",
@@ -341,7 +357,7 @@ const ProductionBrief = ({ jurisdiction, location, neighborhood, onBack }: Produ
             className="space-y-0"
           >
             {/* ─── 1. Shoot Parameters ─── */}
-            <AccordionItem value="shoot" className="border-b-0" style={cardStyle}>
+            <AccordionItem value="shoot" className="border-b-0" style={getCardStyle("shoot")}>
               <AccordionTrigger className="px-5 py-3 hover:no-underline" style={sectionHeadingStyle}>
                 Shoot Parameters
               </AccordionTrigger>
@@ -354,7 +370,7 @@ const ProductionBrief = ({ jurisdiction, location, neighborhood, onBack }: Produ
             </AccordionItem>
 
             {/* ─── 2. Special Activities ─── */}
-            <AccordionItem value="activities" className="border-b-0" style={cardStyle}>
+            <AccordionItem value="activities" className="border-b-0" style={getCardStyle("activities")}>
               <AccordionTrigger className="px-5 py-3 hover:no-underline" style={sectionHeadingStyle}>
                 Special Activities
                 {selectedActivities.size > 0 && (
@@ -387,8 +403,8 @@ const ProductionBrief = ({ jurisdiction, location, neighborhood, onBack }: Produ
                         style={{
                           minHeight: "68px",
                           borderRadius: "10px",
-                          border: isActive ? "1.5px solid hsl(225, 100%, 50%)" : "1px solid hsl(0, 0%, 90%)",
-                          background: isActive ? "hsla(225, 100%, 50%, 0.06)" : "hsl(0, 0%, 100%)",
+                          border: isActive ? "2px solid hsl(225, 100%, 50%)" : "1px solid hsl(0, 0%, 90%)",
+                          background: isActive ? "hsla(225, 100%, 50%, 0.1)" : "hsl(0, 0%, 100%)",
                           padding: "8px 4px",
                         }}
                       >
@@ -413,7 +429,7 @@ const ProductionBrief = ({ jurisdiction, location, neighborhood, onBack }: Produ
             </AccordionItem>
 
             {/* ─── 3. Production Type ─── */}
-            <AccordionItem value="production" className="border-b-0" style={cardStyle}>
+            <AccordionItem value="production" className="border-b-0" style={getCardStyle("production")}>
               <AccordionTrigger className="px-5 py-3 hover:no-underline" style={sectionHeadingStyle}>
                 Production Type
               </AccordionTrigger>
@@ -430,10 +446,13 @@ const ProductionBrief = ({ jurisdiction, location, neighborhood, onBack }: Produ
                         fontFamily: "var(--font-sans)",
                         fontSize: "13px",
                         fontWeight: 600,
-                        background: isMotion ? "hsl(225, 100%, 50%)" : "hsl(0, 0%, 97%)",
-                        color: isMotion ? "hsl(0, 0%, 100%)" : "hsl(0, 0%, 10%)",
+                        background: isMotion ? "hsla(225, 100%, 50%, 0.1)" : "hsl(0, 0%, 97%)",
+                        color: isMotion ? "hsl(225, 100%, 50%)" : "hsl(0, 0%, 10%)",
                         border: "none",
-                        borderRight: "1px solid hsl(0, 0%, 85%)",
+                        borderRight: isMotion ? "2px solid hsl(225, 100%, 50%)" : "1px solid hsl(0, 0%, 85%)",
+                        borderTop: isMotion ? "2px solid hsl(225, 100%, 50%)" : "none",
+                        borderBottom: isMotion ? "2px solid hsl(225, 100%, 50%)" : "none",
+                        borderLeft: isMotion ? "2px solid hsl(225, 100%, 50%)" : "none",
                       }}
                     >
                       🎬 Motion
@@ -447,9 +466,9 @@ const ProductionBrief = ({ jurisdiction, location, neighborhood, onBack }: Produ
                         fontFamily: "var(--font-sans)",
                         fontSize: "13px",
                         fontWeight: 600,
-                        background: !isMotion ? "hsl(225, 100%, 50%)" : "hsl(0, 0%, 97%)",
-                        color: !isMotion ? "hsl(0, 0%, 100%)" : "hsl(0, 0%, 10%)",
-                        border: "none",
+                        background: !isMotion ? "hsla(225, 100%, 50%, 0.1)" : "hsl(0, 0%, 97%)",
+                        color: !isMotion ? "hsl(225, 100%, 50%)" : "hsl(0, 0%, 10%)",
+                        border: !isMotion ? "2px solid hsl(225, 100%, 50%)" : "none",
                       }}
                     >
                       📷 Still Photo
@@ -504,7 +523,7 @@ const ProductionBrief = ({ jurisdiction, location, neighborhood, onBack }: Produ
             </AccordionItem>
 
             {/* ─── 4. Location Details ─── */}
-            <AccordionItem value="location" className="border-b-0" style={cardStyle}>
+            <AccordionItem value="location" className="border-b-0" style={getCardStyle("location")}>
               <AccordionTrigger className="px-5 py-3 hover:no-underline" style={sectionHeadingStyle}>
                 Location Details
               </AccordionTrigger>
@@ -544,7 +563,7 @@ const ProductionBrief = ({ jurisdiction, location, neighborhood, onBack }: Produ
             </AccordionItem>
 
             {/* ─── 5. Prep & Strike ─── */}
-            <AccordionItem value="prep" className="border-b-0" style={cardStyle}>
+            <AccordionItem value="prep" className="border-b-0" style={getCardStyle("prep")}>
               <AccordionTrigger className="px-5 py-3 hover:no-underline" style={sectionHeadingStyle}>
                 Prep & Strike
               </AccordionTrigger>
@@ -679,11 +698,11 @@ const ProductionBrief = ({ jurisdiction, location, neighborhood, onBack }: Produ
         <div className="shrink-0 max-w-[430px] mx-auto w-full z-[60]">
           <button
             onClick={() => setLedgerExpanded(!ledgerExpanded)}
-            className="w-full cursor-pointer transition-opacity hover:opacity-95 px-6 py-4"
+            className="w-full cursor-pointer transition-opacity hover:opacity-95 px-6 py-4 backdrop-blur-md"
             style={{
-              background: "hsl(0, 0%, 15%)",
+              background: "hsla(0, 0%, 0%, 0.88)",
               borderRadius: "16px 16px 0 0",
-              boxShadow: "0 -8px 24px hsla(0, 0%, 0%, 0.18)",
+              boxShadow: "0 -8px 24px hsla(0, 0%, 0%, 0.12)",
             }}
           >
             <div className="flex justify-between items-baseline">
@@ -749,8 +768,8 @@ function ChipButton({ active, onClick, label }: { active: boolean; onClick: () =
         fontFamily: "var(--font-sans)",
         fontSize: "12px",
         fontWeight: 600,
-        border: active ? "1.5px solid hsl(225, 100%, 50%)" : "1.5px solid hsl(0, 0%, 85%)",
-        background: active ? "hsla(225, 100%, 50%, 0.06)" : "hsl(0, 0%, 100%)",
+        border: active ? "2px solid hsl(225, 100%, 50%)" : "1.5px solid hsl(0, 0%, 85%)",
+        background: active ? "hsla(225, 100%, 50%, 0.1)" : "hsl(0, 0%, 100%)",
         color: "hsl(0, 0%, 15%)",
       }}
     >
