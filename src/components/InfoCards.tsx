@@ -125,7 +125,7 @@ const InfoCards = ({ location, jurisdiction, cdtfaName, matchStatus, confirmed, 
             </h3>
 
             {!isMatched ?
-            <p className="font-sans text-sm text-muted-foreground leading-relaxed">Don't waste budget on non-refundable mistakes. We pinpoint jurisdictions, estimate fees, and track timelines across cities.
+            <p className="font-sans text-sm text-muted-foreground leading-relaxed">Don't waste budget on non-refundable mistakes. We help pinpoint jurisdictions, estimate fees, and track timelines.
 
             </p> :
 
