@@ -120,7 +120,7 @@ const InfoCards = ({ location, jurisdiction, cdtfaName, matchStatus, confirmed, 
               </div>
             }
 
-            <h3 className="font-serif text-xl text-foreground mb-3 pr-24">Your Permit Assistant
+            <h3 className="font-serif text-foreground mb-3 pr-24 text-lg">Your LA Film Permit Assistant
 
             </h3>
 
