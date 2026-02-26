@@ -60,7 +60,7 @@ const SearchPage = ({ onConfirmedChange }: SearchPageProps) => {
 
 
         <div className="relative w-full max-w-[380px]">
-          <h2 className="font-serif mb-3 text-center text-base text-muted-foreground">LA Film Permit  Jurisdictions, timelines & costs
+          <h2 className="font-serif mb-3 text-center text-base text-muted-foreground">Film Permit Intelligence 
 
           </h2>
         </div>
