@@ -779,6 +779,33 @@ const ProductionBrief = ({ jurisdiction, location, neighborhood, onBack }: Produ
                         </span>
                       </div>
                     )}
+
+                    {/* ─── Disclaimer Footer ─── */}
+                    <div
+                      className="mt-5 rounded-lg p-4"
+                      style={{
+                        background: "hsl(45, 100%, 94%)",
+                        border: "1px solid hsl(40, 80%, 82%)",
+                      }}
+                    >
+                      <div className="flex gap-2 items-start mb-2">
+                        <span style={{ fontSize: "16px", lineHeight: "1.2" }}>⚠️</span>
+                        <span style={{ fontFamily: "var(--font-sans)", fontSize: "11px", fontWeight: 700, color: "hsl(30, 60%, 30%)", textTransform: "uppercase", letterSpacing: "0.08em" }}>
+                          Fees not included in this estimate:
+                        </span>
+                      </div>
+                      <ul className="ml-6 space-y-1.5" style={{ fontFamily: "var(--font-sans)", fontSize: "11px", color: "hsl(30, 40%, 25%)", lineHeight: "1.45" }}>
+                        <li className="list-disc"><strong>Location-specific venue fees</strong> — Some parks, buildings, and facilities charge additional use fees not listed in standard rate schedules. Contact FilmLA to confirm.</li>
+                        <li className="list-disc"><strong>Insurance costs</strong> — Requirements vary by jurisdiction and activity. Your broker should confirm coverage levels before you apply.</li>
+                        <li className="list-disc"><strong>Additional fees</strong> may apply based on scope of activity.</li>
+                      </ul>
+                      <div className="mt-3 pt-2" style={{ borderTop: "1px solid hsl(40, 60%, 85%)" }}>
+                        <p style={{ fontFamily: "var(--font-sans)", fontSize: "11px", color: "hsl(30, 40%, 30%)", lineHeight: "1.5" }}>
+                          For a complete quote, contact <strong>FilmLA Solution Services</strong>:<br />
+                          📞 213.977.8600 &nbsp;|&nbsp; ✉️ <a href="mailto:info@filmla.com" className="underline" style={{ color: "hsl(225, 70%, 45%)" }}>info@filmla.com</a>
+                        </p>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
