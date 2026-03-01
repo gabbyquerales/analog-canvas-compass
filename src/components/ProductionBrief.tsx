@@ -233,6 +233,11 @@ const ProductionBrief = ({ jurisdiction, location, neighborhood, onBack }: Produ
   const subtotalCollectedFilmla = collectedByFilmla.reduce((s, i) => s + i.amount, 0);
   const subtotalCollectedDirect = collectedDirect.reduce((s, i) => s + i.amount, 0);
 
+  // Range totals
+  const hasAnyRange = lineItems.some((i) => i.rateLow != null && i.rateHigh != null);
+  const totalLow = lineItems.reduce((s, i) => s + (i.rateLow ?? i.amount), 0);
+  const totalHigh = lineItems.reduce((s, i) => s + (i.rateHigh ?? i.amount), 0);
+
   /* ─── Card style applied to AccordionItem ─── */
   const cardStyleBase: React.CSSProperties = {
     background: "hsl(0, 0%, 100%)",
@@ -733,6 +738,13 @@ const ProductionBrief = ({ jurisdiction, location, neighborhood, onBack }: Produ
                       <span className="flex-1 mx-3" />
                       <span style={{ fontWeight: 800, fontFamily: "var(--font-mono, monospace)", fontSize: "18px" }}>${estimatedTotal.toLocaleString()}</span>
                     </div>
+                    {hasAnyRange && (
+                      <div className="flex justify-end mt-1">
+                        <span style={{ fontFamily: "var(--font-sans)", fontSize: "10px", color: "hsl(0, 0%, 50%)" }}>
+                          Range: ${Math.round(totalLow).toLocaleString()} – ${Math.round(totalHigh).toLocaleString()}
+                        </span>
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>
@@ -779,6 +791,13 @@ const ProductionBrief = ({ jurisdiction, location, neighborhood, onBack }: Produ
                 ${estimatedTotal.toLocaleString()}
               </span>
             </div>
+            {hasAnyRange && (
+              <div className="text-right mt-0.5">
+                <span style={{ fontFamily: "var(--font-sans)", fontSize: "10px", color: "hsl(0, 0%, 50%)" }}>
+                  Range: ${Math.round(totalLow).toLocaleString()} – ${Math.round(totalHigh).toLocaleString()}
+                </span>
+              </div>
+            )}
             <p className="text-center mt-2">
               <span
                 style={{
@@ -842,26 +861,39 @@ function LedgerSection({ title, items, subtotal }: { title: string; items: FeeLi
         {title}
       </p>
       {items.map((item) => (
-        <div key={item.id} className="flex justify-between items-baseline mb-1.5">
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <span className="truncate max-w-[55%] flex items-center gap-1 cursor-help" style={{ fontWeight: 500 }}>
-                {item.name}
-                {item.paidDirectly && <span style={{ fontSize: "10px", color: "hsl(4, 78%, 56%)" }}>★</span>}
-                {item.isEstimate && <span style={{ fontSize: "10px", color: "hsl(40, 80%, 50%)" }}>~</span>}
+        <div key={item.id} className="mb-1.5">
+          <div className="flex justify-between items-baseline">
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <span className="truncate max-w-[55%] flex items-center gap-1 cursor-help" style={{ fontWeight: 500 }}>
+                  {item.name}
+                  {item.paidDirectly && <span style={{ fontSize: "10px", color: "hsl(4, 78%, 56%)" }}>★</span>}
+                  {item.isEstimate && <span style={{ fontSize: "10px", color: "hsl(40, 80%, 50%)" }}>~</span>}
+                </span>
+              </TooltipTrigger>
+              <TooltipContent side="top" className="text-xs max-w-[280px]" style={{ fontFamily: "var(--font-sans)" }}>
+                <div>
+                  {item.per && <p>Per: {item.per}</p>}
+                  {item.department && <p>Dept: {item.department}</p>}
+                  {item.note && <p>{item.note}</p>}
+                  {item.paidDirectly && <p className="text-red-400">Paid directly to provider</p>}
+                </div>
+              </TooltipContent>
+            </Tooltip>
+            <span className="flex-1 mx-3 border-b border-dotted" style={{ borderColor: "hsl(0, 0%, 85%)", marginBottom: "3px" }} />
+            {item.rateLow != null && item.rateHigh != null ? (
+              <span style={{ fontWeight: 700, whiteSpace: "nowrap" }}>
+                ${Math.round(item.rateLow).toLocaleString()} – ${Math.round(item.rateHigh).toLocaleString()}
               </span>
-            </TooltipTrigger>
-            <TooltipContent side="top" className="text-xs max-w-[280px]" style={{ fontFamily: "var(--font-sans)" }}>
-              <div>
-                {item.per && <p>Per: {item.per}</p>}
-                {item.department && <p>Dept: {item.department}</p>}
-                {item.note && <p>{item.note}</p>}
-                {item.paidDirectly && <p className="text-red-400">Paid directly to provider</p>}
-              </div>
-            </TooltipContent>
-          </Tooltip>
-          <span className="flex-1 mx-3 border-b border-dotted" style={{ borderColor: "hsl(0, 0%, 85%)", marginBottom: "3px" }} />
-          <span style={{ fontWeight: 700, whiteSpace: "nowrap" }}>${item.amount.toLocaleString()}</span>
+            ) : (
+              <span style={{ fontWeight: 700, whiteSpace: "nowrap" }}>${item.amount.toLocaleString()}</span>
+            )}
+          </div>
+          {item.rateLow != null && item.rateHigh != null && (
+            <p style={{ fontFamily: "var(--font-sans)", fontSize: "10px", color: "hsl(0, 0%, 55%)", marginTop: "1px", textAlign: "right" }}>
+              Estimate uses midpoint: ${item.amount.toLocaleString()}
+            </p>
+          )}
         </div>
       ))}
       <div className="flex justify-between items-baseline mt-2 pt-1" style={{ borderTop: "1px solid hsl(0, 0%, 90%)" }}>
