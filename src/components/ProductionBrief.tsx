@@ -227,6 +227,12 @@ const ProductionBrief = ({ jurisdiction, location, neighborhood, onBack }: Produ
   const personnelItems = lineItems.filter((i) => i.category === "personnel");
   const locationItems = lineItems.filter((i) => i.category === "location");
 
+  // Two-section grouping by collection method
+  const collectedByFilmla = lineItems.filter((i) => !i.paidDirectly);
+  const collectedDirect = lineItems.filter((i) => i.paidDirectly);
+  const subtotalCollectedFilmla = collectedByFilmla.reduce((s, i) => s + i.amount, 0);
+  const subtotalCollectedDirect = collectedDirect.reduce((s, i) => s + i.amount, 0);
+
   /* ─── Card style applied to AccordionItem ─── */
   const cardStyleBase: React.CSSProperties = {
     background: "hsl(0, 0%, 100%)",
@@ -700,10 +706,18 @@ const ProductionBrief = ({ jurisdiction, location, neighborhood, onBack }: Produ
                   </div>
 
                   <div className="space-y-3" style={{ fontFamily: "var(--font-sans)", fontSize: "13px", color: "hsl(0, 0%, 15%)" }}>
-                    {filmlaItems.length > 0 && <LedgerSection title="FilmLA Fees" items={filmlaItems} subtotal={subtotalFilmLA} />}
-                    {jurisdictionItems.length > 0 && <LedgerSection title="Jurisdiction Fees" items={jurisdictionItems} subtotal={subtotalJurisdiction} />}
-                    {personnelItems.length > 0 && <LedgerSection title="Personnel" items={personnelItems} subtotal={subtotalPersonnel} />}
-                    {locationItems.length > 0 && <LedgerSection title="Location Fees" items={locationItems} subtotal={subtotalLocation} />}
+                    {collectedByFilmla.length > 0 && (
+                      <LedgerSection title="Permit Fees (collected by FilmLA)" items={collectedByFilmla} subtotal={subtotalCollectedFilmla} />
+                    )}
+
+                    {collectedDirect.length > 0 && (
+                      <>
+                        <LedgerSection title="Provider Fees (paid directly to departments)" items={collectedDirect} subtotal={subtotalCollectedDirect} />
+                        <p style={{ fontFamily: "var(--font-sans)", fontSize: "10px", color: "hsl(0, 0%, 50%)", marginTop: "-8px", marginBottom: "8px" }}>
+                          These fees are paid directly to the service provider, not through FilmLA.
+                        </p>
+                      </>
+                    )}
 
                     {lineItems.length === 0 && (
                       <div className="flex justify-between items-baseline" style={{ color: "hsl(0, 0%, 55%)" }}>
@@ -715,9 +729,9 @@ const ProductionBrief = ({ jurisdiction, location, neighborhood, onBack }: Produ
 
                     <div style={{ borderTop: "2px solid hsl(0, 0%, 10%)", margin: "12px 0" }} />
                     <div className="flex justify-between items-baseline" style={{ fontSize: "15px" }}>
-                      <span style={{ fontWeight: 800 }}>Total Permit Costs</span>
+                      <span style={{ fontWeight: 800, fontFamily: "var(--font-sans)", fontSize: "10px", textTransform: "uppercase", letterSpacing: "0.15em" }}>ESTIMATED TOTAL</span>
                       <span className="flex-1 mx-3" />
-                      <span style={{ fontWeight: 800, fontFamily: "var(--font-serif)", fontSize: "18px" }}>${estimatedTotal.toLocaleString()}</span>
+                      <span style={{ fontWeight: 800, fontFamily: "var(--font-mono, monospace)", fontSize: "18px" }}>${estimatedTotal.toLocaleString()}</span>
                     </div>
                   </div>
                 </div>
