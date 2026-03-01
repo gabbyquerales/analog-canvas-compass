@@ -13,7 +13,7 @@
       "rate_high": null,
       "requirement_note": null,
       "source_url": "https://info.filmla.com/filming-related-fees/filmla-basic-fees-list",
-      "last_verified": "2025-11-11"
+      "last_verified": "2026-02-26"
     },
     "permit_rider_business_hours": {
       "rate": 148.75,
@@ -24,9 +24,9 @@
       "collected_by": "filmla",
       "rate_low": null,
       "rate_high": null,
-      "requirement_note": "Required when shoot exceeds 7 days or 5 locations",
+      "requirement_note": "Required for each additional day or location change beyond the base permit.",
       "source_url": "https://info.filmla.com/filming-related-fees/filmla-basic-fees-list",
-      "last_verified": "2025-11-11"
+      "last_verified": "2026-02-26"
     },
     "permit_rider_after_hours": {
       "rate": 208,
@@ -37,9 +37,9 @@
       "collected_by": "filmla",
       "rate_low": null,
       "rate_high": null,
-      "requirement_note": "Required for after-hours rider requests",
+      "requirement_note": "Required for each additional day or location change beyond the base permit.",
       "source_url": "https://info.filmla.com/filming-related-fees/filmla-basic-fees-list",
-      "last_verified": "2025-11-11"
+      "last_verified": "2026-02-26"
     },
     "still_photo_application": {
       "rate": 104,
@@ -50,9 +50,9 @@
       "collected_by": "filmla",
       "rate_low": null,
       "rate_high": null,
-      "requirement_note": "Crew of 16+ requires motion rate instead",
+      "requirement_note": null,
       "source_url": "https://info.filmla.com/filming-related-fees/filmla-basic-fees-list",
-      "last_verified": "2025-11-11"
+      "last_verified": "2026-02-26"
     },
     "still_photo_rider": {
       "rate": 31,
@@ -62,9 +62,9 @@
       "collected_by": "filmla",
       "rate_low": null,
       "rate_high": null,
-      "requirement_note": null,
+      "requirement_note": "Required for each additional day or location change beyond the base permit.",
       "source_url": "https://info.filmla.com/filming-related-fees/filmla-basic-fees-list",
-      "last_verified": "2025-11-11"
+      "last_verified": "2026-02-26"
     },
     "student_permit_simple": {
       "rate": 52,
@@ -74,9 +74,9 @@
       "collected_by": "filmla",
       "rate_low": null,
       "rate_high": null,
-      "requirement_note": "For student shoots with no complex activities",
+      "requirement_note": null,
       "source_url": "https://info.filmla.com/filming-related-fees/filmla-basic-fees-list",
-      "last_verified": "2025-11-11"
+      "last_verified": "2026-02-26"
     },
     "student_permit_complex": {
       "rate": 134,
@@ -86,9 +86,9 @@
       "collected_by": "filmla",
       "rate_low": null,
       "rate_high": null,
-      "requirement_note": "For student shoots with complex activities",
+      "requirement_note": null,
       "source_url": "https://info.filmla.com/filming-related-fees/filmla-basic-fees-list",
-      "last_verified": "2025-11-11"
+      "last_verified": "2026-02-26"
     },
     "nonprofit_psa_app": {
       "rate": 73,
@@ -100,7 +100,7 @@
       "rate_high": null,
       "requirement_note": null,
       "source_url": "https://info.filmla.com/filming-related-fees/filmla-basic-fees-list",
-      "last_verified": "2025-11-11"
+      "last_verified": "2026-02-26"
     },
     "nonprofit_psa_rider": {
       "rate": 36,
@@ -110,9 +110,9 @@
       "collected_by": "filmla",
       "rate_low": null,
       "rate_high": null,
-      "requirement_note": null,
+      "requirement_note": "Required for each additional day or location change beyond the base permit.",
       "source_url": "https://info.filmla.com/filming-related-fees/filmla-basic-fees-list",
-      "last_verified": "2025-11-11"
+      "last_verified": "2026-02-26"
     },
     "notification_fee": {
       "rate": 232,
@@ -125,7 +125,7 @@
       "rate_high": null,
       "requirement_note": null,
       "source_url": "https://info.filmla.com/filming-related-fees/filmla-basic-fees-list",
-      "last_verified": "2025-11-11"
+      "last_verified": "2026-02-26"
     },
     "lane_closure_admin": {
       "rate": 78,
@@ -135,9 +135,9 @@
       "collected_by": "filmla",
       "rate_low": null,
       "rate_high": null,
-      "requirement_note": "Required when street/lane closure is requested",
+      "requirement_note": "Required when the specified activity is part of the production.",
       "source_url": "https://info.filmla.com/filming-related-fees/filmla-basic-fees-list",
-      "last_verified": "2025-11-11"
+      "last_verified": "2026-02-26"
     },
     "gunfire_admin": {
       "rate": 78,
@@ -147,9 +147,9 @@
       "collected_by": "filmla",
       "rate_low": null,
       "rate_high": null,
-      "requirement_note": "Required when simulated gunfire is planned",
+      "requirement_note": "Required when the specified activity is part of the production.",
       "source_url": "https://info.filmla.com/filming-related-fees/filmla-basic-fees-list",
-      "last_verified": "2025-11-11"
+      "last_verified": "2026-02-26"
     },
     "special_fx_admin": {
       "rate": 78,
@@ -159,9 +159,9 @@
       "collected_by": "filmla",
       "rate_low": null,
       "rate_high": null,
-      "requirement_note": "Required when pyrotechnics/SFX are planned",
+      "requirement_note": "Required when the specified activity is part of the production.",
       "source_url": "https://info.filmla.com/filming-related-fees/filmla-basic-fees-list",
-      "last_verified": "2025-11-11"
+      "last_verified": "2026-02-26"
     },
     "drone_admin": {
       "rate": 78,
@@ -171,9 +171,9 @@
       "collected_by": "filmla",
       "rate_low": null,
       "rate_high": null,
-      "requirement_note": "Required when drone/aerial filming is planned",
+      "requirement_note": "Required when the specified activity is part of the production.",
       "source_url": "https://info.filmla.com/filming-related-fees/filmla-basic-fees-list",
-      "last_verified": "2025-11-11"
+      "last_verified": "2026-02-26"
     },
     "helicopter_admin": {
       "rate": 78,
@@ -183,22 +183,22 @@
       "collected_by": "filmla",
       "rate_low": null,
       "rate_high": null,
-      "requirement_note": "Required when helicopter filming is planned",
+      "requirement_note": "Required when the specified activity is part of the production.",
       "source_url": "https://info.filmla.com/filming-related-fees/filmla-basic-fees-list",
-      "last_verified": "2025-11-11"
+      "last_verified": "2026-02-26"
     },
     "filmla_monitor": {
       "rate": 44.5,
       "per": "hour",
       "note": "Minimum Applies. Subject to OT and DT. Standard Arrival: 1 Hour Prior to Permit Start Time.",
       "confidence_tier": 1,
-      "requirement_level": "mandatory",
+      "requirement_level": "conditional",
       "collected_by": "filmla",
       "rate_low": null,
       "rate_high": null,
-      "requirement_note": null,
+      "requirement_note": "May be required depending on production scope and community impact.",
       "source_url": "https://info.filmla.com/filming-related-fees/filmla-basic-fees-list",
-      "last_verified": "2025-11-11"
+      "last_verified": "2026-02-26"
     }
   },
   "rules": {

@@ -26,13 +26,13 @@
           "department": "LA City Fire Department",
           "note": "Assessed for crews of 16+",
           "confidence_tier": 1,
-          "requirement_level": "conditional",
+          "requirement_level": "mandatory",
           "collected_by": "filmla",
           "rate_low": null,
           "rate_high": null,
-          "requirement_note": "Assessed for crews of 16+",
+          "requirement_note": null,
           "source_url": "https://info.filmla.com/filming-related-fees/common-fees-la-city",
-          "last_verified": "2025-11-11"
+          "last_verified": "2026-02-26"
         },
         "fire_safety_officer": {
           "rate": 127,
@@ -46,9 +46,9 @@
           "collected_by": "filmla",
           "rate_low": null,
           "rate_high": null,
-          "requirement_note": "Required for pyrotechnics or gunfire",
+          "requirement_note": "Required for interior shoots, pyrotechnics, open flame, smoke effects. May be required for other activities — confirm with FilmLA.",
           "source_url": "https://info.filmla.com/filming-related-fees/common-fees-la-city",
-          "last_verified": "2025-11-11"
+          "last_verified": "2026-02-26"
         },
         "lane_street_closure": {
           "rate": 312,
@@ -59,9 +59,9 @@
           "collected_by": "filmla",
           "rate_low": null,
           "rate_high": null,
-          "requirement_note": "Required when street/lane closure is requested",
+          "requirement_note": "Required when street/lane closure is requested.",
           "source_url": "https://info.filmla.com/filming-related-fees/common-fees-la-city",
-          "last_verified": "2025-11-11"
+          "last_verified": "2026-02-26"
         },
         "posting_fee": {
           "rate": 69,
@@ -72,11 +72,12 @@
           "collected_by": "direct",
           "rate_low": null,
           "rate_high": null,
-          "requirement_note": "Paid directly to provider, not collected by FilmLA",
+          "requirement_note": "Paid directly to provider, not collected by FilmLA.",
           "source_url": "https://info.filmla.com/filming-related-fees/common-fees-la-city",
-          "last_verified": "2025-11-11"
+          "last_verified": "2026-02-26"
         },
         "lapd_retired_off_duty": {
+          "rate": null,
           "rateMin": 67.19,
           "rateMax": 77.90,
           "per": "hour",
@@ -88,9 +89,9 @@
           "collected_by": "direct",
           "rate_low": 67.19,
           "rate_high": 77.90,
-          "requirement_note": "Required for traffic control; 8hr minimum",
+          "requirement_note": "Commonly required for street closures, stunts, crowd scenes, night shoots on public property. Confirm with FilmLA.",
           "source_url": "https://info.filmla.com/filming-related-fees/common-fees-la-city",
-          "last_verified": "2025-11-11"
+          "last_verified": "2026-02-26"
         },
         "lapd_motorcycle": {
           "rate": 75,
@@ -101,9 +102,9 @@
           "collected_by": "direct",
           "rate_low": null,
           "rate_high": null,
-          "requirement_note": "Paid directly to provider",
+          "requirement_note": "Commonly required for street closures, stunts, crowd scenes, night shoots on public property. Confirm with FilmLA.",
           "source_url": "https://info.filmla.com/filming-related-fees/common-fees-la-city",
-          "last_verified": "2025-11-11"
+          "last_verified": "2026-02-26"
         },
         "lapd_active_duty": {
           "rate": 74,
@@ -117,9 +118,9 @@
           "collected_by": "direct",
           "rate_low": null,
           "rate_high": null,
-          "requirement_note": "Flat rate, no OT/DT; paid directly to provider",
+          "requirement_note": "Commonly required for street closures, stunts, crowd scenes, night shoots on public property. Confirm with FilmLA.",
           "source_url": "https://info.filmla.com/filming-related-fees/common-fees-la-city",
-          "last_verified": "2025-11-11"
+          "last_verified": "2026-02-26"
         },
         "rec_parks_film_use": {
           "rate": 450,
@@ -130,9 +131,9 @@
           "collected_by": "filmla",
           "rate_low": null,
           "rate_high": null,
-          "requirement_note": "Required when filming at Rec & Parks location",
+          "requirement_note": "Applies when filming in LA City parks and recreation facilities.",
           "source_url": "https://info.filmla.com/filming-related-fees/common-fees-la-city",
-          "last_verified": "2025-11-11"
+          "last_verified": "2026-02-26"
         },
         "rec_parks_still_photo_small": {
           "rate": 75,
@@ -144,9 +145,9 @@
           "collected_by": "filmla",
           "rate_low": null,
           "rate_high": null,
-          "requirement_note": "1-14 people at Rec & Parks",
+          "requirement_note": "Applies when filming in LA City parks and recreation facilities.",
           "source_url": "https://info.filmla.com/filming-related-fees/common-fees-la-city",
-          "last_verified": "2025-11-11"
+          "last_verified": "2026-02-26"
         },
         "rec_parks_still_photo_large": {
           "rate": 150,
@@ -158,9 +159,9 @@
           "collected_by": "filmla",
           "rate_low": null,
           "rate_high": null,
-          "requirement_note": "15+ people at Rec & Parks",
+          "requirement_note": "Applies when filming in LA City parks and recreation facilities.",
           "source_url": "https://info.filmla.com/filming-related-fees/common-fees-la-city",
-          "last_verified": "2025-11-11"
+          "last_verified": "2026-02-26"
         },
         "rec_parks_prep_strike": {
           "rate": 150,
@@ -171,9 +172,9 @@
           "collected_by": "filmla",
           "rate_low": null,
           "rate_high": null,
-          "requirement_note": "Required when prep/strike days at Rec & Parks",
+          "requirement_note": "Applies when filming in LA City parks and recreation facilities.",
           "source_url": "https://info.filmla.com/filming-related-fees/common-fees-la-city",
-          "last_verified": "2025-11-11"
+          "last_verified": "2026-02-26"
         },
         "rec_parks_basecamp": {
           "rate": 450,
@@ -184,9 +185,9 @@
           "collected_by": "filmla",
           "rate_low": null,
           "rate_high": null,
-          "requirement_note": "Required when basecamp at Rec & Parks",
+          "requirement_note": "Applies when filming in LA City parks and recreation facilities.",
           "source_url": "https://info.filmla.com/filming-related-fees/common-fees-la-city",
-          "last_verified": "2025-11-11"
+          "last_verified": "2026-02-26"
         },
         "rec_parks_crew_parking_small": {
           "rate": 100,
@@ -198,9 +199,9 @@
           "collected_by": "filmla",
           "rate_low": null,
           "rate_high": null,
-          "requirement_note": "1-15 cars at Rec & Parks",
+          "requirement_note": "Applies when filming in LA City parks and recreation facilities.",
           "source_url": "https://info.filmla.com/filming-related-fees/common-fees-la-city",
-          "last_verified": "2025-11-11"
+          "last_verified": "2026-02-26"
         },
         "rec_parks_crew_parking_large": {
           "rate": 300,
@@ -212,9 +213,9 @@
           "collected_by": "filmla",
           "rate_low": null,
           "rate_high": null,
-          "requirement_note": "16+ cars at Rec & Parks",
+          "requirement_note": "Applies when filming in LA City parks and recreation facilities.",
           "source_url": "https://info.filmla.com/filming-related-fees/common-fees-la-city",
-          "last_verified": "2025-11-11"
+          "last_verified": "2026-02-26"
         },
         "rec_parks_catering_small": {
           "rate": 225,
@@ -226,9 +227,9 @@
           "collected_by": "filmla",
           "rate_low": null,
           "rate_high": null,
-          "requirement_note": "1-74 people catering at Rec & Parks",
+          "requirement_note": "Applies when filming in LA City parks and recreation facilities.",
           "source_url": "https://info.filmla.com/filming-related-fees/common-fees-la-city",
-          "last_verified": "2025-11-11"
+          "last_verified": "2026-02-26"
         },
         "rec_parks_catering_large": {
           "rate": 450,
@@ -240,9 +241,9 @@
           "collected_by": "filmla",
           "rate_low": null,
           "rate_high": null,
-          "requirement_note": "75+ people catering at Rec & Parks",
+          "requirement_note": "Applies when filming in LA City parks and recreation facilities.",
           "source_url": "https://info.filmla.com/filming-related-fees/common-fees-la-city",
-          "last_verified": "2025-11-11"
+          "last_verified": "2026-02-26"
         },
         "rec_parks_special_facility": {
           "rate": 150,
@@ -254,9 +255,9 @@
           "collected_by": "filmla",
           "rate_low": null,
           "rate_high": null,
-          "requirement_note": "Standard use fee waived if Special Facility Fee collected",
+          "requirement_note": "Applies when filming in LA City parks and recreation facilities.",
           "source_url": "https://info.filmla.com/filming-related-fees/common-fees-la-city",
-          "last_verified": "2025-11-11"
+          "last_verified": "2026-02-26"
         },
         "rec_parks_monitor": {
           "rate": 38,
@@ -267,9 +268,9 @@
           "collected_by": "filmla",
           "rate_low": null,
           "rate_high": null,
-          "requirement_note": "Required at Rec & Parks locations",
+          "requirement_note": "Applies when filming in LA City parks and recreation facilities.",
           "source_url": "https://info.filmla.com/filming-related-fees/common-fees-la-city",
-          "last_verified": "2025-11-11"
+          "last_verified": "2026-02-26"
         },
         "rec_parks_monitor_reporting": {
           "rate": 76,
@@ -280,11 +281,12 @@
           "collected_by": "filmla",
           "rate_low": null,
           "rate_high": null,
-          "requirement_note": "Per monitor shift at Rec & Parks",
+          "requirement_note": "Applies when filming in LA City parks and recreation facilities.",
           "source_url": "https://info.filmla.com/filming-related-fees/common-fees-la-city",
-          "last_verified": "2025-11-11"
+          "last_verified": "2026-02-26"
         },
         "dwp_facility_film": {
+          "rate": null,
           "rateMin": 800,
           "rateMax": 2000,
           "per": "day",
@@ -294,9 +296,9 @@
           "collected_by": "filmla",
           "rate_low": 800,
           "rate_high": 2000,
-          "requirement_note": "Required when filming at DWP facility",
+          "requirement_note": "Applies when filming at DWP-owned facilities only.",
           "source_url": "https://info.filmla.com/filming-related-fees/common-fees-la-city",
-          "last_verified": "2025-11-11"
+          "last_verified": "2026-02-26"
         },
         "dwp_facility_still": {
           "rate": 500,
@@ -307,11 +309,12 @@
           "collected_by": "filmla",
           "rate_low": null,
           "rate_high": null,
-          "requirement_note": "Still photo at DWP facility",
+          "requirement_note": "Applies when filming at DWP-owned facilities only.",
           "source_url": "https://info.filmla.com/filming-related-fees/common-fees-la-city",
-          "last_verified": "2025-11-11"
+          "last_verified": "2026-02-26"
         },
         "dwp_monitor": {
+          "rate": null,
           "rateMin": 50,
           "rateMax": 70,
           "per": "hour",
@@ -321,9 +324,9 @@
           "collected_by": "filmla",
           "rate_low": 50,
           "rate_high": 70,
-          "requirement_note": "Monitor required at DWP facility",
+          "requirement_note": "Applies when filming at DWP-owned facilities only.",
           "source_url": "https://info.filmla.com/filming-related-fees/common-fees-la-city",
-          "last_verified": "2025-11-11"
+          "last_verified": "2026-02-26"
         },
         "port_use_fee": {
           "rate": 300,
@@ -334,9 +337,9 @@
           "collected_by": "filmla",
           "rate_low": null,
           "rate_high": null,
-          "requirement_note": "Required when filming at Port of LA",
+          "requirement_note": "Applies when filming at Port of Los Angeles facilities only.",
           "source_url": "https://info.filmla.com/filming-related-fees/common-fees-la-city",
-          "last_verified": "2025-11-11"
+          "last_verified": "2026-02-26"
         },
         "port_prep_strike": {
           "rate": 100,
@@ -347,9 +350,9 @@
           "collected_by": "filmla",
           "rate_low": null,
           "rate_high": null,
-          "requirement_note": "Prep/strike at Port of LA",
+          "requirement_note": "Applies when filming at Port of Los Angeles facilities only.",
           "source_url": "https://info.filmla.com/filming-related-fees/common-fees-la-city",
-          "last_verified": "2025-11-11"
+          "last_verified": "2026-02-26"
         },
         "port_case_camp": {
           "rate": 300,
@@ -360,9 +363,9 @@
           "collected_by": "filmla",
           "rate_low": null,
           "rate_high": null,
-          "requirement_note": "Basecamp at Port of LA",
+          "requirement_note": "Applies when filming at Port of Los Angeles facilities only.",
           "source_url": "https://info.filmla.com/filming-related-fees/common-fees-la-city",
-          "last_verified": "2025-11-11"
+          "last_verified": "2026-02-26"
         },
         "port_crew_parking": {
           "rate": 150,
@@ -373,9 +376,9 @@
           "collected_by": "filmla",
           "rate_low": null,
           "rate_high": null,
-          "requirement_note": "Crew parking at Port of LA",
+          "requirement_note": "Applies when filming at Port of Los Angeles facilities only.",
           "source_url": "https://info.filmla.com/filming-related-fees/common-fees-la-city",
-          "last_verified": "2025-11-11"
+          "last_verified": "2026-02-26"
         },
         "port_police": {
           "rate": 112,
@@ -386,9 +389,9 @@
           "collected_by": "filmla",
           "rate_low": null,
           "rate_high": null,
-          "requirement_note": "Port police required at Port of LA",
+          "requirement_note": "Applies when filming at Port of Los Angeles facilities only.",
           "source_url": "https://info.filmla.com/filming-related-fees/common-fees-la-city",
-          "last_verified": "2025-11-11"
+          "last_verified": "2026-02-26"
         }
       },
       "whatPeopleMiss": [
@@ -428,9 +431,9 @@
           "collected_by": "filmla",
           "rate_low": null,
           "rate_high": null,
-          "requirement_note": "Assessed for all motion filming permits",
+          "requirement_note": null,
           "source_url": "https://info.filmla.com/filming-related-fees/common-fees-la-county",
-          "last_verified": "2026-01-30"
+          "last_verified": "2026-02-26"
         },
         "fire_still_photo_review": {
           "rate": 277,
@@ -442,9 +445,9 @@
           "collected_by": "filmla",
           "rate_low": null,
           "rate_high": null,
-          "requirement_note": "For shoots involving 16+ people",
+          "requirement_note": "Applies to still photo shoots with 16+ people.",
           "source_url": "https://info.filmla.com/filming-related-fees/common-fees-la-county",
-          "last_verified": "2026-01-30"
+          "last_verified": "2026-02-26"
         },
         "fire_special_effects_permit": {
           "rate": 350,
@@ -455,9 +458,9 @@
           "collected_by": "filmla",
           "rate_low": null,
           "rate_high": null,
-          "requirement_note": "Required for pyrotechnics/SFX",
+          "requirement_note": "Required for pyrotechnics/SFX.",
           "source_url": "https://info.filmla.com/filming-related-fees/common-fees-la-county",
-          "last_verified": "2026-01-30"
+          "last_verified": "2026-02-26"
         },
         "fire_safety_advisor": {
           "rate": 63.51,
@@ -471,9 +474,9 @@
           "collected_by": "direct",
           "rate_low": null,
           "rate_high": null,
-          "requirement_note": "Paid directly to provider",
+          "requirement_note": "FSA or FSO may be required depending on filming activities and location.",
           "source_url": "https://info.filmla.com/filming-related-fees/common-fees-la-county",
-          "last_verified": "2026-01-30"
+          "last_verified": "2026-02-26"
         },
         "fire_safety_officer": {
           "rate": 230.19,
@@ -487,9 +490,9 @@
           "collected_by": "direct",
           "rate_low": null,
           "rate_high": null,
-          "requirement_note": "Flat rate, no OT/DT; paid directly to provider",
+          "requirement_note": "FSA or FSO may be required depending on filming activities and location.",
           "source_url": "https://info.filmla.com/filming-related-fees/common-fees-la-county",
-          "last_verified": "2026-01-30"
+          "last_verified": "2026-02-26"
         },
         "roads_inspection_use": {
           "rate": 468,
@@ -500,9 +503,9 @@
           "collected_by": "filmla",
           "rate_low": null,
           "rate_high": null,
-          "requirement_note": "Required for road use/closure",
+          "requirement_note": "Applies when filming requires use of or impact to county roads.",
           "source_url": "https://info.filmla.com/filming-related-fees/common-fees-la-county",
-          "last_verified": "2026-01-30"
+          "last_verified": "2026-02-26"
         },
         "roads_encroachment_processing": {
           "rate": 387,
@@ -513,9 +516,9 @@
           "collected_by": "filmla",
           "rate_low": null,
           "rate_high": null,
-          "requirement_note": "Required for road encroachment",
+          "requirement_note": "Applies when filming requires use of or impact to county roads.",
           "source_url": "https://info.filmla.com/filming-related-fees/common-fees-la-county",
-          "last_verified": "2026-01-30"
+          "last_verified": "2026-02-26"
         },
         "roads_application_issuance": {
           "rate": 214,
@@ -526,9 +529,9 @@
           "collected_by": "filmla",
           "rate_low": null,
           "rate_high": null,
-          "requirement_note": "Required for road use application",
+          "requirement_note": "Applies when filming requires use of or impact to county roads.",
           "source_url": "https://info.filmla.com/filming-related-fees/common-fees-la-county",
-          "last_verified": "2026-01-30"
+          "last_verified": "2026-02-26"
         },
         "beaches_filming_use": {
           "rate": 400,
@@ -539,9 +542,9 @@
           "collected_by": "filmla",
           "rate_low": null,
           "rate_high": null,
-          "requirement_note": "Required when filming at county beach",
+          "requirement_note": "Applies when filming at LA County beaches.",
           "source_url": "https://info.filmla.com/filming-related-fees/common-fees-la-county",
-          "last_verified": "2026-01-30"
+          "last_verified": "2026-02-26"
         },
         "beaches_still_photo_use": {
           "rate": 100,
@@ -553,9 +556,9 @@
           "collected_by": "filmla",
           "rate_low": null,
           "rate_high": null,
-          "requirement_note": "1-15 people at county beach",
+          "requirement_note": "Applies when filming at LA County beaches.",
           "source_url": "https://info.filmla.com/filming-related-fees/common-fees-la-county",
-          "last_verified": "2026-01-30"
+          "last_verified": "2026-02-26"
         },
         "beaches_prep_strike": {
           "rate": 100,
@@ -567,9 +570,9 @@
           "collected_by": "filmla",
           "rate_low": null,
           "rate_high": null,
-          "requirement_note": "First 3 days of activity at beach",
+          "requirement_note": "Applies when filming at LA County beaches.",
           "source_url": "https://info.filmla.com/filming-related-fees/common-fees-la-county",
-          "last_verified": "2026-01-30"
+          "last_verified": "2026-02-26"
         },
         "beaches_prep_strike_extended": {
           "rate": 400,
@@ -581,9 +584,9 @@
           "collected_by": "filmla",
           "rate_low": null,
           "rate_high": null,
-          "requirement_note": "Beginning 4th day at beach; rate quadruples",
+          "requirement_note": "Applies when filming at LA County beaches.",
           "source_url": "https://info.filmla.com/filming-related-fees/common-fees-la-county",
-          "last_verified": "2026-01-30"
+          "last_verified": "2026-02-26"
         },
         "lifeguards": {
           "rate": 230,
@@ -597,9 +600,9 @@
           "collected_by": "direct",
           "rate_low": null,
           "rate_high": null,
-          "requirement_note": "Paid directly to provider; minimum varies by beach status",
+          "requirement_note": "Required when filming at county beaches. 4hr min when beach is open, 8hr min when beach is closed.",
           "source_url": "https://info.filmla.com/filming-related-fees/common-fees-la-county",
-          "last_verified": "2026-01-30"
+          "last_verified": "2026-02-26"
         },
         "parks_filming_use": {
           "rate": 400,
@@ -610,9 +613,9 @@
           "collected_by": "filmla",
           "rate_low": null,
           "rate_high": null,
-          "requirement_note": "Required when filming at county park",
+          "requirement_note": "Applies when filming at LA County parks.",
           "source_url": "https://info.filmla.com/filming-related-fees/common-fees-la-county",
-          "last_verified": "2026-01-30"
+          "last_verified": "2026-02-26"
         },
         "parks_still_photo_use": {
           "rate": 100,
@@ -623,9 +626,9 @@
           "collected_by": "filmla",
           "rate_low": null,
           "rate_high": null,
-          "requirement_note": "Still photo at county park",
+          "requirement_note": "Applies when filming at LA County parks.",
           "source_url": "https://info.filmla.com/filming-related-fees/common-fees-la-county",
-          "last_verified": "2026-01-30"
+          "last_verified": "2026-02-26"
         },
         "parks_prep_strike": {
           "rate": 100,
@@ -637,9 +640,9 @@
           "collected_by": "filmla",
           "rate_low": null,
           "rate_high": null,
-          "requirement_note": "First 3 days at county park",
+          "requirement_note": "Applies when filming at LA County parks.",
           "source_url": "https://info.filmla.com/filming-related-fees/common-fees-la-county",
-          "last_verified": "2026-01-30"
+          "last_verified": "2026-02-26"
         },
         "parks_prep_strike_extended": {
           "rate": 400,
@@ -651,9 +654,9 @@
           "collected_by": "filmla",
           "rate_low": null,
           "rate_high": null,
-          "requirement_note": "Beginning 4th day at county park",
+          "requirement_note": "Applies when filming at LA County parks.",
           "source_url": "https://info.filmla.com/filming-related-fees/common-fees-la-county",
-          "last_verified": "2026-01-30"
+          "last_verified": "2026-02-26"
         },
         "building_filming_use": {
           "rate": 400,
@@ -664,9 +667,9 @@
           "collected_by": "filmla",
           "rate_low": null,
           "rate_high": null,
-          "requirement_note": "Required when filming at county building",
+          "requirement_note": "Applies when filming at LA County buildings.",
           "source_url": "https://info.filmla.com/filming-related-fees/common-fees-la-county",
-          "last_verified": "2026-01-30"
+          "last_verified": "2026-02-26"
         },
         "building_still_photo_use": {
           "rate": 100,
@@ -678,9 +681,9 @@
           "collected_by": "filmla",
           "rate_low": null,
           "rate_high": null,
-          "requirement_note": "1-15 people at county building",
+          "requirement_note": "Applies when filming at LA County buildings.",
           "source_url": "https://info.filmla.com/filming-related-fees/common-fees-la-county",
-          "last_verified": "2026-01-30"
+          "last_verified": "2026-02-26"
         },
         "building_prep_strike": {
           "rate": 100,
@@ -692,9 +695,9 @@
           "collected_by": "filmla",
           "rate_low": null,
           "rate_high": null,
-          "requirement_note": "First 3 days at county building",
+          "requirement_note": "Applies when filming at LA County buildings.",
           "source_url": "https://info.filmla.com/filming-related-fees/common-fees-la-county",
-          "last_verified": "2026-01-30"
+          "last_verified": "2026-02-26"
         },
         "building_prep_strike_extended": {
           "rate": 400,
@@ -706,9 +709,9 @@
           "collected_by": "filmla",
           "rate_low": null,
           "rate_high": null,
-          "requirement_note": "Beginning 4th day at county building",
+          "requirement_note": "Applies when filming at LA County buildings.",
           "source_url": "https://info.filmla.com/filming-related-fees/common-fees-la-county",
-          "last_verified": "2026-01-30"
+          "last_verified": "2026-02-26"
         },
         "flood_control_permit": {
           "rate": 174,
@@ -719,9 +722,9 @@
           "collected_by": "filmla",
           "rate_low": null,
           "rate_high": null,
-          "requirement_note": "Required for flood control location",
+          "requirement_note": "Applies when filming in flood control channels. $1,181/day use fee applies to all filming, prep, and strike days.",
           "source_url": "https://info.filmla.com/filming-related-fees/common-fees-la-county",
-          "last_verified": "2026-01-30"
+          "last_verified": "2026-02-26"
         },
         "flood_control_use": {
           "rate": 1181,
@@ -733,9 +736,9 @@
           "collected_by": "filmla",
           "rate_low": null,
           "rate_high": null,
-          "requirement_note": "All prep, strike, photo & filming days",
+          "requirement_note": "Applies when filming in flood control channels. $1,181/day use fee applies to all filming, prep, and strike days.",
           "source_url": "https://info.filmla.com/filming-related-fees/common-fees-la-county",
-          "last_verified": "2026-01-30"
+          "last_verified": "2026-02-26"
         },
         "sheriff_officer": {
           "rate": 95.11,
@@ -750,11 +753,12 @@
           "collected_by": "direct",
           "rate_low": null,
           "rate_high": null,
-          "requirement_note": "Flat rate + mileage; paid directly to provider",
+          "requirement_note": "Required when using county roads or when public safety presence is needed.",
           "source_url": "https://info.filmla.com/filming-related-fees/common-fees-la-county",
-          "last_verified": "2026-01-30"
+          "last_verified": "2026-02-26"
         },
         "chp_officer": {
+          "rate": null,
           "rateMin": 133.51,
           "rateMax": 170.52,
           "per": "hour",
@@ -768,9 +772,9 @@
           "collected_by": "direct",
           "rate_low": 133.51,
           "rate_high": 170.52,
-          "requirement_note": "Rate depends on officer type; paid directly to provider",
+          "requirement_note": "Required for filming on state highways or CHP-jurisdiction roads.",
           "source_url": "https://info.filmla.com/filming-related-fees/common-fees-la-county",
-          "last_verified": "2026-01-30"
+          "last_verified": "2026-02-26"
         }
       },
       "whatPeopleMiss": [
@@ -811,9 +815,9 @@
           "collected_by": "filmla",
           "rate_low": null,
           "rate_high": null,
-          "requirement_note": "In addition to FilmLA application fee",
-          "source_url": "https://info.filmla.com/filming-related-fees/common-fees-culver-city",
-          "last_verified": "2025-12-09"
+          "requirement_note": null,
+          "source_url": "https://info.filmla.com/common-fees-culver-city",
+          "last_verified": "2026-02-26"
         },
         "filming_daily_use": {
           "rate": 350,
@@ -825,8 +829,8 @@
           "rate_low": null,
           "rate_high": null,
           "requirement_note": null,
-          "source_url": "https://info.filmla.com/filming-related-fees/common-fees-culver-city",
-          "last_verified": "2025-12-09"
+          "source_url": "https://info.filmla.com/common-fees-culver-city",
+          "last_verified": "2026-02-26"
         },
         "still_photo_daily_use": {
           "rate": 75,
@@ -838,8 +842,8 @@
           "rate_low": null,
           "rate_high": null,
           "requirement_note": null,
-          "source_url": "https://info.filmla.com/filming-related-fees/common-fees-culver-city",
-          "last_verified": "2025-12-09"
+          "source_url": "https://info.filmla.com/common-fees-culver-city",
+          "last_verified": "2026-02-26"
         },
         "change_fee": {
           "rate": 105,
@@ -850,9 +854,9 @@
           "collected_by": "filmla",
           "rate_low": null,
           "rate_high": null,
-          "requirement_note": "Per change request",
-          "source_url": "https://info.filmla.com/filming-related-fees/common-fees-culver-city",
-          "last_verified": "2025-12-09"
+          "requirement_note": "Per change request.",
+          "source_url": "https://info.filmla.com/common-fees-culver-city",
+          "last_verified": "2026-02-26"
         },
         "cancellation_fee": {
           "rate": 432,
@@ -863,22 +867,22 @@
           "collected_by": "filmla",
           "rate_low": null,
           "rate_high": null,
-          "requirement_note": "Per cancellation request",
-          "source_url": "https://info.filmla.com/filming-related-fees/common-fees-culver-city",
-          "last_verified": "2025-12-09"
+          "requirement_note": "Per cancellation request.",
+          "source_url": "https://info.filmla.com/common-fees-culver-city",
+          "last_verified": "2026-02-26"
         },
         "fire_spot_check": {
           "rate": 95,
           "per": "involved_location",
           "department": "Culver City Fire Department",
           "confidence_tier": 1,
-          "requirement_level": "mandatory",
+          "requirement_level": "conditional",
           "collected_by": "filmla",
           "rate_low": null,
           "rate_high": null,
-          "requirement_note": "Per involved location",
-          "source_url": "https://info.filmla.com/filming-related-fees/common-fees-culver-city",
-          "last_verified": "2025-12-09"
+          "requirement_note": "Required for interior shoots and shoots with fire hazards.",
+          "source_url": "https://info.filmla.com/common-fees-culver-city",
+          "last_verified": "2026-02-26"
         },
         "police_officer_weekday": {
           "rate": 630,
@@ -887,13 +891,13 @@
           "department": "Culver City Police",
           "note": "Weekday Rate",
           "confidence_tier": 1,
-          "requirement_level": "conditional",
+          "requirement_level": "mandatory",
           "collected_by": "filmla",
           "rate_low": null,
           "rate_high": null,
-          "requirement_note": "Weekday rate; 8hr minimum",
-          "source_url": "https://info.filmla.com/filming-related-fees/common-fees-culver-city",
-          "last_verified": "2025-12-09"
+          "requirement_note": null,
+          "source_url": "https://info.filmla.com/common-fees-culver-city",
+          "last_verified": "2026-02-26"
         },
         "police_officer_additional_hours": {
           "rate": 108,
@@ -901,13 +905,13 @@
           "note": "Weekday Rate",
           "department": "Culver City Police",
           "confidence_tier": 1,
-          "requirement_level": "conditional",
+          "requirement_level": "mandatory",
           "collected_by": "filmla",
           "rate_low": null,
           "rate_high": null,
-          "requirement_note": "Weekday additional hours beyond 8",
-          "source_url": "https://info.filmla.com/filming-related-fees/common-fees-culver-city",
-          "last_verified": "2025-12-09"
+          "requirement_note": null,
+          "source_url": "https://info.filmla.com/common-fees-culver-city",
+          "last_verified": "2026-02-26"
         },
         "police_officer_weekend_holiday": {
           "rate": 840,
@@ -915,13 +919,13 @@
           "note": "Weekends, Holidays",
           "department": "Culver City Police",
           "confidence_tier": 1,
-          "requirement_level": "conditional",
+          "requirement_level": "mandatory",
           "collected_by": "filmla",
           "rate_low": null,
           "rate_high": null,
-          "requirement_note": "Weekend/holiday rate",
-          "source_url": "https://info.filmla.com/filming-related-fees/common-fees-culver-city",
-          "last_verified": "2025-12-09"
+          "requirement_note": null,
+          "source_url": "https://info.filmla.com/common-fees-culver-city",
+          "last_verified": "2026-02-26"
         },
         "fire_officer_weekday": {
           "rate": 695,
@@ -934,9 +938,9 @@
           "collected_by": "filmla",
           "rate_low": null,
           "rate_high": null,
-          "requirement_note": "Weekday rate; 8hr minimum",
-          "source_url": "https://info.filmla.com/filming-related-fees/common-fees-culver-city",
-          "last_verified": "2025-12-09"
+          "requirement_note": "Almost always required for interior shoots. May be required for exterior shoots — confirm with FilmLA.",
+          "source_url": "https://info.filmla.com/common-fees-culver-city",
+          "last_verified": "2026-02-26"
         },
         "fire_officer_additional_hours": {
           "rate": 108,
@@ -948,9 +952,9 @@
           "collected_by": "filmla",
           "rate_low": null,
           "rate_high": null,
-          "requirement_note": "Weekday additional hours beyond 8",
-          "source_url": "https://info.filmla.com/filming-related-fees/common-fees-culver-city",
-          "last_verified": "2025-12-09"
+          "requirement_note": "Almost always required for interior shoots. May be required for exterior shoots — confirm with FilmLA.",
+          "source_url": "https://info.filmla.com/common-fees-culver-city",
+          "last_verified": "2026-02-26"
         },
         "fire_officer_weekend_holiday": {
           "rate": 925,
@@ -962,9 +966,9 @@
           "collected_by": "filmla",
           "rate_low": null,
           "rate_high": null,
-          "requirement_note": "Weekend/holiday rate",
-          "source_url": "https://info.filmla.com/filming-related-fees/common-fees-culver-city",
-          "last_verified": "2025-12-09"
+          "requirement_note": "Almost always required for interior shoots. May be required for exterior shoots — confirm with FilmLA.",
+          "source_url": "https://info.filmla.com/common-fees-culver-city",
+          "last_verified": "2026-02-26"
         },
         "posting_metered": {
           "rate": 16,
@@ -976,9 +980,9 @@
           "collected_by": "filmla",
           "rate_low": null,
           "rate_high": null,
-          "requirement_note": "Metered parking spaces",
-          "source_url": "https://info.filmla.com/filming-related-fees/common-fees-culver-city",
-          "last_verified": "2025-12-09"
+          "requirement_note": "Metered parking spaces.",
+          "source_url": "https://info.filmla.com/common-fees-culver-city",
+          "last_verified": "2026-02-26"
         },
         "posting_non_metered": {
           "rate": 8,
@@ -990,9 +994,9 @@
           "collected_by": "filmla",
           "rate_low": null,
           "rate_high": null,
-          "requirement_note": "Non-metered parking spaces",
-          "source_url": "https://info.filmla.com/filming-related-fees/common-fees-culver-city",
-          "last_verified": "2025-12-09"
+          "requirement_note": "Non-metered parking spaces.",
+          "source_url": "https://info.filmla.com/common-fees-culver-city",
+          "last_verified": "2026-02-26"
         },
         "posting_downtown_metered": {
           "rate": 22,
@@ -1004,9 +1008,9 @@
           "collected_by": "filmla",
           "rate_low": null,
           "rate_high": null,
-          "requirement_note": "Downtown metered spaces",
-          "source_url": "https://info.filmla.com/filming-related-fees/common-fees-culver-city",
-          "last_verified": "2025-12-09"
+          "requirement_note": "Downtown metered spaces.",
+          "source_url": "https://info.filmla.com/common-fees-culver-city",
+          "last_verified": "2026-02-26"
         },
         "posting_downtown_non_metered": {
           "rate": 11,
@@ -1018,9 +1022,9 @@
           "collected_by": "filmla",
           "rate_low": null,
           "rate_high": null,
-          "requirement_note": "Downtown non-metered spaces",
-          "source_url": "https://info.filmla.com/filming-related-fees/common-fees-culver-city",
-          "last_verified": "2025-12-09"
+          "requirement_note": "Downtown non-metered spaces.",
+          "source_url": "https://info.filmla.com/common-fees-culver-city",
+          "last_verified": "2026-02-26"
         },
         "civic_center_exterior": {
           "rate": 500,
@@ -1032,9 +1036,9 @@
           "collected_by": "filmla",
           "rate_low": null,
           "rate_high": null,
-          "requirement_note": "City Hall exterior",
-          "source_url": "https://info.filmla.com/filming-related-fees/common-fees-culver-city",
-          "last_verified": "2025-12-09"
+          "requirement_note": "City Hall exterior.",
+          "source_url": "https://info.filmla.com/common-fees-culver-city",
+          "last_verified": "2026-02-26"
         },
         "civic_center_interior": {
           "rate": 750,
@@ -1046,9 +1050,9 @@
           "collected_by": "filmla",
           "rate_low": null,
           "rate_high": null,
-          "requirement_note": "City Hall interior",
-          "source_url": "https://info.filmla.com/filming-related-fees/common-fees-culver-city",
-          "last_verified": "2025-12-09"
+          "requirement_note": "City Hall interior.",
+          "source_url": "https://info.filmla.com/common-fees-culver-city",
+          "last_verified": "2026-02-26"
         },
         "town_plaza": {
           "rate": 500,
@@ -1060,8 +1064,8 @@
           "rate_low": null,
           "rate_high": null,
           "requirement_note": null,
-          "source_url": "https://info.filmla.com/filming-related-fees/common-fees-culver-city",
-          "last_verified": "2025-12-09"
+          "source_url": "https://info.filmla.com/common-fees-culver-city",
+          "last_verified": "2026-02-26"
         },
         "main_street_3800": {
           "rate": 400,
@@ -1073,9 +1077,9 @@
           "collected_by": "filmla",
           "rate_low": null,
           "rate_high": null,
-          "requirement_note": "3800 block",
-          "source_url": "https://info.filmla.com/filming-related-fees/common-fees-culver-city",
-          "last_verified": "2025-12-09"
+          "requirement_note": "3800 block.",
+          "source_url": "https://info.filmla.com/common-fees-culver-city",
+          "last_verified": "2026-02-26"
         }
       },
       "whatPeopleMiss": [

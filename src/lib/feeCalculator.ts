@@ -696,3 +696,55 @@ export function calculateFees(inputs: ShootInputs): FeeCalculationResult {
     estimatedLeadDays: maxLeadDays,
   };
 }
+
+// ——— Estimate helpers (for Phase B frontend) ———
+
+export interface EstimateFeeInput {
+  rate?: number | null;
+  rate_low?: number | null;
+  rate_high?: number | null;
+  collected_by?: 'filmla' | 'direct';
+  quantity?: number;
+  minimum_units?: number;
+}
+
+export interface EstimateResult {
+  low: number;
+  mid: number;
+  high: number;
+  hasRange: boolean;
+}
+
+export function calculateEstimate(fees: EstimateFeeInput[]): EstimateResult {
+  let totalLow = 0;
+  let totalHigh = 0;
+
+  for (const fee of fees) {
+    const quantity = fee.quantity || fee.minimum_units || 1;
+
+    if (fee.rate !== null && fee.rate !== undefined) {
+      totalLow += fee.rate * quantity;
+      totalHigh += fee.rate * quantity;
+    } else if (fee.rate_low !== null && fee.rate_low !== undefined &&
+               fee.rate_high !== null && fee.rate_high !== undefined) {
+      totalLow += fee.rate_low * quantity;
+      totalHigh += fee.rate_high * quantity;
+    }
+  }
+
+  const totalMid = (totalLow + totalHigh) / 2;
+
+  return {
+    low: Math.round(totalLow * 100) / 100,
+    mid: Math.round(totalMid * 100) / 100,
+    high: Math.round(totalHigh * 100) / 100,
+    hasRange: totalLow !== totalHigh,
+  };
+}
+
+export function groupFeesByCollector(fees: EstimateFeeInput[]) {
+  return {
+    filmla: fees.filter(f => f.collected_by === 'filmla'),
+    direct: fees.filter(f => f.collected_by === 'direct'),
+  };
+}
