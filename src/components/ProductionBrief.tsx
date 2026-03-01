@@ -3,7 +3,7 @@ import { Switch } from "@/components/ui/switch";
 import { Progress } from "@/components/ui/progress";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Collapsible, CollapsibleTrigger, CollapsibleContent } from "@/components/ui/collapsible";
-import { ChevronDown } from "lucide-react";
+import { ChevronDown, Info } from "lucide-react";
 import { type JurisdictionResult, type SpecialConditionResult } from "@/lib/jurisdiction";
 import type { LocationResult } from "@/components/MapEngine";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
@@ -147,6 +147,10 @@ const ProductionBrief = ({ jurisdiction, location, neighborhood, onBack }: Produ
   // Accordion state — only shoot expanded by default
   const [openSections, setOpenSections] = useState<string[]>(["shoot"]);
 
+  // Fee toggle state: excluded conditional fees and included optional fees
+  const [excludedFees, setExcludedFees] = useState<Set<string>>(new Set());
+  const [includedOptional, setIncludedOptional] = useState<Set<string>>(new Set());
+
   // Pulse animation on total change
   const [totalPulse, setTotalPulse] = useState(false);
   const prevTotal = useRef<number | null>(null);
@@ -202,15 +206,7 @@ const ProductionBrief = ({ jurisdiction, location, neighborhood, onBack }: Produ
 
   const { lineItems, estimatedTotal, subtotalFilmLA, subtotalJurisdiction, subtotalPersonnel, subtotalLocation, warnings, whatPeopleMiss } = feeResult;
 
-  // Pulse animation when total changes
-  useEffect(() => {
-    if (prevTotal.current !== null && prevTotal.current !== estimatedTotal) {
-      setTotalPulse(true);
-      const t = setTimeout(() => setTotalPulse(false), 600);
-      return () => clearTimeout(t);
-    }
-    prevTotal.current = estimatedTotal;
-  }, [estimatedTotal]);
+  
 
   // Progress: count sections user has interacted with
   const sectionProgress = useMemo(() => {
@@ -227,18 +223,56 @@ const ProductionBrief = ({ jurisdiction, location, neighborhood, onBack }: Produ
   const personnelItems = lineItems.filter((i) => i.category === "personnel");
   const locationItems = lineItems.filter((i) => i.category === "location");
 
+  // Fee toggle: determine which items are "active" (included in totals)
+  const isFeeActive = (item: FeeLineItem): boolean => {
+    if (item.requirementLevel === 'optional') return includedOptional.has(item.id);
+    if (item.requirementLevel === 'conditional') return !excludedFees.has(item.id);
+    return true; // mandatory
+  };
+
+  const toggleFee = (item: FeeLineItem) => {
+    if (item.requirementLevel === 'optional') {
+      setIncludedOptional((prev) => {
+        const next = new Set(prev);
+        if (next.has(item.id)) next.delete(item.id);
+        else next.add(item.id);
+        return next;
+      });
+    } else if (item.requirementLevel === 'conditional') {
+      setExcludedFees((prev) => {
+        const next = new Set(prev);
+        if (next.has(item.id)) next.delete(item.id);
+        else next.add(item.id);
+        return next;
+      });
+    }
+  };
+
   // Two-section grouping by collection method
   const collectedByFilmla = lineItems.filter((i) => !i.paidDirectly);
   const collectedDirect = lineItems.filter((i) => i.paidDirectly);
-  const subtotalCollectedFilmla = collectedByFilmla.reduce((s, i) => s + i.amount, 0);
-  const subtotalCollectedDirect = collectedDirect.reduce((s, i) => s + i.amount, 0);
+  const subtotalCollectedFilmla = collectedByFilmla.filter(isFeeActive).reduce((s, i) => s + i.amount, 0);
+  const subtotalCollectedDirect = collectedDirect.filter(isFeeActive).reduce((s, i) => s + i.amount, 0);
 
-  // Range totals
-  const hasAnyRange = lineItems.some((i) => i.rateLow != null && i.rateHigh != null);
-  const totalLow = lineItems.reduce((s, i) => s + (i.rateLow ?? i.amount), 0);
-  const totalHigh = lineItems.reduce((s, i) => s + (i.rateHigh ?? i.amount), 0);
+  // Adjusted total based on toggles
+  const activeTotal = lineItems.filter(isFeeActive).reduce((s, i) => s + i.amount, 0);
 
-  /* ─── Card style applied to AccordionItem ─── */
+  // Range totals (only from active items)
+  const activeItems = lineItems.filter(isFeeActive);
+  const hasAnyRange = activeItems.some((i) => i.rateLow != null && i.rateHigh != null);
+  const totalLow = activeItems.reduce((s, i) => s + (i.rateLow ?? i.amount), 0);
+  const totalHigh = activeItems.reduce((s, i) => s + (i.rateHigh ?? i.amount), 0);
+
+  // Pulse animation when total changes
+  useEffect(() => {
+    if (prevTotal.current !== null && prevTotal.current !== activeTotal) {
+      setTotalPulse(true);
+      const t = setTimeout(() => setTotalPulse(false), 600);
+      return () => clearTimeout(t);
+    }
+    prevTotal.current = activeTotal;
+  }, [activeTotal]);
+
   const cardStyleBase: React.CSSProperties = {
     background: "hsl(0, 0%, 100%)",
     borderRadius: "12px",
@@ -712,12 +746,12 @@ const ProductionBrief = ({ jurisdiction, location, neighborhood, onBack }: Produ
 
                   <div className="space-y-3" style={{ fontFamily: "var(--font-sans)", fontSize: "13px", color: "hsl(0, 0%, 15%)" }}>
                     {collectedByFilmla.length > 0 && (
-                      <LedgerSection title="Permit Fees (collected by FilmLA)" items={collectedByFilmla} subtotal={subtotalCollectedFilmla} />
+                      <LedgerSection title="Permit Fees (collected by FilmLA)" items={collectedByFilmla} subtotal={subtotalCollectedFilmla} isFeeActive={isFeeActive} onToggleFee={toggleFee} />
                     )}
 
                     {collectedDirect.length > 0 && (
                       <>
-                        <LedgerSection title="Provider Fees (paid directly to departments)" items={collectedDirect} subtotal={subtotalCollectedDirect} />
+                        <LedgerSection title="Provider Fees (paid directly to departments)" items={collectedDirect} subtotal={subtotalCollectedDirect} isFeeActive={isFeeActive} onToggleFee={toggleFee} />
                         <p style={{ fontFamily: "var(--font-sans)", fontSize: "10px", color: "hsl(0, 0%, 50%)", marginTop: "-8px", marginBottom: "8px" }}>
                           These fees are paid directly to the service provider, not through FilmLA.
                         </p>
@@ -736,7 +770,7 @@ const ProductionBrief = ({ jurisdiction, location, neighborhood, onBack }: Produ
                     <div className="flex justify-between items-baseline" style={{ fontSize: "15px" }}>
                       <span style={{ fontWeight: 800, fontFamily: "var(--font-sans)", fontSize: "10px", textTransform: "uppercase", letterSpacing: "0.15em" }}>ESTIMATED TOTAL</span>
                       <span className="flex-1 mx-3" />
-                      <span style={{ fontWeight: 800, fontFamily: "var(--font-mono, monospace)", fontSize: "18px" }}>${estimatedTotal.toLocaleString()}</span>
+                      <span style={{ fontWeight: 800, fontFamily: "var(--font-mono, monospace)", fontSize: "18px" }}>${activeTotal.toLocaleString()}</span>
                     </div>
                     {hasAnyRange && (
                       <div className="flex justify-end mt-1">
@@ -788,7 +822,7 @@ const ProductionBrief = ({ jurisdiction, location, neighborhood, onBack }: Produ
                   transform: totalPulse ? "scale(1.08)" : "scale(1)",
                 }}
               >
-                ${estimatedTotal.toLocaleString()}
+                ${activeTotal.toLocaleString()}
               </span>
             </div>
             {hasAnyRange && (
@@ -844,7 +878,19 @@ function ChipButton({ active, onClick, label }: { active: boolean; onClick: () =
 }
 
 /** Reusable ledger section component */
-function LedgerSection({ title, items, subtotal }: { title: string; items: FeeLineItem[]; subtotal: number }) {
+function LedgerSection({
+  title,
+  items,
+  subtotal,
+  isFeeActive,
+  onToggleFee,
+}: {
+  title: string;
+  items: FeeLineItem[];
+  subtotal: number;
+  isFeeActive: (item: FeeLineItem) => boolean;
+  onToggleFee: (item: FeeLineItem) => void;
+}) {
   return (
     <div style={{ marginBottom: "12px" }}>
       <p
@@ -860,42 +906,74 @@ function LedgerSection({ title, items, subtotal }: { title: string; items: FeeLi
       >
         {title}
       </p>
-      {items.map((item) => (
-        <div key={item.id} className="mb-1.5">
-          <div className="flex justify-between items-baseline">
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <span className="truncate max-w-[55%] flex items-center gap-1 cursor-help" style={{ fontWeight: 500 }}>
-                  {item.name}
-                  {item.paidDirectly && <span style={{ fontSize: "10px", color: "hsl(4, 78%, 56%)" }}>★</span>}
-                  {item.isEstimate && <span style={{ fontSize: "10px", color: "hsl(40, 80%, 50%)" }}>~</span>}
-                </span>
-              </TooltipTrigger>
-              <TooltipContent side="top" className="text-xs max-w-[280px]" style={{ fontFamily: "var(--font-sans)" }}>
-                <div>
-                  {item.per && <p>Per: {item.per}</p>}
-                  {item.department && <p>Dept: {item.department}</p>}
-                  {item.note && <p>{item.note}</p>}
-                  {item.paidDirectly && <p className="text-red-400">Paid directly to provider</p>}
+      {items.map((item) => {
+        const active = isFeeActive(item);
+        const isToggleable = item.requirementLevel === 'conditional' || item.requirementLevel === 'optional';
+        return (
+          <div
+            key={item.id}
+            className="mb-1.5 transition-opacity duration-200"
+            style={{ opacity: active ? 1 : 0.4 }}
+          >
+            <div className="flex items-center gap-2">
+              {isToggleable && (
+                <Switch
+                  checked={active}
+                  onCheckedChange={() => onToggleFee(item)}
+                  className="shrink-0 scale-75 origin-left"
+                />
+              )}
+              <div className="flex-1 min-w-0">
+                <div className="flex justify-between items-baseline">
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <span className="truncate max-w-[55%] flex items-center gap-1 cursor-help" style={{ fontWeight: 500 }}>
+                        {item.name}
+                        {item.paidDirectly && <span style={{ fontSize: "10px", color: "hsl(4, 78%, 56%)" }}>★</span>}
+                        {item.isEstimate && <span style={{ fontSize: "10px", color: "hsl(40, 80%, 50%)" }}>~</span>}
+                        {item.requirementNote && (
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <Info size={11} className="shrink-0" style={{ color: "hsl(213, 72%, 59%)" }} />
+                            </TooltipTrigger>
+                            <TooltipContent side="top" className="text-xs max-w-[280px]" style={{ fontFamily: "var(--font-sans)" }}>
+                              <p>{item.requirementNote}</p>
+                            </TooltipContent>
+                          </Tooltip>
+                        )}
+                      </span>
+                    </TooltipTrigger>
+                    <TooltipContent side="top" className="text-xs max-w-[280px]" style={{ fontFamily: "var(--font-sans)" }}>
+                      <div>
+                        {item.per && <p>Per: {item.per}</p>}
+                        {item.department && <p>Dept: {item.department}</p>}
+                        {item.note && <p>{item.note}</p>}
+                        {item.paidDirectly && <p style={{ color: "hsl(4, 78%, 56%)" }}>Paid directly to provider</p>}
+                        {item.requirementLevel && <p>Requirement: {item.requirementLevel}</p>}
+                      </div>
+                    </TooltipContent>
+                  </Tooltip>
+                  <span className="flex-1 mx-3 border-b border-dotted" style={{ borderColor: "hsl(0, 0%, 85%)", marginBottom: "3px" }} />
+                  {item.rateLow != null && item.rateHigh != null ? (
+                    <span style={{ fontWeight: 700, whiteSpace: "nowrap", textDecoration: active ? "none" : "line-through" }}>
+                      ${Math.round(item.rateLow).toLocaleString()} – ${Math.round(item.rateHigh).toLocaleString()}
+                    </span>
+                  ) : (
+                    <span style={{ fontWeight: 700, whiteSpace: "nowrap", textDecoration: active ? "none" : "line-through" }}>
+                      ${item.amount.toLocaleString()}
+                    </span>
+                  )}
                 </div>
-              </TooltipContent>
-            </Tooltip>
-            <span className="flex-1 mx-3 border-b border-dotted" style={{ borderColor: "hsl(0, 0%, 85%)", marginBottom: "3px" }} />
-            {item.rateLow != null && item.rateHigh != null ? (
-              <span style={{ fontWeight: 700, whiteSpace: "nowrap" }}>
-                ${Math.round(item.rateLow).toLocaleString()} – ${Math.round(item.rateHigh).toLocaleString()}
-              </span>
-            ) : (
-              <span style={{ fontWeight: 700, whiteSpace: "nowrap" }}>${item.amount.toLocaleString()}</span>
-            )}
+                {item.rateLow != null && item.rateHigh != null && (
+                  <p style={{ fontFamily: "var(--font-sans)", fontSize: "10px", color: "hsl(0, 0%, 55%)", marginTop: "1px", textAlign: "right" }}>
+                    Estimate uses midpoint: ${item.amount.toLocaleString()}
+                  </p>
+                )}
+              </div>
+            </div>
           </div>
-          {item.rateLow != null && item.rateHigh != null && (
-            <p style={{ fontFamily: "var(--font-sans)", fontSize: "10px", color: "hsl(0, 0%, 55%)", marginTop: "1px", textAlign: "right" }}>
-              Estimate uses midpoint: ${item.amount.toLocaleString()}
-            </p>
-          )}
-        </div>
-      ))}
+        );
+      })}
       <div className="flex justify-between items-baseline mt-2 pt-1" style={{ borderTop: "1px solid hsl(0, 0%, 90%)" }}>
         <span style={{ fontSize: "11px", fontWeight: 600, color: "hsl(0, 0%, 45%)" }}>Subtotal</span>
         <span style={{ fontSize: "12px", fontWeight: 700 }}>${subtotal.toLocaleString()}</span>

@@ -45,6 +45,8 @@ export interface FeeLineItem {
   paidDirectly?: boolean; // Not collected by FilmLA
   rateLow?: number | null; // Low end of range (null/undefined = fixed rate)
   rateHigh?: number | null; // High end of range
+  requirementLevel?: 'mandatory' | 'conditional' | 'optional';
+  requirementNote?: string | null;
 }
 
 export interface FeeCalculationResult {
@@ -91,6 +93,14 @@ export const DEFAULT_INPUTS: ShootInputs = {
 function getJurisdiction(slug: string) {
   const jurisdictions = jurisdictionsData.jurisdictions as Record<string, any>;
   return Object.values(jurisdictions).find((j: any) => j.slug === slug) || null;
+}
+
+/** Extract requirement metadata from a source fee object */
+function getReqMeta(sourceFee: any): Pick<FeeLineItem, 'requirementLevel' | 'requirementNote'> {
+  return {
+    requirementLevel: sourceFee?.requirement_level ?? 'mandatory',
+    requirementNote: sourceFee?.requirement_note ?? null,
+  };
 }
 
 export function getJurisdictionBycdtfaName(cdtfaName: string) {
@@ -658,7 +668,64 @@ export function calculateFees(inputs: ShootInputs): FeeCalculationResult {
     }
   }
 
-  // ââ Calculate totals ââ
+  // Enrich line items with requirement metadata
+  const filmlaReqMap: Record<string, any> = {
+    filmla_app: inputs.isStudent
+      ? (inputs.selectedActivities.length > 0 ? baseFees.student_permit_complex : baseFees.student_permit_simple)
+      : inputs.isNonProfit ? baseFees.nonprofit_psa_app
+      : inputs.isMotion ? baseFees.permit_application
+      : (inputs.crewSize >= 16 ? baseFees.permit_application : baseFees.still_photo_application),
+    filmla_riders: baseFees.permit_rider_business_hours,
+    filmla_notification: baseFees.notification_fee,
+    filmla_lane_admin: baseFees.lane_closure_admin,
+    filmla_gunfire_admin: baseFees.gunfire_admin,
+    filmla_sfx_admin: baseFees.special_fx_admin,
+    filmla_drone_admin: baseFees.drone_admin,
+    filmla_monitor: baseFees.filmla_monitor,
+  };
+  const jReqMap: Record<string, any> = jFees ? {
+    la_fire_spot_check: jFees.fire_spot_check,
+    la_fire_safety: jFees.fire_safety_officer,
+    la_lane_closure: jFees.lane_street_closure,
+    la_lapd: jFees.lapd_retired_off_duty,
+    la_parks_use: jFees.rec_parks_film_use,
+    la_parks_prep: jFees.rec_parks_prep_strike,
+    la_parks_monitor: jFees.rec_parks_monitor,
+    la_parks_monitor_reporting: jFees.rec_parks_monitor_reporting,
+    la_port_use: jFees.port_use_fee,
+    lac_fire_review: jFees.fire_filming_review || jFees.fire_still_photo_review,
+    lac_sfx_permit: jFees.fire_special_effects_permit,
+    lac_fso: jFees.fire_safety_officer,
+    lac_roads_inspection: jFees.roads_inspection_use,
+    lac_roads_encroachment: jFees.roads_encroachment_processing,
+    lac_roads_app: jFees.roads_application_issuance,
+    lac_sheriff: jFees.sheriff_officer,
+    lac_beach_use: jFees.beaches_filming_use,
+    lac_beach_prep: jFees.beaches_prep_strike,
+    lac_parks_use: jFees.parks_filming_use,
+    lac_flood_permit: jFees.flood_control_permit,
+    lac_flood_use: jFees.flood_control_use,
+    cc_application: jFees.city_application,
+    cc_daily_use: jFees.filming_daily_use || jFees.still_photo_daily_use,
+    cc_fire_spot: jFees.fire_spot_check,
+    cc_police: jFees.police_officer_weekday || jFees.police_officer_weekend_holiday,
+    cc_fire_officer: jFees.fire_officer_weekday || jFees.fire_officer_weekend_holiday,
+    cc_posting: jFees.posting_non_metered,
+  } : {};
+  const allReqMap = { ...filmlaReqMap, ...jReqMap };
+  for (const item of lineItems) {
+    const src = allReqMap[item.id];
+    if (src && !item.requirementLevel) {
+      const meta = getReqMeta(src);
+      item.requirementLevel = meta.requirementLevel;
+      item.requirementNote = meta.requirementNote;
+    }
+    if (!item.requirementLevel) {
+      item.requirementLevel = 'mandatory';
+    }
+  }
+
+  // Calculate totals
   const subtotalFilmLA = lineItems
     .filter(i => i.category === 'filmla')
     .reduce((sum, i) => sum + i.amount, 0);
