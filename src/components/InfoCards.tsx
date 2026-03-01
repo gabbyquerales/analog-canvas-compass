@@ -18,16 +18,7 @@ interface InfoCardsProps {
   specialCondition: SpecialConditionResult | null;
 }
 
-const TricolorSparkle = () =>
-<span className="inline-flex gap-0.5 animate-sparkle-burst select-none" aria-hidden="true">
-    <span className="text-secondary">✦</span>
-    <span className="text-heading-blue">✧</span>
-    <span className="text-card-red">✦</span>
-  </span>;
-
-
 const InfoCards = ({ location, jurisdiction, cdtfaName, matchStatus, confirmed, onConfirm, onClearSearch, neighborhood, specialCondition }: InfoCardsProps) => {
-  const [sparkleVisible, setSparkleVisible] = useState(false);
   const [currentStep, setCurrentStep] = useState<Step>('search');
 
   // Reset step when location changes (new search)
@@ -38,9 +29,6 @@ const InfoCards = ({ location, jurisdiction, cdtfaName, matchStatus, confirmed, 
     if (currentStep !== 'search') {
       setCurrentStep('search');
     }
-    if (sparkleVisible) {
-      setSparkleVisible(false);
-    }
   }
 
   const isMatched = matchStatus === "matched" && !!jurisdiction;
@@ -49,10 +37,8 @@ const InfoCards = ({ location, jurisdiction, cdtfaName, matchStatus, confirmed, 
   const hasPending = isMatched && !confirmed;
 
   const handleConfirmClick = () => {
-    setSparkleVisible(true);
     setCurrentStep('brief');
     onConfirm();
-    setTimeout(() => setSparkleVisible(false), 1200);
   };
 
   const handleDraftNote = () => {
@@ -65,14 +51,6 @@ const InfoCards = ({ location, jurisdiction, cdtfaName, matchStatus, confirmed, 
 
   return (
     <div className="flex flex-col gap-6 mx-4 mb-32">
-      {/* Sparkle burst overlay */}
-      {sparkleVisible &&
-      <div className="fixed inset-0 pointer-events-none z-50 flex items-center justify-center">
-          <div className="text-4xl animate-sparkle-burst">
-            <TricolorSparkle />
-          </div>
-        </div>
-      }
 
       {/* Mini-Kingdom Alert — no match */}
       {isUnmatched &&
