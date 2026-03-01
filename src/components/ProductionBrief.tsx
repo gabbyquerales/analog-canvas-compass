@@ -801,7 +801,7 @@ const ProductionBrief = ({ jurisdiction, location, neighborhood, onBack }: Produ
                       </ul>
                       <div className="mt-3 pt-2" style={{ borderTop: "1px solid hsl(40, 60%, 85%)" }}>
                         <p style={{ fontFamily: "var(--font-sans)", fontSize: "11px", color: "hsl(30, 40%, 30%)", lineHeight: "1.5" }}>
-                          For a complete quote, contact <strong>FilmLA Solution Services</strong>:<br />
+                          For a complete estimate, contact <strong>FilmLA Solution Services</strong>:<br />
                           📞 213.977.8600 &nbsp;|&nbsp; ✉️ <a href="mailto:info@filmla.com" className="underline" style={{ color: "hsl(225, 70%, 45%)" }}>info@filmla.com</a>
                         </p>
                       </div>
