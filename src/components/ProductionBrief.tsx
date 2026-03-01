@@ -2,6 +2,8 @@ import { useState, useMemo, useEffect, useRef } from "react";
 import { Switch } from "@/components/ui/switch";
 import { Progress } from "@/components/ui/progress";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
+import { Collapsible, CollapsibleTrigger, CollapsibleContent } from "@/components/ui/collapsible";
+import { ChevronDown } from "lucide-react";
 import { type JurisdictionResult, type SpecialConditionResult } from "@/lib/jurisdiction";
 import type { LocationResult } from "@/components/MapEngine";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
@@ -583,44 +585,51 @@ const ProductionBrief = ({ jurisdiction, location, neighborhood, onBack }: Produ
             </AccordionItem>
           </Accordion>
 
-          {/* What People Miss Tips */}
+          {/* What People Miss Tips — Collapsible */}
           {whatPeopleMiss.length > 0 && (
-            <div
-              style={{
-                background: "hsla(225, 100%, 50%, 0.05)",
-                border: "1px solid hsla(225, 100%, 50%, 0.2)",
-                borderRadius: "12px",
-                padding: "14px",
-                marginBottom: "12px",
-              }}
-            >
-              <h3
+            <Collapsible>
+              <div
                 style={{
-                  fontFamily: "var(--font-sans)",
-                  fontSize: "11px",
-                  fontWeight: 700,
-                  textTransform: "uppercase" as const,
-                  letterSpacing: "0.15em",
-                  color: "hsl(225, 60%, 40%)",
-                  marginBottom: "8px",
+                  background: "hsla(225, 100%, 50%, 0.05)",
+                  border: "1px solid hsla(225, 100%, 50%, 0.2)",
+                  borderRadius: "12px",
+                  padding: "14px",
+                  marginBottom: "12px",
                 }}
               >
-                💡 What People Miss
-              </h3>
-              {whatPeopleMiss.map((tip, i) => (
-                <p
-                  key={i}
-                  style={{
-                    fontFamily: "var(--font-sans)",
-                    fontSize: "12px",
-                    color: "hsl(225, 20%, 30%)",
-                    marginBottom: i < whatPeopleMiss.length - 1 ? "4px" : 0,
-                  }}
-                >
-                  • {tip}
-                </p>
-              ))}
-            </div>
+                <CollapsibleTrigger className="w-full flex items-center justify-between cursor-pointer group">
+                  <h3
+                    style={{
+                      fontFamily: "var(--font-sans)",
+                      fontSize: "11px",
+                      fontWeight: 700,
+                      textTransform: "uppercase" as const,
+                      letterSpacing: "0.15em",
+                      color: "hsl(225, 60%, 40%)",
+                      margin: 0,
+                    }}
+                  >
+                    💡 What People Miss
+                  </h3>
+                  <ChevronDown className="h-3.5 w-3.5 shrink-0 transition-transform duration-200 group-data-[state=open]:rotate-180" style={{ color: "hsl(225, 60%, 40%)" }} />
+                </CollapsibleTrigger>
+                <CollapsibleContent className="pt-2">
+                  {whatPeopleMiss.map((tip, i) => (
+                    <p
+                      key={i}
+                      style={{
+                        fontFamily: "var(--font-sans)",
+                        fontSize: "12px",
+                        color: "hsl(225, 20%, 30%)",
+                        marginBottom: i < whatPeopleMiss.length - 1 ? "4px" : 0,
+                      }}
+                    >
+                      • {tip}
+                    </p>
+                  ))}
+                </CollapsibleContent>
+              </div>
+            </Collapsible>
           )}
         </div>
 
