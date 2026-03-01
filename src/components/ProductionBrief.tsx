@@ -683,6 +683,22 @@ const ProductionBrief = ({ jurisdiction, location, neighborhood, onBack }: Produ
                     </button>
                   </div>
 
+                  <div
+                    style={{
+                      background: "hsla(225, 100%, 50%, 0.04)",
+                      border: "1px solid hsla(225, 100%, 50%, 0.1)",
+                      borderRadius: "8px",
+                      padding: "10px 12px",
+                      marginBottom: "12px",
+                      fontFamily: "var(--font-sans)",
+                      fontSize: "10.5px",
+                      lineHeight: "1.5",
+                      color: "hsl(225, 15%, 45%)",
+                    }}
+                  >
+                    This estimate is based on published FilmLA fee schedules as of February 2026. Actual permit costs may vary based on location-specific requirements and production scope.
+                  </div>
+
                   <div className="space-y-3" style={{ fontFamily: "var(--font-sans)", fontSize: "13px", color: "hsl(0, 0%, 15%)" }}>
                     {filmlaItems.length > 0 && <LedgerSection title="FilmLA Fees" items={filmlaItems} subtotal={subtotalFilmLA} />}
                     {jurisdictionItems.length > 0 && <LedgerSection title="Jurisdiction Fees" items={jurisdictionItems} subtotal={subtotalJurisdiction} />}
