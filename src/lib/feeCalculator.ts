@@ -36,13 +36,15 @@ export interface ShootInputs {
 export interface FeeLineItem {
   id: string;
   name: string;
-  amount: number;
+  amount: number; // midpoint for range fees, exact for fixed fees
   per: string;
   department?: string;
   note?: string;
   category: 'filmla' | 'jurisdiction' | 'personnel' | 'location';
   isEstimate?: boolean;
   paidDirectly?: boolean; // Not collected by FilmLA
+  rateLow?: number | null; // Low end of range (null/undefined = fixed rate)
+  rateHigh?: number | null; // High end of range
 }
 
 export interface FeeCalculationResult {
@@ -320,12 +322,14 @@ export function calculateFees(inputs: ShootInputs): FeeCalculationResult {
         id: 'la_lapd',
         name: 'LAPD Officer (Retired/Off-Duty)',
         amount: ((jFees.lapd_retired_off_duty.rateMin + jFees.lapd_retired_off_duty.rateMax) / 2) * lapdHours * inputs.shootDays,
-        per: `~${lapdHours}hrs Ã ${inputs.shootDays} days`,
+        per: `~${lapdHours}hrs × ${inputs.shootDays} days`,
         category: 'personnel',
         department: 'LAPD',
-        note: `8hr minimum. $67-78/hr range. Paid directly to provider`,
+        note: `8hr minimum. Paid directly to provider`,
         isEstimate: true,
         paidDirectly: true,
+        rateLow: jFees.lapd_retired_off_duty.rateMin * lapdHours * inputs.shootDays,
+        rateHigh: jFees.lapd_retired_off_duty.rateMax * lapdHours * inputs.shootDays,
       });
     }
 
