@@ -8,6 +8,7 @@ import { type JurisdictionResult, type SpecialConditionResult } from "@/lib/juri
 import type { LocationResult } from "@/components/MapEngine";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { getActivities, calculateFees, type ShootInputs, type FeeLineItem } from "@/lib/feeCalculator";
+import posthog from "posthog-js";
 
 interface ProductionBriefProps {
   jurisdiction: JurisdictionResult;
@@ -208,6 +209,18 @@ const ProductionBrief = ({ jurisdiction, location, neighborhood, onBack }: Produ
 
   
 
+  const hasTrackedView = useRef(false);
+  useEffect(() => {
+    if (!hasTrackedView.current && lineItems.length > 0) {
+      hasTrackedView.current = true;
+      posthog.capture("fee_estimate_viewed", {
+        jurisdiction_name: jurisdiction.jurisdiction,
+        total_estimated_cost: estimatedTotal,
+        number_of_line_items: lineItems.length,
+      });
+    }
+  }, [lineItems, jurisdiction.jurisdiction, estimatedTotal]);
+
   // Progress: count sections user has interacted with
   const sectionProgress = useMemo(() => {
     let touched = 1; // shoot is always "touched" (it's open by default)
@@ -407,7 +420,16 @@ const ProductionBrief = ({ jurisdiction, location, neighborhood, onBack }: Produ
           <Accordion
             type="multiple"
             value={openSections}
-            onValueChange={setOpenSections}
+            onValueChange={(newSections) => {
+              const opened = newSections.filter(s => !openSections.includes(s));
+              for (const section of opened) {
+                posthog.capture("fee_category_expanded", {
+                  category_name: section,
+                  jurisdiction_name: jurisdiction.jurisdiction,
+                });
+              }
+              setOpenSections(newSections);
+            }}
             className="space-y-0"
           >
             {/* ─── 1. Shoot Parameters ─── */}
