@@ -2,6 +2,7 @@ import { type JurisdictionResult, type SpecialConditionResult } from "@/lib/juri
 import type { LocationResult, MatchStatus } from "@/components/MapEngine";
 import { toast } from "sonner";
 import { useState } from "react";
+import posthog from "posthog-js";
 import ProductionBrief from "@/components/ProductionBrief";
 
 type Step = 'search' | 'brief' | 'timeline';
@@ -46,6 +47,10 @@ const InfoCards = ({ location, jurisdiction, cdtfaName, matchStatus, confirmed, 
     const fee = jurisdiction?.estimatedFee ?? "[Fee]";
     const note = `Hey! I'm testing a tool called Kairo. It estimates that a permit at ${address} is $${fee} vs $0 in Atlanta. Just wanted to share what the "Peach vs. Palm Tree" gap looks like for indie creators!`;
     navigator.clipboard.writeText(note);
+    posthog.capture("share_clicked", {
+      jurisdiction_name: jurisdiction?.jurisdiction || null,
+      share_method: "clipboard",
+    });
     toast.success("Note copied to clipboard!");
   };
 
