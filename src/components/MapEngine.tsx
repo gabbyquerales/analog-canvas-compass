@@ -6,6 +6,7 @@ import { fetchCdtfaJurisdiction } from "@/lib/cdtfa";
 import { performRelationalLookup, type JurisdictionResult, type SpecialConditionResult } from "@/lib/jurisdiction";
 import { Search, Loader2, X } from "lucide-react";
 import * as turf from "@turf/turf";
+import posthog from "posthog-js";
 
 mapboxgl.accessToken = MAPBOX_TOKEN;
 
@@ -188,7 +189,15 @@ const MapEngine = ({ onSelectionChange, clearSearchRef }: MapEngineProps) => {
       features = features.slice(0, 5);
       setSuggestions(features);
       setNoResults(features.length === 0 && text.length >= 3);
-    } catch { setSuggestions([]); setNoResults(false); }
+    } catch (err) {
+      posthog.capture("api_error", {
+        api_name: "mapbox_geocode",
+        error_code: null,
+        error_message: err instanceof Error ? err.message : "Unknown error",
+      });
+      setSuggestions([]);
+      setNoResults(false);
+    }
   }, [mapLoaded]);
 
   const handleInputChange = (value: string) => {
@@ -231,6 +240,7 @@ const MapEngine = ({ onSelectionChange, clearSearchRef }: MapEngineProps) => {
     setQuery(placeName);
     setSuggestions([]);
     setLoading(true);
+    posthog.capture("address_entered", { has_address: true });
     setTargetAcquired(false);
     setHighlightedIndex(-1);
     // Notify parent of loading state
@@ -273,6 +283,19 @@ const MapEngine = ({ onSelectionChange, clearSearchRef }: MapEngineProps) => {
     }
 
     setLoading(false);
+
+    if (jurisdiction) {
+      posthog.capture("jurisdiction_detected", {
+        jurisdiction_name: jurisdiction.jurisdiction,
+        jurisdiction_id: jurisdiction.jurisdictionId,
+        detection_method: "cdtfa",
+      });
+    } else {
+      posthog.capture("jurisdiction_detection_failed", {
+        error_type: cdtfaName ? "no_match" : "api_failure",
+        fallback_used: false,
+      });
+    }
 
     onSelectionChange({
       location: { lng, lat, placeName },
@@ -333,6 +356,9 @@ const MapEngine = ({ onSelectionChange, clearSearchRef }: MapEngineProps) => {
             <button
               type="button"
               onClick={() => {
+                posthog.capture("new_search_started", {
+                  previous_jurisdiction: null,
+                });
                 setQuery("");
                 setSuggestions([]);
                 setNoResults(false);
