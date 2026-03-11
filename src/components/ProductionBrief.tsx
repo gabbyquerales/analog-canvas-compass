@@ -877,9 +877,10 @@ const ProductionBrief = ({ jurisdiction, location, neighborhood, onBack }: Produ
               </span>
               <span className="flex-1 mx-3 border-b border-dotted" style={{ borderColor: "hsla(0, 0%, 0%, 0.08)", marginBottom: "4px" }} />
               <span
-                className="transition-all duration-300 font-mono"
+                className="transition-all duration-300"
                 style={{
-                  fontSize: "22px",
+                  fontFamily: "'Times New Roman', Times, serif",
+                  fontSize: "28px",
                   fontWeight: 900,
                   color: totalPulse ? "hsl(225, 100%, 50%)" : "hsl(0, 0%, 10%)",
                   textShadow: totalPulse ? "0 0 12px hsla(225, 100%, 50%, 0.4)" : "none",
