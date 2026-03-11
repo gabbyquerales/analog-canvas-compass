@@ -41,6 +41,7 @@ function InlineStepper({
   max = 99,
   label,
   size = "sm",
+  disabled = false,
 }: {
   value: number;
   onChange: (v: number) => void;
@@ -48,13 +49,14 @@ function InlineStepper({
   max?: number;
   label: string;
   size?: "sm" | "lg";
+  disabled?: boolean;
 }) {
   const btnSize = size === "lg" ? "48px" : "36px";
   const fontSize = size === "lg" ? "28px" : "20px";
   const inputW = size === "lg" ? "50px" : "40px";
 
   return (
-    <div className="flex items-center gap-2">
+    <div className={`flex items-center gap-2 ${disabled ? "opacity-40 pointer-events-none" : ""}`}>
       <span
         style={{
           fontFamily: "var(--font-sans)",
@@ -68,6 +70,7 @@ function InlineStepper({
       </span>
       <button
         type="button"
+        disabled={disabled}
         onClick={() => onChange(Math.max(min, value - 1))}
         className="cursor-pointer select-none flex items-center justify-center transition-all active:scale-95 active:bg-black/[0.03] shrink-0"
         style={{
@@ -88,6 +91,7 @@ function InlineStepper({
         min={min}
         max={max}
         value={value}
+        disabled={disabled}
         onChange={(e) => onChange(Math.max(min, Math.min(max, parseInt(e.target.value) || min)))}
         className="bg-transparent outline-none text-center font-mono"
         style={{
@@ -101,6 +105,7 @@ function InlineStepper({
       />
       <button
         type="button"
+        disabled={disabled}
         onClick={() => onChange(Math.min(max, value + 1))}
         className="cursor-pointer select-none flex items-center justify-center transition-all active:scale-95 active:bg-black/[0.03] shrink-0"
         style={{
@@ -644,10 +649,20 @@ const ProductionBrief = ({ jurisdiction, location, neighborhood, onBack }: Produ
                 Prep & Strike
               </AccordionTrigger>
               <AccordionContent className="px-5 pb-5 pt-0">
-                <div className="space-y-3">
-                  <InlineStepper label="Prep Days" value={prepDays} onChange={setPrepDays} min={0} max={30} />
-                  <InlineStepper label="Strike Days" value={strikeDays} onChange={setStrikeDays} min={0} max={30} />
-                </div>
+                {(() => {
+                  const prepEnabled = isParksLocation || isBeachLocation || isFloodControlLocation;
+                  return (
+                    <div className="space-y-3">
+                      <InlineStepper label="Prep Days" value={prepDays} onChange={setPrepDays} min={0} max={30} disabled={!prepEnabled} />
+                      <InlineStepper label="Strike Days" value={strikeDays} onChange={setStrikeDays} min={0} max={30} disabled={!prepEnabled} />
+                      {!prepEnabled && (
+                        <p style={{ fontFamily: "var(--font-sans)", fontSize: "11px", color: "hsl(0, 0%, 50%)" }}>
+                          Only applies to Parks, Beach, or Flood Control locations.
+                        </p>
+                      )}
+                    </div>
+                  );
+                })()}
               </AccordionContent>
             </AccordionItem>
           </Accordion>
