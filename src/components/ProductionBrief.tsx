@@ -649,10 +649,21 @@ const ProductionBrief = ({ jurisdiction, location, neighborhood, onBack }: Produ
                 Prep & Strike
               </AccordionTrigger>
               <AccordionContent className="px-5 pb-5 pt-0">
-                <div className="space-y-3">
-                  <InlineStepper label="Prep Days" value={prepDays} onChange={setPrepDays} min={0} max={30} />
-                  <InlineStepper label="Strike Days" value={strikeDays} onChange={setStrikeDays} min={0} max={30} />
-                </div>
+                {(() => {
+                  const prepEnabled = isParksLocation || isBeachLocation || isFloodControlLocation;
+                  return (
+                    <div className="space-y-3">
+                      <InlineStepper label="Prep Days" value={prepDays} onChange={setPrepDays} min={0} max={30} disabled={!prepEnabled} />
+                      <InlineStepper label="Strike Days" value={strikeDays} onChange={setStrikeDays} min={0} max={30} disabled={!prepEnabled} />
+                      {!prepEnabled && (
+                        <p style={{ fontFamily: "var(--font-sans)", fontSize: "11px", color: "hsl(0, 0%, 50%)" }}>
+                          Only applies to Parks, Beach, or Flood Control locations.
+                        </p>
+                      )}
+                    </div>
+                  );
+                })()}
+              </AccordionContent>
               </AccordionContent>
             </AccordionItem>
           </Accordion>
