@@ -370,7 +370,7 @@ const ProductionBrief = ({ jurisdiction, location, neighborhood, onBack }: Produ
                 color: "hsl(0, 0%, 55%)",
               }}
             >
-              CuriosoLabs
+              Kairo
             </span>
           </div>
           <h2
