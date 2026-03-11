@@ -669,7 +669,7 @@ const ProductionBrief = ({ jurisdiction, location, neighborhood, onBack }: Produ
 
           {/* What People Miss Tips — Collapsible */}
           {whatPeopleMiss.length > 0 && (
-            <Collapsible>
+            <Collapsible defaultOpen>
               <div
                 style={{
                   background: "hsla(225, 100%, 50%, 0.05)",
