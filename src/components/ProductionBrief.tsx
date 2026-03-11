@@ -866,8 +866,8 @@ const ProductionBrief = ({ jurisdiction, location, neighborhood, onBack }: Produ
               <span
                 style={{
                   fontFamily: "var(--font-sans)",
-                  fontSize: "10px",
-                  fontWeight: 600,
+                  fontSize: "13px",
+                  fontWeight: 700,
                   textTransform: "uppercase" as const,
                   letterSpacing: "0.2em",
                   color: "hsl(0, 0%, 45%)",
