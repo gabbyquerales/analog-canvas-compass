@@ -41,6 +41,7 @@ function InlineStepper({
   max = 99,
   label,
   size = "sm",
+  disabled = false,
 }: {
   value: number;
   onChange: (v: number) => void;
@@ -48,6 +49,7 @@ function InlineStepper({
   max?: number;
   label: string;
   size?: "sm" | "lg";
+  disabled?: boolean;
 }) {
   const btnSize = size === "lg" ? "48px" : "36px";
   const fontSize = size === "lg" ? "28px" : "20px";
