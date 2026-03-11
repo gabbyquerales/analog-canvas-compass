@@ -866,8 +866,8 @@ const ProductionBrief = ({ jurisdiction, location, neighborhood, onBack }: Produ
               <span
                 style={{
                   fontFamily: "var(--font-sans)",
-                  fontSize: "10px",
-                  fontWeight: 600,
+                  fontSize: "13px",
+                  fontWeight: 700,
                   textTransform: "uppercase" as const,
                   letterSpacing: "0.2em",
                   color: "hsl(0, 0%, 45%)",
@@ -880,7 +880,7 @@ const ProductionBrief = ({ jurisdiction, location, neighborhood, onBack }: Produ
                 className="transition-all duration-300 font-mono"
                 style={{
                   fontSize: "22px",
-                  fontWeight: 700,
+                  fontWeight: 900,
                   color: totalPulse ? "hsl(225, 100%, 50%)" : "hsl(0, 0%, 10%)",
                   textShadow: totalPulse ? "0 0 12px hsla(225, 100%, 50%, 0.4)" : "none",
                   transform: totalPulse ? "scale(1.08)" : "scale(1)",
