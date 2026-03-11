@@ -664,7 +664,6 @@ const ProductionBrief = ({ jurisdiction, location, neighborhood, onBack }: Produ
                   );
                 })()}
               </AccordionContent>
-              </AccordionContent>
             </AccordionItem>
           </Accordion>
 
