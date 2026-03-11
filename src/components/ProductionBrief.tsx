@@ -56,7 +56,7 @@ function InlineStepper({
   const inputW = size === "lg" ? "50px" : "40px";
 
   return (
-    <div className="flex items-center gap-2">
+    <div className={`flex items-center gap-2 ${disabled ? "opacity-40 pointer-events-none" : ""}`}>
       <span
         style={{
           fontFamily: "var(--font-sans)",
@@ -70,6 +70,7 @@ function InlineStepper({
       </span>
       <button
         type="button"
+        disabled={disabled}
         onClick={() => onChange(Math.max(min, value - 1))}
         className="cursor-pointer select-none flex items-center justify-center transition-all active:scale-95 active:bg-black/[0.03] shrink-0"
         style={{
@@ -90,6 +91,7 @@ function InlineStepper({
         min={min}
         max={max}
         value={value}
+        disabled={disabled}
         onChange={(e) => onChange(Math.max(min, Math.min(max, parseInt(e.target.value) || min)))}
         className="bg-transparent outline-none text-center font-mono"
         style={{
@@ -103,6 +105,7 @@ function InlineStepper({
       />
       <button
         type="button"
+        disabled={disabled}
         onClick={() => onChange(Math.min(max, value + 1))}
         className="cursor-pointer select-none flex items-center justify-center transition-all active:scale-95 active:bg-black/[0.03] shrink-0"
         style={{
