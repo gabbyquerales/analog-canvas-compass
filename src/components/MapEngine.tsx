@@ -384,9 +384,10 @@ const MapEngine = ({ onSelectionChange, clearSearchRef }: MapEngineProps) => {
             type="text"
             value={query}
             onChange={(e) => handleInputChange(e.target.value)}
-            onFocus={() => { setQuery(""); setSuggestions([]); }}
+            onFocus={() => { setIsFocused(true); setQuery(""); setSuggestions([]); }}
+            onBlur={() => setIsFocused(false)}
             onKeyDown={handleKeyDown}
-            placeholder="Enter a landmark (e.g., Hollywood Sign)..."
+            placeholder={animatedPlaceholder || "Enter a landmark or address..."}
             className="bg-transparent w-full font-sans text-sm text-foreground placeholder:text-muted-foreground focus:outline-none"
           />
           {query.length > 0 && (
