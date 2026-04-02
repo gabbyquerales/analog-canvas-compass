@@ -102,8 +102,45 @@ const MapEngine = ({ onSelectionChange, clearSearchRef }: MapEngineProps) => {
   const [targetAcquired, setTargetAcquired] = useState(false);
   const [outsideMessage, setOutsideMessage] = useState(false);
   const [highlightedIndex, setHighlightedIndex] = useState(-1);
+  const [animatedPlaceholder, setAnimatedPlaceholder] = useState("");
+  const [isFocused, setIsFocused] = useState(false);
   const debounceRef = useRef<ReturnType<typeof setTimeout>>();
   const pendingFlyTo = useRef<{ lng: number; lat: number } | null>(null);
+
+  // Typewriter animated placeholder
+  useEffect(() => {
+    if (isFocused || query.length > 0) return;
+    const phrases = ["Enter a landmark or address...", "9588 Culver Boulevard", "Griffith Observatory"];
+    let phraseIdx = 0;
+    let charIdx = 0;
+    let deleting = false;
+    let timeout: ReturnType<typeof setTimeout>;
+
+    const tick = () => {
+      const phrase = phrases[phraseIdx];
+      if (!deleting) {
+        charIdx++;
+        setAnimatedPlaceholder(phrase.slice(0, charIdx));
+        if (charIdx === phrase.length) {
+          timeout = setTimeout(() => { deleting = true; tick(); }, 1800);
+          return;
+        }
+        timeout = setTimeout(tick, 60);
+      } else {
+        charIdx--;
+        setAnimatedPlaceholder(phrase.slice(0, charIdx));
+        if (charIdx === 0) {
+          deleting = false;
+          phraseIdx = (phraseIdx + 1) % phrases.length;
+          timeout = setTimeout(tick, 400);
+          return;
+        }
+        timeout = setTimeout(tick, 30);
+      }
+    };
+    tick();
+    return () => clearTimeout(timeout);
+  }, [isFocused, query]);
 
   useEffect(() => {
     if (!mapContainer.current || map.current) return;
