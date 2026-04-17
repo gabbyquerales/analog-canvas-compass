@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import MapEngine, { type LocationResult, type MapSelectionResult, type MatchStatus } from "@/components/MapEngine";
 import InfoCards from "@/components/InfoCards";
 import { type JurisdictionResult, type SpecialConditionResult } from "@/lib/jurisdiction";
@@ -15,6 +15,7 @@ const SearchPage = ({ onConfirmedChange }: SearchPageProps) => {
   const [confirmed, setConfirmed] = useState(false);
   const [neighborhood, setNeighborhood] = useState<string | null>(null);
   const [specialCondition, setSpecialCondition] = useState<SpecialConditionResult | null>(null);
+  const clearSearchRef = useRef<(() => void) | null>(null);
 
   const handleSelectionChange = (result: MapSelectionResult) => {
     setLocation(result.location);
@@ -59,7 +60,7 @@ const SearchPage = ({ onConfirmedChange }: SearchPageProps) => {
 
 
         <div className="relative w-full max-w-[380px]">
-          <h2 className="font-serif mb-3 text-center text-base text-muted-foreground">LA Film Permit  Jurisdictions, timelines & costs
+          <h2 className="font-serif mb-3 text-center text-base text-muted-foreground">Film Permit Intelligence 
 
           </h2>
         </div>
@@ -67,7 +68,7 @@ const SearchPage = ({ onConfirmedChange }: SearchPageProps) => {
 
       {/* Map + Search */}
       <div className="relative z-10">
-        <MapEngine onSelectionChange={handleSelectionChange} />
+        <MapEngine onSelectionChange={handleSelectionChange} clearSearchRef={clearSearchRef} />
       </div>
 
       {/* Info Cards — overlapping report card */}
@@ -79,6 +80,7 @@ const SearchPage = ({ onConfirmedChange }: SearchPageProps) => {
           matchStatus={matchStatus}
           confirmed={confirmed}
           onConfirm={handleConfirm}
+          onClearSearch={() => clearSearchRef.current?.()}
           neighborhood={neighborhood}
           specialCondition={specialCondition} />
 

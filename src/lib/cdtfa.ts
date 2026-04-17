@@ -1,4 +1,5 @@
 // CDTFA Tax Rate API — extracts jurisdiction name from California tax data
+import posthog from "posthog-js";
 
 const PREFIXES_TO_REMOVE = ["CITY OF ", "TOWN OF ", "VILLAGE OF ", "COUNTY OF "];
 
@@ -39,7 +40,14 @@ export async function fetchCdtfaJurisdiction(
     const res = await fetch(
       `${supabaseUrl}/functions/v1/cdtfa-proxy?lng=${lng}&lat=${lat}`
     );
-    if (!res.ok) return null;
+    if (!res.ok) {
+      posthog.capture("api_error", {
+        api_name: "cdtfa",
+        error_code: res.status,
+        error_message: res.statusText,
+      });
+      return null;
+    }
     const data = await res.json();
 
     // The API returns taxRateInfo array — extract the city/county name
@@ -57,7 +65,12 @@ export async function fetchCdtfaJurisdiction(
       jurisdiction: normalizeJurisdiction(jurisdiction),
       raw: data,
     };
-  } catch {
+  } catch (err) {
+    posthog.capture("api_error", {
+      api_name: "cdtfa",
+      error_code: null,
+      error_message: err instanceof Error ? err.message : "Unknown error",
+    });
     return null;
   }
 }

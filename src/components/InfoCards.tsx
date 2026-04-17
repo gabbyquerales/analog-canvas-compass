@@ -2,6 +2,7 @@ import { type JurisdictionResult, type SpecialConditionResult } from "@/lib/juri
 import type { LocationResult, MatchStatus } from "@/components/MapEngine";
 import { toast } from "sonner";
 import { useState } from "react";
+import posthog from "posthog-js";
 import ProductionBrief from "@/components/ProductionBrief";
 
 type Step = 'search' | 'brief' | 'timeline';
@@ -13,20 +14,12 @@ interface InfoCardsProps {
   matchStatus: MatchStatus;
   confirmed: boolean;
   onConfirm: () => void;
+  onClearSearch?: () => void;
   neighborhood: string | null;
   specialCondition: SpecialConditionResult | null;
 }
 
-const TricolorSparkle = () =>
-<span className="inline-flex gap-0.5 animate-sparkle-burst select-none" aria-hidden="true">
-    <span className="text-secondary">✦</span>
-    <span className="text-heading-blue">✧</span>
-    <span className="text-card-red">✦</span>
-  </span>;
-
-
-const InfoCards = ({ location, jurisdiction, cdtfaName, matchStatus, confirmed, onConfirm, neighborhood, specialCondition }: InfoCardsProps) => {
-  const [sparkleVisible, setSparkleVisible] = useState(false);
+const InfoCards = ({ location, jurisdiction, cdtfaName, matchStatus, confirmed, onConfirm, onClearSearch, neighborhood, specialCondition }: InfoCardsProps) => {
   const [currentStep, setCurrentStep] = useState<Step>('search');
 
   // Reset step when location changes (new search)
@@ -37,9 +30,6 @@ const InfoCards = ({ location, jurisdiction, cdtfaName, matchStatus, confirmed, 
     if (currentStep !== 'search') {
       setCurrentStep('search');
     }
-    if (sparkleVisible) {
-      setSparkleVisible(false);
-    }
   }
 
   const isMatched = matchStatus === "matched" && !!jurisdiction;
@@ -48,10 +38,8 @@ const InfoCards = ({ location, jurisdiction, cdtfaName, matchStatus, confirmed, 
   const hasPending = isMatched && !confirmed;
 
   const handleConfirmClick = () => {
-    setSparkleVisible(true);
     setCurrentStep('brief');
     onConfirm();
-    setTimeout(() => setSparkleVisible(false), 1200);
   };
 
   const handleDraftNote = () => {
@@ -59,19 +47,15 @@ const InfoCards = ({ location, jurisdiction, cdtfaName, matchStatus, confirmed, 
     const fee = jurisdiction?.estimatedFee ?? "[Fee]";
     const note = `Hey! I'm testing a tool called Kairo. It estimates that a permit at ${address} is $${fee} vs $0 in Atlanta. Just wanted to share what the "Peach vs. Palm Tree" gap looks like for indie creators!`;
     navigator.clipboard.writeText(note);
+    posthog.capture("share_clicked", {
+      jurisdiction_name: jurisdiction?.jurisdiction || null,
+      share_method: "clipboard",
+    });
     toast.success("Note copied to clipboard!");
   };
 
   return (
     <div className="flex flex-col gap-6 mx-4 mb-32">
-      {/* Sparkle burst overlay */}
-      {sparkleVisible &&
-      <div className="fixed inset-0 pointer-events-none z-50 flex items-center justify-center">
-          <div className="text-4xl animate-sparkle-burst">
-            <TricolorSparkle />
-          </div>
-        </div>
-      }
 
       {/* Mini-Kingdom Alert — no match */}
       {isUnmatched &&
@@ -119,12 +103,12 @@ const InfoCards = ({ location, jurisdiction, cdtfaName, matchStatus, confirmed, 
               </div>
             }
 
-            <h3 className="font-serif text-xl text-foreground mb-3 pr-24">Your Permit Assistant
+            <h3 className="font-serif text-foreground mb-3 pr-24 text-lg">Your LA Film Permit Assistant
 
             </h3>
 
             {!isMatched ?
-            <p className="font-sans text-sm text-muted-foreground leading-relaxed">Don't waste budget on non-refundable mistakes. We pinpoint jurisdictions, estimate fees, and track timelines across cities.
+            <p className="font-sans text-sm text-muted-foreground leading-relaxed">Don't waste budget on non-refundable mistakes. We help pinpointing jurisdictions, estimate fees, and track timelines.
 
             </p> :
 
@@ -158,7 +142,7 @@ const InfoCards = ({ location, jurisdiction, cdtfaName, matchStatus, confirmed, 
             <button
             onClick={() => {
               window.scrollTo({ top: 0, behavior: 'smooth' });
-              toast("Try searching for a different address above!", { icon: "🔍" });
+              onClearSearch?.();
             }}
             className="font-sans text-xs text-muted-foreground underline underline-offset-4 cursor-pointer hover:text-foreground transition-colors">
 

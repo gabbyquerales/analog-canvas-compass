@@ -6,6 +6,7 @@ import { fetchCdtfaJurisdiction } from "@/lib/cdtfa";
 import { performRelationalLookup, type JurisdictionResult, type SpecialConditionResult } from "@/lib/jurisdiction";
 import { Search, Loader2, X } from "lucide-react";
 import * as turf from "@turf/turf";
+import posthog from "posthog-js";
 
 mapboxgl.accessToken = MAPBOX_TOKEN;
 
@@ -86,9 +87,10 @@ function isInsideBbox(lng: number, lat: number): boolean {
 
 interface MapEngineProps {
   onSelectionChange: (result: MapSelectionResult) => void;
+  clearSearchRef?: React.MutableRefObject<(() => void) | null>;
 }
 
-const MapEngine = ({ onSelectionChange }: MapEngineProps) => {
+const MapEngine = ({ onSelectionChange, clearSearchRef }: MapEngineProps) => {
   const mapContainer = useRef<HTMLDivElement>(null);
   const map = useRef<mapboxgl.Map | null>(null);
   const marker = useRef<mapboxgl.Marker | null>(null);
@@ -100,8 +102,45 @@ const MapEngine = ({ onSelectionChange }: MapEngineProps) => {
   const [targetAcquired, setTargetAcquired] = useState(false);
   const [outsideMessage, setOutsideMessage] = useState(false);
   const [highlightedIndex, setHighlightedIndex] = useState(-1);
+  const [animatedPlaceholder, setAnimatedPlaceholder] = useState("");
+  const [isFocused, setIsFocused] = useState(false);
   const debounceRef = useRef<ReturnType<typeof setTimeout>>();
   const pendingFlyTo = useRef<{ lng: number; lat: number } | null>(null);
+
+  // Typewriter animated placeholder
+  useEffect(() => {
+    if (isFocused || query.length > 0) return;
+    const phrases = ["Enter a landmark or address...", "9588 Culver Boulevard", "Griffith Observatory"];
+    let phraseIdx = 0;
+    let charIdx = 0;
+    let deleting = false;
+    let timeout: ReturnType<typeof setTimeout>;
+
+    const tick = () => {
+      const phrase = phrases[phraseIdx];
+      if (!deleting) {
+        charIdx++;
+        setAnimatedPlaceholder(phrase.slice(0, charIdx));
+        if (charIdx === phrase.length) {
+          timeout = setTimeout(() => { deleting = true; tick(); }, 1800);
+          return;
+        }
+        timeout = setTimeout(tick, 60);
+      } else {
+        charIdx--;
+        setAnimatedPlaceholder(phrase.slice(0, charIdx));
+        if (charIdx === 0) {
+          deleting = false;
+          phraseIdx = (phraseIdx + 1) % phrases.length;
+          timeout = setTimeout(tick, 400);
+          return;
+        }
+        timeout = setTimeout(tick, 30);
+      }
+    };
+    tick();
+    return () => clearTimeout(timeout);
+  }, [isFocused, query]);
 
   useEffect(() => {
     if (!mapContainer.current || map.current) return;
@@ -122,6 +161,35 @@ const MapEngine = ({ onSelectionChange }: MapEngineProps) => {
     });
     return () => { map.current?.remove(); map.current = null; };
   }, []);
+
+  // Expose clear function to parent
+  useEffect(() => {
+    if (clearSearchRef) {
+      clearSearchRef.current = () => {
+        setQuery("");
+        setSuggestions([]);
+        setNoResults(false);
+        setOutsideMessage(false);
+        setTargetAcquired(false);
+        setLoading(false);
+        if (marker.current) { marker.current.remove(); marker.current = null; }
+        if (map.current) {
+          if (map.current.getLayer("radius-circle-fill")) map.current.removeLayer("radius-circle-fill");
+          if (map.current.getLayer("radius-circle-stroke")) map.current.removeLayer("radius-circle-stroke");
+          if (map.current.getSource("radius-circle")) map.current.removeSource("radius-circle");
+          map.current.flyTo({ center: [LA_CENTER.lng, LA_CENTER.lat], zoom: 10, duration: 1200 });
+        }
+        onSelectionChange({
+          location: { lng: LA_CENTER.lng, lat: LA_CENTER.lat, placeName: "" },
+          jurisdiction: null,
+          cdtfaName: null,
+          matchStatus: "idle",
+          neighborhood: null,
+          specialCondition: null,
+        });
+      };
+    }
+  }, [clearSearchRef, onSelectionChange]);
 
   const searchAddress = useCallback(async (text: string) => {
     if (text.length < 2) { setSuggestions([]); setNoResults(false); return; }
@@ -158,7 +226,15 @@ const MapEngine = ({ onSelectionChange }: MapEngineProps) => {
       features = features.slice(0, 5);
       setSuggestions(features);
       setNoResults(features.length === 0 && text.length >= 3);
-    } catch { setSuggestions([]); setNoResults(false); }
+    } catch (err) {
+      posthog.capture("api_error", {
+        api_name: "mapbox_geocode",
+        error_code: null,
+        error_message: err instanceof Error ? err.message : "Unknown error",
+      });
+      setSuggestions([]);
+      setNoResults(false);
+    }
   }, [mapLoaded]);
 
   const handleInputChange = (value: string) => {
@@ -201,6 +277,7 @@ const MapEngine = ({ onSelectionChange }: MapEngineProps) => {
     setQuery(placeName);
     setSuggestions([]);
     setLoading(true);
+    posthog.capture("address_entered", { has_address: true });
     setTargetAcquired(false);
     setHighlightedIndex(-1);
     // Notify parent of loading state
@@ -243,6 +320,19 @@ const MapEngine = ({ onSelectionChange }: MapEngineProps) => {
     }
 
     setLoading(false);
+
+    if (jurisdiction) {
+      posthog.capture("jurisdiction_detected", {
+        jurisdiction_name: jurisdiction.jurisdiction,
+        jurisdiction_id: jurisdiction.jurisdictionId,
+        detection_method: "cdtfa",
+      });
+    } else {
+      posthog.capture("jurisdiction_detection_failed", {
+        error_type: cdtfaName ? "no_match" : "api_failure",
+        fallback_used: false,
+      });
+    }
 
     onSelectionChange({
       location: { lng, lat, placeName },
@@ -294,15 +384,19 @@ const MapEngine = ({ onSelectionChange }: MapEngineProps) => {
             type="text"
             value={query}
             onChange={(e) => handleInputChange(e.target.value)}
-            onFocus={() => { setQuery(""); setSuggestions([]); }}
+            onFocus={() => { setIsFocused(true); setQuery(""); setSuggestions([]); }}
+            onBlur={() => setIsFocused(false)}
             onKeyDown={handleKeyDown}
-            placeholder="Enter a landmark (e.g., Hollywood Sign)..."
+            placeholder={animatedPlaceholder || "Enter a landmark or address..."}
             className="bg-transparent w-full font-sans text-sm text-foreground placeholder:text-muted-foreground focus:outline-none"
           />
           {query.length > 0 && (
             <button
               type="button"
               onClick={() => {
+                posthog.capture("new_search_started", {
+                  previous_jurisdiction: null,
+                });
                 setQuery("");
                 setSuggestions([]);
                 setNoResults(false);
