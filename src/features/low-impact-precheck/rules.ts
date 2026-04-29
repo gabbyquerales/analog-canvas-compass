@@ -73,6 +73,8 @@ export const ACTIVITY_FLAGS: Rule[] = [
     category: 'activity',
     disqualifier: true,
     sourceUrl: KB_URL,
+    // HEURISTIC, not in FilmLA KB — "large lighting set ups" is qualitative,
+    // no wattage threshold published. Present to user as rough self-assessment.
     helpText: 'Self-assess: Does your lighting setup require a crane, multiple HMIs >12kW, or a separate generator truck?',
   },
   {
@@ -312,6 +314,9 @@ export const THRESHOLDS = {
 export const DEADLINES = {
   minBusinessDays: 3,
   maxMonthsAhead: 1,
+  // SOURCE AMBIGUITY: FilmLA says "up to six months" from Apr 27, 2026.
+  // Oct 27 (exact) and Oct 31 (end-of-month) are both defensible.
+  // Using Oct 31 as conservative upper bound.
   sunsetISO: '2026-10-31',
 };
 

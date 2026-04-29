@@ -11,14 +11,13 @@ import type { ShootInput } from './types';
  */
 export const heroSilverLake: ShootInput = {
   projectName: 'Silver Lake Dialogue',
+  jurisdiction: 'cityOfLA',
   firstFilmingDate: '2026-05-10',
   submissionDate: '2026-05-06',
   locationCount: 2,
   consecutiveFilmingDays: 2,
   isConsecutiveDays: true,
   onSetCount: 18,
-  activitiesSelected: [],
-  locationsSelected: ['residential', 'street'],
   hasSpecialEffects: false,
   hasGunfire: false,
   hasOfficerImpersonation: false,
@@ -45,7 +44,7 @@ export const heroSilverLake: ShootInput = {
   hasHeavyEquipmentOnGrass: false,
   hasCranes: false,
   locationTypes: [],
-  fillingOutsideBusinessHours: false,
+  filmingOutsideBusinessHours: false,
 };
 
 /**
@@ -54,14 +53,13 @@ export const heroSilverLake: ShootInput = {
  */
 export const tooManyLocations: ShootInput = {
   projectName: 'Downtown Montage',
+  jurisdiction: 'cityOfLA',
   firstFilmingDate: '2026-05-15',
   submissionDate: '2026-05-12',
   locationCount: 4,
   consecutiveFilmingDays: 2,
   isConsecutiveDays: true,
   onSetCount: 22,
-  activitiesSelected: [],
-  locationsSelected: ['street', 'park', 'storefront', 'alley'],
   hasSpecialEffects: false,
   hasGunfire: false,
   hasOfficerImpersonation: false,
@@ -88,23 +86,23 @@ export const tooManyLocations: ShootInput = {
   hasHeavyEquipmentOnGrass: false,
   hasCranes: false,
   locationTypes: [],
-  fillingOutsideBusinessHours: false,
+  filmingOutsideBusinessHours: false,
 };
 
 /**
  * Expected: doesNotQualify (with split-the-shoot suggestion, tier 1)
- * Reasoning: aerial activity (drone) disqualifies; but can be isolated to separate Standard day
+ * Reasoning: aerial activity (drone) disqualifies; can be isolated to separate Standard day.
+ * locationTypes intentionally [] — tests single-activity-blocker → tier-1 split suggestion.
  */
 export const droneDisqualifier: ShootInput = {
-  projectName: 'Rooftop Sequence with Aerial',
+  projectName: 'Aerial Sequence',
+  jurisdiction: 'cityOfLA',
   firstFilmingDate: '2026-05-20',
   submissionDate: '2026-05-16',
   locationCount: 1,
   consecutiveFilmingDays: 3,
   isConsecutiveDays: true,
   onSetCount: 25,
-  activitiesSelected: ['aerial'],
-  locationsSelected: ['street'],
   hasSpecialEffects: false,
   hasGunfire: false,
   hasOfficerImpersonation: false,
@@ -131,23 +129,23 @@ export const droneDisqualifier: ShootInput = {
   hasHeavyEquipmentOnGrass: false,
   hasCranes: false,
   locationTypes: [],
-  fillingOutsideBusinessHours: false,
+  filmingOutsideBusinessHours: false,
 };
 
 /**
  * Expected: needsReview (with rec-parks-verify suggestion, tier 2)
- * Reasoning: otherwise clean, but isRecParkProperty triggers review trigger
+ * Reasoning: city_buildings location type + isRecParkProperty suppresses the
+ * city_buildings blocker and pushes review_rec_parks_property trigger instead.
  */
 export const recParksAmbiguity: ShootInput = {
   projectName: 'Griffith Park Narrative',
+  jurisdiction: 'cityOfLA',
   firstFilmingDate: '2026-05-25',
   submissionDate: '2026-05-21',
   locationCount: 1,
   consecutiveFilmingDays: 1,
   isConsecutiveDays: true,
   onSetCount: 12,
-  activitiesSelected: [],
-  locationsSelected: ['park'],
   hasSpecialEffects: false,
   hasGunfire: false,
   hasOfficerImpersonation: false,
@@ -173,7 +171,7 @@ export const recParksAmbiguity: ShootInput = {
   hasNailingBolting: false,
   hasHeavyEquipmentOnGrass: false,
   hasCranes: false,
-  locationTypes: [],
+  locationTypes: ['city_buildings'],
   isRecParkProperty: true,
-  fillingOutsideBusinessHours: false,
+  filmingOutsideBusinessHours: false,
 };

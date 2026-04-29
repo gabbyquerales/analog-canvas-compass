@@ -1,5 +1,5 @@
 export type RuleCategory = 'activity' | 'location' | 'threshold' | 'deadline' | 'hours' | 'review';
-export type ResultState = 'qualifies' | 'needsReview' | 'doesNotQualify';
+export type ResultState = 'qualifies' | 'needsReview' | 'doesNotQualify' | 'notApplicable';
 
 export interface Rule {
   id: string;
@@ -13,12 +13,11 @@ export interface Rule {
 
 export interface ShootInput {
   projectName: string;
+  jurisdiction?: 'cityOfLA' | 'other' | 'unsure' | 'notApplicable';
   firstFilmingDate: string;
   locationCount: number;
   consecutiveFilmingDays: number;
   onSetCount: number;
-  activitiesSelected: string[];
-  locationsSelected: string[];
   hasSpecialEffects: boolean;
   hasGunfire: boolean;
   hasOfficerImpersonation: boolean;
@@ -47,7 +46,7 @@ export interface ShootInput {
   hasCranes: boolean;
   locationTypes: string[];
   isRecParkProperty?: boolean;
-  fillingOutsideBusinessHours?: boolean;
+  filmingOutsideBusinessHours?: boolean;
   submissionDate: string;
   isConsecutiveDays?: boolean;
 }

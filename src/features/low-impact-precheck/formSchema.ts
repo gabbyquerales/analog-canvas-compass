@@ -1,16 +1,38 @@
 export type FieldType = 'boolean' | 'number' | 'date' | 'select' | 'multiselect' | 'text';
 
+export interface FieldOption {
+  value: string;
+  label: string;
+}
+
 export interface Field {
   id: string;
   label: string;
   type: FieldType;
   required: boolean;
   helpText?: string;
-  options?: string[];
+  options?: FieldOption[];
   section?: string;
+  visibleWhen?: { fieldId: string; equals?: any; includes?: string };
 }
 
 export const FORM_FIELDS: Field[] = [
+  // Jurisdiction Gate
+  {
+    id: 'jurisdiction',
+    label: 'Where is your shoot?',
+    type: 'select',
+    required: true,
+    section: 'Jurisdiction',
+    helpText: 'The Low Impact Pilot is City of Los Angeles only.',
+    options: [
+      { value: 'cityOfLA', label: 'City of Los Angeles' },
+      { value: 'other', label: 'Other jurisdiction (Santa Monica, Burbank, LA County, etc.)' },
+      { value: 'unsure', label: 'Not sure' },
+      { value: 'notApplicable', label: 'Not applicable' },
+    ],
+  },
+
   // Project Basics
   {
     id: 'projectName',
@@ -25,7 +47,7 @@ export const FORM_FIELDS: Field[] = [
     type: 'date',
     required: true,
     section: 'Project Basics',
-    helpText: 'Minimum 3 full business days from submission.',
+    helpText: 'Minimum 3 full business days from submission (submit by 10am; weekends and CA holidays don\'t count).',
   },
   {
     id: 'submissionDate',
@@ -35,7 +57,7 @@ export const FORM_FIELDS: Field[] = [
     section: 'Project Basics',
   },
   {
-    id: 'fillingOutsideBusinessHours',
+    id: 'filmingOutsideBusinessHours',
     label: 'Filming outside standard hours?',
     type: 'boolean',
     required: false,
@@ -66,8 +88,11 @@ export const FORM_FIELDS: Field[] = [
     type: 'select',
     required: true,
     section: 'Schedule',
-    helpText: 'KB is silent on gaps. We'll flag for FilmLA confirmation if yes.',
-    options: ['Consecutive', 'Gaps between days'],
+    helpText: 'KB is silent on gaps. We\'ll flag for FilmLA confirmation if yes.',
+    options: [
+      { value: 'true', label: 'Consecutive' },
+      { value: 'false', label: 'Gaps between days' },
+    ],
   },
   {
     id: 'onSetCount',
@@ -87,22 +112,22 @@ export const FORM_FIELDS: Field[] = [
     section: 'Locations',
     helpText: 'Select all that apply.',
     options: [
-      'Residential (private home or garden)',
-      'Street or alley (public)',
-      'Park or green space',
-      'Commercial storefront (closed)',
-      'Interior business (open to public)',
-      'School, college, university, church, hospital',
-      'City-owned building or structure',
-      'Rooftop',
-      'Hotel',
-      'Airport',
-      'Basement',
-      'Multistory apartment (4+ stories)',
-      'High rise (75+ ft)',
-      'Brush or natural area',
-      'Harbor',
-      'Helipad or helicopter landing site',
+      { value: 'residential', label: 'Residential (private home or garden)' },
+      { value: 'street', label: 'Street or alley (public)' },
+      { value: 'park', label: 'Park or green space' },
+      { value: 'commercial_closed', label: 'Commercial storefront (closed)' },
+      { value: 'interior_business', label: 'Interior business (open to public)' },
+      { value: 'schools', label: 'School, college, university, church, hospital' },
+      { value: 'city_buildings', label: 'City-owned building or structure' },
+      { value: 'rooftops', label: 'Rooftop' },
+      { value: 'hotels', label: 'Hotel' },
+      { value: 'airports', label: 'Airport' },
+      { value: 'basements', label: 'Basement' },
+      { value: 'multistory_apartments', label: 'Multistory apartment (4+ stories)' },
+      { value: 'high_rises', label: 'High rise (75+ ft)' },
+      { value: 'brush', label: 'Brush or natural area' },
+      { value: 'harbor', label: 'Harbor' },
+      { value: 'helipads', label: 'Helipad or helicopter landing site' },
     ],
   },
   {
@@ -111,7 +136,8 @@ export const FORM_FIELDS: Field[] = [
     type: 'boolean',
     required: false,
     section: 'Locations',
-    helpText: 'City-owned but potentially exempt. We'll flag for FilmLA confirmation.',
+    helpText: 'City-owned but potentially exempt. We\'ll flag for FilmLA confirmation.',
+    visibleWhen: { fieldId: 'locationTypes', includes: 'city_buildings' },
   },
 
   // Activities
@@ -193,7 +219,7 @@ export const FORM_FIELDS: Field[] = [
     type: 'boolean',
     required: false,
     section: 'Equipment',
-    helpText: 'If unsure, you'll be prompted to self-assess.',
+    helpText: 'If unsure, you\'ll be prompted to self-assess.',
   },
   {
     id: 'hasLargeLightingAssessment',
@@ -201,7 +227,12 @@ export const FORM_FIELDS: Field[] = [
     type: 'select',
     required: false,
     section: 'Equipment',
-    options: ['Yes', 'No', 'Unsure'],
+    options: [
+      { value: 'yes', label: 'Yes' },
+      { value: 'no', label: 'No' },
+      { value: 'unsure', label: 'Unsure' },
+    ],
+    visibleWhen: { fieldId: 'hasLargeLighting', equals: true },
   },
   {
     id: 'hasGenerators',

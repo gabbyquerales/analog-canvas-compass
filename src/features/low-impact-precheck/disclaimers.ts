@@ -1,3 +1,5 @@
+export const FEEDBACK_URL = '';
+
 export const RESULT_CARD_DISCLAIMER = `This is an estimate, not approval. KAIRO is not affiliated with FilmLA or the City of Los Angeles. Verify your eligibility with FilmLA before filing.`;
 
 export const FOOTER_DISCLAIMER = `KAIRO Low Impact Pre-Check is an independent estimating tool. Not affiliated with FilmLA, the City of Los Angeles, or any government agency. Estimates only — not legal, regulatory, or permit advice.`;
@@ -18,8 +20,4 @@ Pilot rules are set by FilmLA and may change without notice. We update the tool 
 ## No liability
 
 KAIRO is not responsible for application denials, fee differences, lost shoot days, schedule delays, or any other outcome resulting from use of this tool. You use it at your own discretion.
-
-## Feedback
-
-Found a bug or a rule that's out of date? [Feedback link]
 `;
