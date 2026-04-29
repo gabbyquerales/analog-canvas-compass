@@ -161,7 +161,9 @@
       "rate_high": null,
       "requirement_note": "Required when the specified activity is part of the production.",
       "source_url": "https://info.filmla.com/filming-related-fees/filmla-basic-fees-list",
-      "last_verified": "2026-02-26"
+      "last_verified": "2026-02-26",
+      "lastVerified": "2026-03-11",
+      "source": "FilmLA Common Fees LA County"
     },
     "drone_admin": {
       "rate": 78,

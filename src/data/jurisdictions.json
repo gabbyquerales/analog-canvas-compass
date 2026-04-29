@@ -433,7 +433,9 @@
           "rate_high": null,
           "requirement_note": null,
           "source_url": "https://info.filmla.com/filming-related-fees/common-fees-la-county",
-          "last_verified": "2026-02-26"
+          "last_verified": "2026-02-26",
+          "lastVerified": "2026-03-11",
+          "source": "FilmLA Common Fees LA County"
         },
         "fire_still_photo_review": {
           "rate": 277,
@@ -447,7 +449,9 @@
           "rate_high": null,
           "requirement_note": "Applies to still photo shoots with 16+ people.",
           "source_url": "https://info.filmla.com/filming-related-fees/common-fees-la-county",
-          "last_verified": "2026-02-26"
+          "last_verified": "2026-02-26",
+          "lastVerified": "2026-03-11",
+          "source": "FilmLA Common Fees LA County"
         },
         "fire_special_effects_permit": {
           "rate": 350,
@@ -460,7 +464,9 @@
           "rate_high": null,
           "requirement_note": "Required for pyrotechnics/SFX.",
           "source_url": "https://info.filmla.com/filming-related-fees/common-fees-la-county",
-          "last_verified": "2026-02-26"
+          "last_verified": "2026-02-26",
+          "lastVerified": "2026-03-11",
+          "source": "FilmLA Common Fees LA County"
         },
         "fire_safety_advisor": {
           "rate": 63.51,
@@ -476,7 +482,9 @@
           "rate_high": null,
           "requirement_note": "FSA or FSO may be required depending on filming activities and location.",
           "source_url": "https://info.filmla.com/filming-related-fees/common-fees-la-county",
-          "last_verified": "2026-02-26"
+          "last_verified": "2026-02-26",
+          "lastVerified": "2026-03-11",
+          "source": "FilmLA Common Fees LA County"
         },
         "fire_safety_officer": {
           "rate": 230.19,
@@ -492,7 +500,9 @@
           "rate_high": null,
           "requirement_note": "FSA or FSO may be required depending on filming activities and location.",
           "source_url": "https://info.filmla.com/filming-related-fees/common-fees-la-county",
-          "last_verified": "2026-02-26"
+          "last_verified": "2026-02-26",
+          "lastVerified": "2026-03-11",
+          "source": "FilmLA Common Fees LA County"
         },
         "roads_inspection_use": {
           "rate": 468,
@@ -784,6 +794,10 @@
         "Sheriff officers require 6-hour minimum PLUS mileage charges on top",
         "Fire filming review ($343.30) is a flat permit fee you pay even for simple shoots",
         "CHP rates vary by officer type ($133-$170/hr) — you won't know the rate until assigned"
+      ],
+      "_todos": [
+        "TODO: Pyrotechnic-specific permit fee (separate from the $350 SFX permit) is unverified — requires call to LA County Fire PSFU (818) 364-8240. Do NOT hardcode until confirmed.",
+        "TODO: Confirm $230.19 FSO rate is still current. Source published 2026-03-11; re-verify if >90 days old."
       ]
     },
     "culver_city": {
