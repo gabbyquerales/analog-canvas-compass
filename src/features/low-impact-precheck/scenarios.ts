@@ -12,8 +12,8 @@ import type { ShootInput } from './types';
 export const heroSilverLake: ShootInput = {
   projectName: 'Silver Lake Dialogue',
   jurisdiction: 'cityOfLA',
-  firstFilmingDate: '2026-05-10',
-  submissionDate: '2026-05-06',
+  firstFilmingDate: '2026-05-14',
+  submissionDate: '2026-05-07',
   locationCount: 2,
   consecutiveFilmingDays: 2,
   isConsecutiveDays: true,
@@ -54,8 +54,8 @@ export const heroSilverLake: ShootInput = {
 export const tooManyLocations: ShootInput = {
   projectName: 'Downtown Montage',
   jurisdiction: 'cityOfLA',
-  firstFilmingDate: '2026-05-15',
-  submissionDate: '2026-05-12',
+  firstFilmingDate: '2026-05-22',
+  submissionDate: '2026-05-15',
   locationCount: 4,
   consecutiveFilmingDays: 2,
   isConsecutiveDays: true,
@@ -97,8 +97,8 @@ export const tooManyLocations: ShootInput = {
 export const droneDisqualifier: ShootInput = {
   projectName: 'Aerial Sequence',
   jurisdiction: 'cityOfLA',
-  firstFilmingDate: '2026-05-20',
-  submissionDate: '2026-05-16',
+  firstFilmingDate: '2026-05-29',
+  submissionDate: '2026-05-21',
   locationCount: 1,
   consecutiveFilmingDays: 3,
   isConsecutiveDays: true,
@@ -140,7 +140,7 @@ export const droneDisqualifier: ShootInput = {
 export const recParksAmbiguity: ShootInput = {
   projectName: 'Griffith Park Narrative',
   jurisdiction: 'cityOfLA',
-  firstFilmingDate: '2026-05-25',
+  firstFilmingDate: '2026-05-28',
   submissionDate: '2026-05-21',
   locationCount: 1,
   consecutiveFilmingDays: 1,

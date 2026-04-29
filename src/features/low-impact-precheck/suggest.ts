@@ -69,7 +69,7 @@ export const SUGGESTIONS: Record<string, Suggestion> = {
     id: 'rec_parks_verify',
     tier: 2,
     headline: 'Verify Rec & Parks eligibility directly with FilmLA',
-    body: 'Rec & Parks property is noted as exempt in the pilot rules, but confirm your specific location with FilmLA before filing. Email permitting@filmla.com with your site address and they'll clarify.',
+    body: "Rec & Parks property is noted as exempt in the pilot rules, but confirm your specific location with FilmLA before filing. Email permitting@filmla.com with your site address and they'll clarify.",
     appliesTo: ['review_rec_parks_property'],
   },
 

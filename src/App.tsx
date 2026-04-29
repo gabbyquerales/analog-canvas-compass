@@ -9,6 +9,8 @@ import SearchPage from "./pages/SearchPage";
 import TimelinePage from "./pages/TimelinePage";
 import ComparisonPage from "./pages/ComparisonPage";
 import NotFound from "./pages/NotFound";
+import LowImpactPreCheckPage from "./pages/LowImpactPreCheckPage";
+import TermsOfUse from "./features/low-impact-precheck/TermsOfUse";
 
 import WobblyFilter from "./components/WobblyFilter";
 
@@ -18,6 +20,8 @@ const PAGE_NAMES: Record<string, string> = {
   "/": "search",
   "/timeline": "timeline",
   "/comparison": "comparison",
+  "/low-impact-precheck": "low-impact-precheck",
+  "/terms-of-use": "terms-of-use",
 };
 
 function PostHogPageview() {
@@ -86,6 +90,8 @@ const App = () => {
                 <Route path="/" element={<SearchPage onConfirmedChange={setConfirmed} />} />
                 <Route path="/timeline" element={<TimelinePage />} />
                 <Route path="/comparison" element={<ComparisonPage />} />
+                <Route path="/low-impact-precheck" element={<LowImpactPreCheckPage />} />
+                <Route path="/terms-of-use" element={<TermsOfUse />} />
                 <Route path="*" element={<NotFound />} />
               </Routes>
             </div>
