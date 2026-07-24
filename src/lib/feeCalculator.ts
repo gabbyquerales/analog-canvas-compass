@@ -2,11 +2,11 @@
 // Separates fee LOGIC from fee DATA
 // JSON files store rates, this module applies conditional rules
 
-import filmlaBaseFees from '@/data/filmla-base-fees.json';
-import jurisdictionsData from '@/data/jurisdictions.json';
-import activitiesData from '@/data/activities.json';
+import filmlaBaseFees from '../data/filmla-base-fees.json';
+import jurisdictionsData from '../data/jurisdictions.json';
+import activitiesData from '../data/activities.json';
 // Low Impact pilot fees — sourced with per-rule URLs in the rules engine
-import { FEE_MATH } from '@/features/low-impact-precheck/rules';
+import { FEE_MATH } from '../features/low-impact-precheck/rules';
 
 // âââ Types âââ
 
