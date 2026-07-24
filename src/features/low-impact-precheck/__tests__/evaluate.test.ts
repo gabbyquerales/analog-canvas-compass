@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { evaluate } from '../evaluate';
-import { rankSuggestions } from '../suggest';
+import { rankSuggestions, SUGGESTIONS } from '../suggest';
+import { ACTIVITY_FLAGS, LOCATION_FLAGS, REVIEW_TRIGGERS } from '../rules';
 import { countBusinessDays } from '../businessDays';
 import { heroSilverLake, tooManyLocations, droneDisqualifier, recParksAmbiguity } from '../scenarios';
 import type { ShootInput } from '../types';
@@ -337,5 +338,28 @@ describe('rankSuggestions', () => {
     const splitIdx = suggestions.findIndex((s) => s.id === 'split_the_shoot');
     const consolidateIdx = suggestions.findIndex((s) => s.id === 'location_consolidation');
     expect(splitIdx).toBeLessThan(consolidateIdx);
+  });
+
+  it('every appliesTo id is reachable via blockers or review triggers (no dead mappings)', () => {
+    // rankSuggestions only ever sees blocker + review-trigger ids. Timing-notice
+    // ids (e.g. deadline_too_early) are NOT passed in — a suggestion keyed to one
+    // would be dead code.
+    const reachable = new Set([
+      ...ACTIVITY_FLAGS.map((r) => r.id),
+      ...LOCATION_FLAGS.map((r) => r.id),
+      ...REVIEW_TRIGGERS.map((r) => r.id),
+      // Blockers constructed inline in evaluate.ts:
+      'threshold_locations',
+      'threshold_consecutive_days',
+      'threshold_on_set',
+      'hours_outside_standard',
+      'deadline_insufficient_notice',
+      'deadline_pilot_sunset',
+    ]);
+    for (const s of Object.values(SUGGESTIONS)) {
+      for (const id of s.appliesTo) {
+        expect(reachable.has(id), `${s.id} references unreachable id "${id}"`).toBe(true);
+      }
+    }
   });
 });

@@ -14,6 +14,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { evaluate } from '@/features/low-impact-precheck/evaluate';
+import { FEE_MATH } from '@/features/low-impact-precheck/rules';
 import { rankSuggestions } from '@/features/low-impact-precheck/suggest';
 import { FORM_FIELDS, isFieldVisible, pruneHiddenFields } from '@/features/low-impact-precheck/formSchema';
 import { RESULT_COPY } from '@/features/low-impact-precheck/copy';
@@ -399,7 +400,7 @@ export default function LowImpactPreCheckPage() {
                   <tbody>
                     <tr className="border-b">
                       <td className="py-1">Application</td>
-                      <td className="text-right">${result.feeMath.standardTierEstimate > 0 ? 931 : 0}</td>
+                      <td className="text-right">${FEE_MATH.standard.application}</td>
                       <td className="text-right">${result.feeMath.applicationFee}</td>
                     </tr>
                     <tr className="border-b">
@@ -407,14 +408,14 @@ export default function LowImpactPreCheckPage() {
                       <td className="text-right">
                         ${result.state === 'doesNotQualify'
                           ? result.feeMath.notificationPerLocation
-                          : Math.round(result.feeMath.standardTierEstimate - 931 - 287)}
+                          : Math.round(result.feeMath.standardTierEstimate - FEE_MATH.standard.application - FEE_MATH.standard.lafdSpotCheck)}
                       </td>
                       <td className="text-right">${result.feeMath.notificationPerLocation}</td>
                     </tr>
                     <tr className="border-b">
                       <td className="py-1">LAFD Spot Check</td>
-                      <td className="text-right">$287</td>
-                      <td className="text-right">${result.feeMath.lafdSpotCheck === 0 ? 'Waived' : `$${result.feeMath.lafdSpotCheck}`}</td>
+                      <td className="text-right">${FEE_MATH.standard.lafdSpotCheck}</td>
+                      <td className="text-right">{result.feeMath.lafdSpotCheck === 0 ? 'Waived' : `$${result.feeMath.lafdSpotCheck}`}</td>
                     </tr>
                     <tr className="font-bold">
                       <td className="py-1">Total</td>
