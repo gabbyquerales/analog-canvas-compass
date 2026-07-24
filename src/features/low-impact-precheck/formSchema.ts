@@ -292,55 +292,25 @@ export const FORM_FIELDS: Field[] = [
     required: true,
     section: 'Equipment',
   },
-  // F1 fix: the six questions below only apply at Rec & Parks locations
-  // (FilmLA "Limits Applying to Recreation & Parks Locations") — only asked
-  // when isRecParkProperty is true, and evaluate.ts gates them the same way.
+  // F1 fix: the six Rec & Parks-scoped prohibitions (FilmLA "Limits Applying to
+  // Recreation & Parks Locations") are asked as one multiselect, only when
+  // isRecParkProperty is true. Values are rule IDs (same pattern as locationTypes);
+  // evaluate.ts gates on isRecParkProperty the same way. Empty selection = none apply.
   {
-    id: 'hasLandscapeAlteration',
-    label: 'Alterations to landscape?',
-    type: 'boolean',
+    id: 'recParksActivities',
+    label: 'Will you do any of the following at the Rec & Parks location?',
+    type: 'multiselect',
     required: false,
     section: 'Equipment',
+    helpText: 'Select all that apply — these are prohibited at Rec & Parks locations under Low Impact. Leave empty if none apply.',
     visibleWhen: { fieldId: 'isRecParkProperty', equals: true },
-  },
-  {
-    id: 'hasSignRemoval',
-    label: 'Removal or replacement of signs, benches, or fencing?',
-    type: 'boolean',
-    required: false,
-    section: 'Equipment',
-    visibleWhen: { fieldId: 'isRecParkProperty', equals: true },
-  },
-  {
-    id: 'hasDiggingDrilling',
-    label: 'Digging, staking, or drilling into ground or structures?',
-    type: 'boolean',
-    required: false,
-    section: 'Equipment',
-    visibleWhen: { fieldId: 'isRecParkProperty', equals: true },
-  },
-  {
-    id: 'hasNailingBolting',
-    label: 'Nailing or bolting into buildings, structures, or trees?',
-    type: 'boolean',
-    required: false,
-    section: 'Equipment',
-    visibleWhen: { fieldId: 'isRecParkProperty', equals: true },
-  },
-  {
-    id: 'hasHeavyEquipmentOnGrass',
-    label: 'Vehicles or heavy equipment on grass?',
-    type: 'boolean',
-    required: false,
-    section: 'Equipment',
-    visibleWhen: { fieldId: 'isRecParkProperty', equals: true },
-  },
-  {
-    id: 'hasCranes',
-    label: 'Condors, cranes, or jib arms?',
-    type: 'boolean',
-    required: false,
-    section: 'Equipment',
-    visibleWhen: { fieldId: 'isRecParkProperty', equals: true },
+    options: [
+      { value: 'act_landscape_alteration', label: 'Alterations to landscape' },
+      { value: 'act_sign_removal', label: 'Removal or replacement of signs, benches, or fencing' },
+      { value: 'act_digging_drilling', label: 'Digging, staking, or drilling into ground or structures' },
+      { value: 'act_nailing_bolting', label: 'Nailing or bolting into buildings, structures, or trees' },
+      { value: 'act_heavy_equipment_grass', label: 'Vehicles or heavy equipment on grass' },
+      { value: 'act_cranes_jibs', label: 'Condors, cranes, or jib arms' },
+    ],
   },
 ];

@@ -53,7 +53,7 @@ Source: [FilmLA KB — Low Impact Permit Pilot Program](https://info.filmla.com/
 | LAFD spot check | Waived | `FEE_MATH.lowImpact.lafdSpotCheck = 0` |
 | Standard tier (comparison) | $931 app · $232/location · $287 spot check | `FEE_MATH.standard` — all on the KB fee table |
 | Eligibility | ≤3 filming locations · ≤3 consecutive days · ≤30 cast/crew on set · City of LA only | `THRESHOLDS` + jurisdiction gate |
-| Prohibited activities | 19 general (KB list, verbatim) + 6 Rec & Parks-scoped | `ACTIVITY_FLAGS` — the 6 gated behind `isRecParkProperty` in form + evaluator (F1 fixed 2026-07-23) |
+| Prohibited activities | 19 general (KB list, verbatim) + 6 Rec & Parks-scoped | `ACTIVITY_FLAGS` — the 6 asked as one `recParksActivities` multiselect (rule-ID values), gated behind `isRecParkProperty` in form + evaluator (F1 fixed 2026-07-23) |
 | Prohibited locations | 13 (KB list, verbatim) | `LOCATION_FLAGS` |
 | Hours | Outside 7am–10pm wk / 9am–10pm wknd → Standard permit only | blocker `hours_outside_standard` — verified correct |
 | Advance window | Apply ≤1 month before first activity | timing notice `deadline_too_early` (`timingNotices` on the result — a submit-later constraint, never affects state; F3 fixed 2026-07-23) |

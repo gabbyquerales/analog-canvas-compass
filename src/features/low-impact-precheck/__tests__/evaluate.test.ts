@@ -161,31 +161,31 @@ describe('evaluate — Rec & Parks exemption', () => {
 // Rec & Parks-scoped activity flags (F1 fix)
 // ──────────────────────────────────────────────
 
-describe('evaluate — Rec & Parks-scoped activity flags (F1)', () => {
-  const scopedFlags: Array<[keyof ShootInput, string]> = [
-    ['hasLandscapeAlteration', 'act_landscape_alteration'],
-    ['hasSignRemoval', 'act_sign_removal'],
-    ['hasDiggingDrilling', 'act_digging_drilling'],
-    ['hasNailingBolting', 'act_nailing_bolting'],
-    ['hasHeavyEquipmentOnGrass', 'act_heavy_equipment_grass'],
-    ['hasCranes', 'act_cranes_jibs'],
+describe('evaluate — Rec & Parks-scoped activities (F1)', () => {
+  const scopedIds = [
+    'act_landscape_alteration',
+    'act_sign_removal',
+    'act_digging_drilling',
+    'act_nailing_bolting',
+    'act_heavy_equipment_grass',
+    'act_cranes_jibs',
   ];
 
-  for (const [inputKey, ruleId] of scopedFlags) {
-    it(`${inputKey} OFF Rec & Parks property → no blocker, still qualifies`, () => {
+  for (const ruleId of scopedIds) {
+    it(`${ruleId} selected OFF Rec & Parks property → ignored, still qualifies`, () => {
       const result = evaluate({
         ...heroSilverLake,
-        [inputKey]: true,
+        recParksActivities: [ruleId],
         isRecParkProperty: false,
       });
       expect(result.blockers.some((b) => b.id === ruleId)).toBe(false);
       expect(result.state).toBe('qualifies');
     });
 
-    it(`${inputKey} ON Rec & Parks property → blocker fires`, () => {
+    it(`${ruleId} selected ON Rec & Parks property → blocker fires`, () => {
       const result = evaluate({
         ...heroSilverLake,
-        [inputKey]: true,
+        recParksActivities: [ruleId],
         isRecParkProperty: true,
       });
       expect(result.blockers.some((b) => b.id === ruleId)).toBe(true);
@@ -193,18 +193,42 @@ describe('evaluate — Rec & Parks-scoped activity flags (F1)', () => {
     });
   }
 
-  it('all six flags true off Rec & Parks (e.g. private stage nailing a set sign) → qualifies', () => {
+  it('all six selected off Rec & Parks (e.g. private stage nailing a set sign) → qualifies', () => {
     const result = evaluate({
       ...heroSilverLake,
-      hasLandscapeAlteration: true,
-      hasSignRemoval: true,
-      hasDiggingDrilling: true,
-      hasNailingBolting: true,
-      hasHeavyEquipmentOnGrass: true,
-      hasCranes: true,
+      recParksActivities: scopedIds,
     });
     expect(result.blockers).toHaveLength(0);
     expect(result.state).toBe('qualifies');
+  });
+
+  it('all six selected on Rec & Parks → all six blockers fire', () => {
+    const result = evaluate({
+      ...heroSilverLake,
+      recParksActivities: scopedIds,
+      isRecParkProperty: true,
+    });
+    expect(result.blockers.map((b) => b.id)).toEqual(expect.arrayContaining(scopedIds));
+    expect(result.state).toBe('doesNotQualify');
+  });
+
+  it('stray non-scoped ID in recParksActivities → ignored', () => {
+    const result = evaluate({
+      ...heroSilverLake,
+      recParksActivities: ['act_gunfire'],
+      isRecParkProperty: true,
+    });
+    expect(result.blockers.some((b) => b.id === 'act_gunfire')).toBe(false);
+  });
+
+  it('empty selection on Rec & Parks → no activity blockers, needsReview from the rec-parks trigger', () => {
+    const result = evaluate({
+      ...heroSilverLake,
+      recParksActivities: [],
+      isRecParkProperty: true,
+    });
+    expect(result.blockers).toHaveLength(0);
+    expect(result.state).toBe('needsReview');
   });
 });
 

@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { FORM_FIELDS } from '../formSchema';
+import { REC_PARKS_SCOPED_ACTIVITY_IDS } from '../rules';
 import { RESULT_COPY } from '../copy';
 
 function field(id: string) {
@@ -13,20 +14,30 @@ function field(id: string) {
 // ──────────────────────────────────────────────
 
 describe('formSchema — Rec & Parks-scoped questions gated (F1)', () => {
-  const gatedIds = [
-    'hasLandscapeAlteration',
-    'hasSignRemoval',
-    'hasDiggingDrilling',
-    'hasNailingBolting',
-    'hasHeavyEquipmentOnGrass',
-    'hasCranes',
-  ];
+  it('recParksActivities multiselect only visible when isRecParkProperty is true', () => {
+    const f = field('recParksActivities');
+    expect(f.type).toBe('multiselect');
+    expect(f.visibleWhen).toEqual({ fieldId: 'isRecParkProperty', equals: true });
+  });
 
-  for (const id of gatedIds) {
-    it(`${id} only visible when isRecParkProperty is true`, () => {
-      expect(field(id).visibleWhen).toEqual({ fieldId: 'isRecParkProperty', equals: true });
-    });
-  }
+  it('recParksActivities options are exactly the six Rec & Parks-scoped rule IDs', () => {
+    const values = field('recParksActivities').options?.map((o) => o.value);
+    expect(values).toEqual([...REC_PARKS_SCOPED_ACTIVITY_IDS]);
+  });
+
+  it('the old per-flag boolean questions are gone', () => {
+    const oldIds = [
+      'hasLandscapeAlteration',
+      'hasSignRemoval',
+      'hasDiggingDrilling',
+      'hasNailingBolting',
+      'hasHeavyEquipmentOnGrass',
+      'hasCranes',
+    ];
+    for (const id of oldIds) {
+      expect(FORM_FIELDS.some((f) => f.id === id)).toBe(false);
+    }
+  });
 
   it('isRecParkProperty is shown for park locations, not just city buildings', () => {
     const vw = field('isRecParkProperty').visibleWhen;

@@ -1,5 +1,5 @@
 import type { ShootInput, EvaluationResult, Rule, ResultState } from './types';
-import { ACTIVITY_FLAGS, LOCATION_FLAGS, REVIEW_TRIGGERS, THRESHOLDS, DEADLINES, FEE_MATH } from './rules';
+import { ACTIVITY_FLAGS, LOCATION_FLAGS, REVIEW_TRIGGERS, REC_PARKS_SCOPED_ACTIVITY_IDS, THRESHOLDS, DEADLINES, FEE_MATH } from './rules';
 import { countBusinessDays } from './businessDays';
 
 const KB_URL = 'https://info.filmla.com/general-information/low-impact-permit-pilot-program';
@@ -69,13 +69,12 @@ export function evaluate(input: ShootInput): EvaluationResult {
 
   // F1 fix: FilmLA scopes these six under "Limits Applying to Recreation & Parks
   // Locations" — they are NOT universal prohibitions. Only fire on Rec & Parks property.
+  // Iterating the scoped-ID list (not the input array) ignores any stray IDs.
   if (input.isRecParkProperty) {
-    if (input.hasLandscapeAlteration) blockers.push(findActivity('act_landscape_alteration'));
-    if (input.hasSignRemoval) blockers.push(findActivity('act_sign_removal'));
-    if (input.hasDiggingDrilling) blockers.push(findActivity('act_digging_drilling'));
-    if (input.hasNailingBolting) blockers.push(findActivity('act_nailing_bolting'));
-    if (input.hasHeavyEquipmentOnGrass) blockers.push(findActivity('act_heavy_equipment_grass'));
-    if (input.hasCranes) blockers.push(findActivity('act_cranes_jibs'));
+    const selected = input.recParksActivities || [];
+    for (const id of REC_PARKS_SCOPED_ACTIVITY_IDS) {
+      if (selected.includes(id)) blockers.push(findActivity(id));
+    }
   }
 
   // Hazard 1 fix: location checks use IDs directly (form stores IDs via value field)
