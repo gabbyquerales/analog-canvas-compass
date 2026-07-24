@@ -32,6 +32,12 @@ export const MAIN_FLOW_ACTIVITY_TO_FLAG: Record<string, keyof ShootInput | null>
 /** Answers collected by the confirm step (inputs the main flow doesn't capture). */
 export interface LowImpactConfirmInputs {
   firstFilmingDate: string; // ISO date
+  /**
+   * Total cast & crew physically on set (busiest day). The brief's "Crew"
+   * stepper excludes cast, so it can only under-count against FilmLA's
+   * ≤30 cast-and-crew threshold — the confirm step asks for the real total.
+   */
+  onSetCount: number;
   locationTypes: string[]; // ids matching formSchema locationTypes options
   isRecParkProperty: boolean;
   recParksActivities: string[]; // rule ids from REC_PARKS_SCOPED_ACTIVITY_IDS
@@ -152,6 +158,7 @@ export function evaluateWithConfirm(
   const input = buildPartialRulesInput(main, todayISO);
   input.firstFilmingDate = confirm.firstFilmingDate;
   input.submissionDate = todayISO;
+  input.onSetCount = confirm.onSetCount;
   // Merge location types: keep the main flow's park signal, add confirm answers.
   input.locationTypes = Array.from(new Set([...input.locationTypes, ...confirm.locationTypes]));
   input.isRecParkProperty = main.isParksLocation || confirm.isRecParkProperty;

@@ -22,6 +22,7 @@ const laBase: ShootInputs = {
 
 const cleanConfirm: LowImpactConfirmInputs = {
   firstFilmingDate: '2026-08-05',
+  onSetCount: 22,
   locationTypes: ['residential'],
   isRecParkProperty: false,
   recParksActivities: [],
@@ -150,6 +151,13 @@ describe('mainFlowAdapter — evaluateWithConfirm', () => {
     const result = evaluateWithConfirm(laBase, cleanConfirm, TODAY);
     expect(result.state).toBe('qualifies');
     expect(result.blockers).toHaveLength(0);
+  });
+
+  it('confirm on-set total overrides the brief crew count (cast pushes past 30)', () => {
+    // 20 crew passes detection, but 20 crew + 15 cast = 35 on set must fail
+    const result = evaluateWithConfirm(laBase, { ...cleanConfirm, onSetCount: 35 }, TODAY);
+    expect(result.state).toBe('doesNotQualify');
+    expect(result.blockers.some((b) => b.id === 'threshold_on_set')).toBe(true);
   });
 
   it('confirm can produce a definitive no (hotel location)', () => {

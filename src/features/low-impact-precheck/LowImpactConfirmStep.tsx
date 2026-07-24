@@ -21,6 +21,8 @@ interface LowImpactConfirmStepProps {
    * ON and the user flips it off if they wrap within standard hours.
    */
   nightShootFromMainFlow: boolean;
+  /** Prefill for the on-set total: the brief's crew count (excludes cast). */
+  crewSizeFromMainFlow: number;
   /** Previous answers when reopening to edit. */
   initial?: LowImpactConfirmInputs | null;
   onComplete: (answers: LowImpactConfirmInputs) => void;
@@ -36,11 +38,13 @@ function schemaField(id: string) {
 export default function LowImpactConfirmStep({
   parksLocationFromMainFlow,
   nightShootFromMainFlow,
+  crewSizeFromMainFlow,
   initial,
   onComplete,
   onCancel,
 }: LowImpactConfirmStepProps) {
   const [firstFilmingDate, setFirstFilmingDate] = useState(initial?.firstFilmingDate ?? '');
+  const [onSetCount, setOnSetCount] = useState<number>(initial?.onSetCount ?? crewSizeFromMainFlow);
   const [locationTypes, setLocationTypes] = useState<string[]>(
     initial?.locationTypes ?? (parksLocationFromMainFlow ? ['park'] : []),
   );
@@ -68,13 +72,14 @@ export default function LowImpactConfirmStep({
     setList(list.includes(value) ? list.filter((v) => v !== value) : [...list, value]);
   };
 
-  const canSubmit = firstFilmingDate !== '';
+  const canSubmit = firstFilmingDate !== '' && onSetCount >= 1;
 
   const handleSubmit = () => {
     // Prune answers whose question was hidden — mirror of pruneHiddenFields.
     const recPark = showRecParkToggle ? isRecParkProperty : false;
     onComplete({
       firstFilmingDate,
+      onSetCount,
       locationTypes,
       isRecParkProperty: recPark,
       recParksActivities: recPark ? recParksActivities : [],
@@ -111,6 +116,24 @@ export default function LowImpactConfirmStep({
               />
               <p className="text-xs text-gray-500">
                 Needed to check the 3-business-day notice and the pilot window.
+              </p>
+            </div>
+
+            {/* On-set total — the brief's Crew count excludes cast */}
+            <div className="space-y-1">
+              <Label htmlFor="li-onset" className="text-sm">
+                Total cast &amp; crew physically on set (busiest day)
+              </Label>
+              <Input
+                id="li-onset"
+                type="number"
+                min={1}
+                value={onSetCount}
+                onChange={(e) => setOnSetCount(Math.max(0, Number(e.target.value)))}
+              />
+              <p className="text-xs text-gray-500">
+                Pre-filled with your crew count — add cast, background, and everyone else on set.
+                Low Impact allows 30 or fewer.
               </p>
             </div>
 

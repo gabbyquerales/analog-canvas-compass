@@ -16,6 +16,13 @@ Every PR appends an entry here. Format: date · change · why · what was learne
 - `night_shoot` is deliberately unmapped: it can't prove "outside 7am–10pm", so blocking on it would repeat the F1 over-blocking mistake. The hours question lives in the confirm step.
 - The main flow's standard ledger charged ONE flat $232 notification regardless of location count — **fixed in this PR after re-verifying both sources** (Basic Fees List: "per Radius"; Low Impact KB fee table: "$232 / location"): now $232 × filming locations, marked as an estimate when >1 with a shared-radius caveat. The flat charge had been silently under-charging multi-location standard shoots.
 - Review follow-up: `night_shoot` now prefills the confirm step's hours toggle to ON (user can flip it off if wrapping by 10pm) — keeps the F1 lesson (never block on an ambiguous signal) without losing the signal.
+
+**Final review round (2026-07-24, Gabby's holes-check):**
+- **FilmLA Monitor is no longer charged unconditionally.** Gabby's call, confirmed by two sources: FilmLA's monitor page — assigned "using need-based criteria" for "City-owned property, complicated filming activity and frequently filmed areas" (filmla.com/filml-monitors-ambassadors-location-filming, verified 2026-07-24) — and our own base-fees data, which always said `requirement_level: conditional` ("may be required depending on production scope and community impact") while the calculator ignored it. Now emitted only when a trigger exists (any special activity, or parks/port/beach/flood-control property), as a toggleable conditional estimate. Plain shoots — and typical Low Impact qualifiers — carry no monitor line.
+- **On-set headcount hole closed:** the brief's "Crew" stepper excludes cast, but FilmLA's threshold is ≤30 total cast & crew — a 20-crew/15-cast shoot was told "Likely Qualifies". The confirm step now asks for the on-set total (prefilled with crew count) and feeds `onSetCount`.
+- **Suggestions engine reconnected:** the result card now shows the top repackaging suggestions (split-the-shoot etc.) for blocked/review shoots — restoring the standalone page's "how to qualify" value that the integration had dropped.
+- **Timezone:** `todayISO` now uses the local calendar date instead of UTC (late-evening users were being docked one business day of notice).
+- Tests 153 → 156.
 - Tests 152 → run `npx vitest run`: adapter mapping/detection/confirm (25), fee tier switch (10), plus all prior suites. Verified in-browser: $2,028.50 → $1,084.50 (delta $944, exact).
 
 ---

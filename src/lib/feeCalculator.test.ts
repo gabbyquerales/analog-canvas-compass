@@ -131,14 +131,27 @@ describe('calculateFees — FilmLA base fees', () => {
     expect(item(r, 'filmla_notification')!.isEstimate).toBe(true);
   });
 
-  it('computes monitor as (hoursPerDay + 1) × $44.50 × shootDays', () => {
+  it('computes monitor as (hoursPerDay + 1) × $44.50 × shootDays when triggered', () => {
     const r = calculateFees(shoot({
       jurisdictionSlug: 'los-angeles',
       hoursPerDay: 12,
       shootDays: 2,
+      selectedActivities: ['animals'],
     }));
     // (12 + 1) × 44.50 × 2 = 1157
     expect(item(r, 'filmla_monitor')!.amount).toBe(1157);
+    expect(item(r, 'filmla_monitor')!.isEstimate).toBe(true);
+  });
+
+  it('no monitor line without a trigger (need-based, not universal)', () => {
+    const r = calculateFees(shoot({ jurisdictionSlug: 'los-angeles' }));
+    expect(item(r, 'filmla_monitor')).toBeUndefined();
+  });
+
+  it('monitor triggered by city-owned property (parks) without activities', () => {
+    const r = calculateFees(shoot({ jurisdictionSlug: 'los-angeles', isParksLocation: true }));
+    expect(item(r, 'filmla_monitor')).toBeDefined();
+    expect(item(r, 'filmla_monitor')!.requirementLevel).toBe('conditional');
   });
 
   it('adds rider fee for shoots >7 days', () => {

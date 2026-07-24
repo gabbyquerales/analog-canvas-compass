@@ -13,11 +13,15 @@ import {
   evaluateWithConfirm,
   type LowImpactConfirmInputs,
 } from "@/features/low-impact-precheck/mainFlowAdapter";
+import { rankSuggestions } from "@/features/low-impact-precheck/suggest";
 import LowImpactConfirmStep from "@/features/low-impact-precheck/LowImpactConfirmStep";
 import { RESULT_CARD_DISCLAIMER } from "@/features/low-impact-precheck/disclaimers";
 import posthog from "posthog-js";
 
-const todayISO = new Date().toISOString().split("T")[0];
+// Local calendar date, NOT UTC — toISOString() would roll a late-evening PT
+// user to tomorrow and silently cost them a business day of notice.
+const now = new Date();
+const todayISO = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`;
 
 const LOW_IMPACT_BADGES: Record<string, string> = {
   qualifies: "Likely Qualifies",
@@ -239,6 +243,17 @@ const ProductionBrief = ({ jurisdiction, location, neighborhood, onBack }: Produ
   );
   const lowImpactApplied =
     lowImpactResult?.state === "qualifies" || lowImpactResult?.state === "needsReview";
+  // "How to qualify" repackaging suggestions for blocked/review shoots
+  const lowImpactSuggestions = useMemo(
+    () =>
+      lowImpactResult && lowImpactResult.state !== "qualifies"
+        ? rankSuggestions(
+            lowImpactResult.blockers.map((b) => b.id),
+            lowImpactResult.reviewTriggers.map((r) => r.id),
+          ).slice(0, 2)
+        : [],
+    [lowImpactResult],
+  );
 
   // Calculate fees (Low Impact tier only after the rules engine likely-qualifies)
   const feeResult = useMemo(
@@ -538,6 +553,11 @@ const ProductionBrief = ({ jurisdiction, location, neighborhood, onBack }: Produ
               ))}
               {lowImpactResult.timingNotices.map((t) => (
                 <p key={t.id} style={{ marginBottom: "2px" }}>⏱ {t.label}</p>
+              ))}
+              {lowImpactSuggestions.map((s) => (
+                <p key={s.id} style={{ marginTop: "6px", marginBottom: "2px" }}>
+                  💡 <span style={{ fontWeight: 600 }}>{s.headline}:</span> {s.body}
+                </p>
               ))}
               <p style={{ fontSize: "10.5px", color: "hsl(0, 0%, 45%)", marginTop: "6px" }}>
                 {RESULT_CARD_DISCLAIMER}
@@ -851,6 +871,7 @@ const ProductionBrief = ({ jurisdiction, location, neighborhood, onBack }: Produ
           <LowImpactConfirmStep
             parksLocationFromMainFlow={isParksLocation}
             nightShootFromMainFlow={selectedActivities.has("night_shoot")}
+            crewSizeFromMainFlow={crewSize}
             initial={lowImpactConfirm}
             onComplete={(answers) => {
               setLowImpactConfirm(answers);

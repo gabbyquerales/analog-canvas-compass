@@ -316,11 +316,23 @@ export function calculateFees(inputs: ShootInputs): FeeCalculationResult {
     }
   }
 
-  // FilmLA Monitor (always applicable)
+  // FilmLA Monitor — need-based, NOT universal: assigned for "filming that occurs
+  // on City-owned property, complicated filming activity and frequently filmed
+  // areas" (https://filmla.com/filml-monitors-ambassadors-location-filming/,
+  // verified 2026-07-24; base-fees data marks it conditional: "may be required
+  // depending on production scope and community impact"). Estimated only when a
+  // trigger is present; 'conditional' level keeps the ledger toggle available.
+  const monitorLikely =
+    inputs.selectedActivities.length > 0 ||
+    inputs.isParksLocation ||
+    inputs.isPortLocation ||
+    inputs.isBeachLocation ||
+    inputs.isFloodControlLocation;
   const monitorHours = inputs.hoursPerDay + 1; // +1 hour arrival before permit start
-  lineItems.push({
+  if (monitorLikely) lineItems.push({
     id: 'filmla_monitor',
     name: 'FilmLA Monitor',
+    isEstimate: true,
     amount: baseFees.filmla_monitor.rate * monitorHours * inputs.shootDays,
     per: `${monitorHours}hrs Ã ${inputs.shootDays} days`,
     category: 'filmla',
