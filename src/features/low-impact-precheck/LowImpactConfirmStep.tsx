@@ -237,7 +237,11 @@ export default function LowImpactConfirmStep({
               </Button>
             </div>
             {!canSubmit && (
-              <p className="text-xs text-gray-500 text-center">Enter your first filming date to check.</p>
+              <p className="text-xs text-gray-500 text-center">
+                {firstFilmingDate === ''
+                  ? 'Enter your first filming date to check.'
+                  : 'Enter your on-set cast & crew total to check.'}
+              </p>
             )}
           </div>
         </div>

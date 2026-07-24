@@ -23,7 +23,7 @@ Every PR appends an entry here. Format: date · change · why · what was learne
 - **Suggestions engine reconnected:** the result card now shows the top repackaging suggestions (split-the-shoot etc.) for blocked/review shoots — restoring the standalone page's "how to qualify" value that the integration had dropped.
 - **Timezone:** `todayISO` now uses the local calendar date instead of UTC (late-evening users were being docked one business day of notice).
 - Tests 153 → 156.
-- Tests 152 → run `npx vitest run`: adapter mapping/detection/confirm (25), fee tier switch (10), plus all prior suites. Verified in-browser: $2,028.50 → $1,084.50 (delta $944, exact).
+- Tests 152 → run `npx vitest run`: adapter mapping/detection/confirm (25), fee tier switch (10), plus all prior suites. Verified in-browser at the time: $2,028.50 → $1,084.50 (delta $944, exact). *(Superseded by the monitor fix below — final verified numbers: $1,450 standard → $506 Low Impact for the same shoot.)*
 
 ---
 
