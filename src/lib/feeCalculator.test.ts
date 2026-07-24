@@ -120,19 +120,38 @@ describe('calculateFees — FilmLA base fees', () => {
     expect(item(r, 'filmla_app')!.amount).toBe(73);
   });
 
-  it('always charges $232 notification fee', () => {
+  it('charges $232 notification per filming location (1 location)', () => {
     const r = calculateFees(shoot({ jurisdictionSlug: 'los-angeles' }));
     expect(item(r, 'filmla_notification')!.amount).toBe(232);
   });
 
-  it('computes monitor as (hoursPerDay + 1) × $44.50 × shootDays', () => {
+  it('charges $232 notification per filming location (3 locations)', () => {
+    const r = calculateFees(shoot({ jurisdictionSlug: 'los-angeles', numberOfLocations: 3 }));
+    expect(item(r, 'filmla_notification')!.amount).toBe(232 * 3);
+    expect(item(r, 'filmla_notification')!.isEstimate).toBe(true);
+  });
+
+  it('computes monitor as (hoursPerDay + 1) × $44.50 × shootDays when triggered', () => {
     const r = calculateFees(shoot({
       jurisdictionSlug: 'los-angeles',
       hoursPerDay: 12,
       shootDays: 2,
+      selectedActivities: ['animals'],
     }));
     // (12 + 1) × 44.50 × 2 = 1157
     expect(item(r, 'filmla_monitor')!.amount).toBe(1157);
+    expect(item(r, 'filmla_monitor')!.isEstimate).toBe(true);
+  });
+
+  it('no monitor line without a trigger (need-based, not universal)', () => {
+    const r = calculateFees(shoot({ jurisdictionSlug: 'los-angeles' }));
+    expect(item(r, 'filmla_monitor')).toBeUndefined();
+  });
+
+  it('monitor triggered by city-owned property (parks) without activities', () => {
+    const r = calculateFees(shoot({ jurisdictionSlug: 'los-angeles', isParksLocation: true }));
+    expect(item(r, 'filmla_monitor')).toBeDefined();
+    expect(item(r, 'filmla_monitor')!.requirementLevel).toBe('conditional');
   });
 
   it('adds rider fee for shoots >7 days', () => {
@@ -590,5 +609,70 @@ describe('calculateFees — whatPeopleMiss', () => {
     const r = calculateFees(shoot({ jurisdictionSlug: 'los-angeles' }));
     expect(r.whatPeopleMiss.length).toBeGreaterThan(0);
     expect(r.whatPeopleMiss.some(w => w.includes('LAFD'))).toBe(true);
+  });
+});
+
+// ─── Low Impact tier switch ───
+
+describe('calculateFees — lowImpactTier', () => {
+  const base = { jurisdictionSlug: 'los-angeles', crewSize: 20, numberOfLocations: 2, lowImpactTier: true };
+
+  it('swaps the application fee to the Low Impact rate ($350)', () => {
+    const r = calculateFees(shoot(base));
+    expect(item(r, 'filmla_app')?.amount).toBe(350);
+    expect(item(r, 'filmla_app')?.name).toContain('Low Impact');
+  });
+
+  it('notification becomes $156 per filming location', () => {
+    const r = calculateFees(shoot(base));
+    expect(item(r, 'filmla_notification')?.amount).toBe(156 * 2);
+    expect(item(r, 'filmla_notification')?.note).toMatch(/parking/i);
+  });
+
+  it('LAFD spot check is waived ($0 line, labeled)', () => {
+    const r = calculateFees(shoot(base));
+    const spot = item(r, 'la_fire_spot_check');
+    expect(spot?.amount).toBe(0);
+    expect(spot?.name).toMatch(/waived/i);
+  });
+
+  it('total reflects the swap: 350 + 156×2 vs standard 931 + 232×2 + 287', () => {
+    const low = calculateFees(shoot(base));
+    const std = calculateFees(shoot({ ...base, lowImpactTier: false }));
+    // Only app, notification, and spot check differ; monitor etc. unchanged
+    const delta = std.estimatedTotal - low.estimatedTotal;
+    expect(delta).toBe((931 - 350) + (232 * 2 - 156 * 2) + (287 - 0));
+  });
+
+  it('ignored for student productions (cheaper tier already)', () => {
+    const r = calculateFees(shoot({ ...base, isStudent: true }));
+    expect(item(r, 'filmla_app')?.name).toContain('Student');
+    expect(item(r, 'filmla_notification')?.amount).toBe(232 * 2);
+  });
+
+  it('ignored for non-profit productions', () => {
+    const r = calculateFees(shoot({ ...base, isNonProfit: true }));
+    expect(item(r, 'filmla_app')?.name).toContain('Non-Profit');
+  });
+
+  it('ignored for still photo', () => {
+    const r = calculateFees(shoot({ ...base, isMotion: false, crewSize: 10 }));
+    expect(item(r, 'filmla_app')?.amount).toBe(104);
+  });
+
+  it('ignored outside LA City', () => {
+    const r = calculateFees(shoot({ ...base, jurisdictionSlug: 'culver-city' }));
+    expect(item(r, 'filmla_app')?.amount).toBe(931);
+    expect(item(r, 'filmla_notification')?.amount).toBe(232 * 2);
+  });
+
+  it('crews under 16 have no spot check line either way', () => {
+    const r = calculateFees(shoot({ ...base, crewSize: 12 }));
+    expect(item(r, 'la_fire_spot_check')).toBeUndefined();
+  });
+
+  it('off by default — omitting the flag gives standard pricing', () => {
+    const r = calculateFees(shoot({ jurisdictionSlug: 'los-angeles' }));
+    expect(item(r, 'filmla_app')?.amount).toBe(931);
   });
 });

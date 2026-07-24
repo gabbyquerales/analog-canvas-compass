@@ -5,6 +5,8 @@
 import filmlaBaseFees from '@/data/filmla-base-fees.json';
 import jurisdictionsData from '@/data/jurisdictions.json';
 import activitiesData from '@/data/activities.json';
+// Low Impact pilot fees — sourced with per-rule URLs in the rules engine
+import { FEE_MATH } from '@/features/low-impact-precheck/rules';
 
 // âââ Types âââ
 
@@ -31,6 +33,13 @@ export interface ShootInputs {
   numberOfCars: number;
   prepDays: number;
   strikeDays: number;
+  /**
+   * Apply FilmLA Low Impact pilot pricing (LA City motion, non-student,
+   * non-profit only — ignored otherwise). ELIGIBILITY IS THE CALLER'S JOB:
+   * set this only after the rules engine returned qualifies/needsReview
+   * (see src/features/low-impact-precheck/mainFlowAdapter.ts).
+   */
+  lowImpactTier?: boolean;
 }
 
 export interface FeeLineItem {
@@ -146,6 +155,14 @@ export function calculateFees(inputs: ShootInputs): FeeCalculationResult {
   // ââ TIER 1: FilmLA Base Fees ââ
   const baseFees = filmlaBaseFees.fees;
 
+  // Low Impact pilot pricing applies only to standard LA City motion permits.
+  const lowImpact =
+    !!inputs.lowImpactTier &&
+    inputs.jurisdictionSlug === 'los-angeles' &&
+    inputs.isMotion &&
+    !inputs.isStudent &&
+    !inputs.isNonProfit;
+
   // Application fee
   if (inputs.isStudent) {
     const isComplex = inputs.selectedActivities.length > 0;
@@ -165,14 +182,25 @@ export function calculateFees(inputs: ShootInputs): FeeCalculationResult {
       category: 'filmla',
     });
   } else if (inputs.isMotion) {
-    lineItems.push({
-      id: 'filmla_app',
-      name: 'Permit Application Fee',
-      amount: baseFees.permit_application.rate,
-      per: 'permit',
-      category: 'filmla',
-      note: 'Up to 5 locations, 7 consecutive days',
-    });
+    if (lowImpact) {
+      lineItems.push({
+        id: 'filmla_app',
+        name: 'Low Impact Permit Application',
+        amount: FEE_MATH.lowImpact.application,
+        per: 'permit',
+        category: 'filmla',
+        note: 'FilmLA Low Impact pilot — likely rate, pending FilmLA confirmation',
+      });
+    } else {
+      lineItems.push({
+        id: 'filmla_app',
+        name: 'Permit Application Fee',
+        amount: baseFees.permit_application.rate,
+        per: 'permit',
+        category: 'filmla',
+        note: 'Up to 5 locations, 7 consecutive days',
+      });
+    }
 
     // Extra riders if >7 days or >5 locations
     if (inputs.shootDays > 7) {
@@ -214,13 +242,29 @@ export function calculateFees(inputs: ShootInputs): FeeCalculationResult {
   }
 
   // Notification fee
-  lineItems.push({
-    id: 'filmla_notification',
-    name: 'Notification Fee',
-    amount: baseFees.notification_fee.rate,
-    per: 'radius',
-    category: 'filmla',
-  });
+  if (lowImpact) {
+    lineItems.push({
+      id: 'filmla_notification',
+      name: 'Notification Fee (Low Impact)',
+      amount: FEE_MATH.lowImpact.notificationPerLocation * inputs.numberOfLocations,
+      per: `${inputs.numberOfLocations} filming location${inputs.numberOfLocations === 1 ? '' : 's'}`,
+      category: 'filmla',
+      note: 'Cast/crew parking & base camp locations are free',
+    });
+  } else {
+    // FilmLA bills notification per radius; its Low Impact fee table publishes the
+    // standard rate as "$232 / location" (verified 2026-07-23). Estimate one radius
+    // per filming location — nearby locations sharing a radius may reduce this.
+    lineItems.push({
+      id: 'filmla_notification',
+      name: 'Notification Fee',
+      amount: baseFees.notification_fee.rate * inputs.numberOfLocations,
+      per: `notification radius (est. 1 per location × ${inputs.numberOfLocations})`,
+      category: 'filmla',
+      note: 'Billed per notification radius — typically one per filming location; locations sharing a radius may lower this.',
+      isEstimate: inputs.numberOfLocations > 1,
+    });
+  }
 
   // Activity admin fees (FilmLA-level)
   for (const activityId of inputs.selectedActivities) {
@@ -272,11 +316,23 @@ export function calculateFees(inputs: ShootInputs): FeeCalculationResult {
     }
   }
 
-  // FilmLA Monitor (always applicable)
+  // FilmLA Monitor — need-based, NOT universal: assigned for "filming that occurs
+  // on City-owned property, complicated filming activity and frequently filmed
+  // areas" (https://filmla.com/filml-monitors-ambassadors-location-filming/,
+  // verified 2026-07-24; base-fees data marks it conditional: "may be required
+  // depending on production scope and community impact"). Estimated only when a
+  // trigger is present; 'conditional' level keeps the ledger toggle available.
+  const monitorLikely =
+    inputs.selectedActivities.length > 0 ||
+    inputs.isParksLocation ||
+    inputs.isPortLocation ||
+    inputs.isBeachLocation ||
+    inputs.isFloodControlLocation;
   const monitorHours = inputs.hoursPerDay + 1; // +1 hour arrival before permit start
-  lineItems.push({
+  if (monitorLikely) lineItems.push({
     id: 'filmla_monitor',
     name: 'FilmLA Monitor',
+    isEstimate: true,
     amount: baseFees.filmla_monitor.rate * monitorHours * inputs.shootDays,
     per: `${monitorHours}hrs Ã ${inputs.shootDays} days`,
     category: 'filmla',
@@ -288,17 +344,29 @@ export function calculateFees(inputs: ShootInputs): FeeCalculationResult {
 
   // ââ LA CITY specific logic ââ
   if (inputs.jurisdictionSlug === 'los-angeles') {
-    // LAFD Spot Check (auto for 16+ crew)
+    // LAFD Spot Check (auto for 16+ crew; waived under the Low Impact pilot)
     if (inputs.crewSize >= 16) {
-      lineItems.push({
-        id: 'la_fire_spot_check',
-        name: 'LAFD Spot Check Surcharge',
-        amount: jFees.fire_spot_check.rate,
-        per: 'permit',
-        category: 'jurisdiction',
-        department: 'LA City Fire Department',
-        note: 'Automatic for crews of 16+',
-      });
+      if (lowImpact) {
+        lineItems.push({
+          id: 'la_fire_spot_check',
+          name: 'LAFD Spot Check — Waived',
+          amount: FEE_MATH.lowImpact.lafdSpotCheck,
+          per: 'permit',
+          category: 'jurisdiction',
+          department: 'LA City Fire Department',
+          note: 'Waived under the Low Impact pilot',
+        });
+      } else {
+        lineItems.push({
+          id: 'la_fire_spot_check',
+          name: 'LAFD Spot Check Surcharge',
+          amount: jFees.fire_spot_check.rate,
+          per: 'permit',
+          category: 'jurisdiction',
+          department: 'LA City Fire Department',
+          note: 'Automatic for crews of 16+',
+        });
+      }
     }
 
     // Fire Safety Officer for pyro/sfx
