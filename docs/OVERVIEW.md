@@ -23,19 +23,24 @@ Vite + React + TypeScript SPA (Lovable-originated, shadcn/ui + Tailwind). **All 
 
 ```
 src/
-├── pages/            Index, SearchPage, ComparisonPage, TimelinePage,
-│                     LowImpactPreCheckPage (route: /low-impact-precheck), NotFound
+├── pages/            Index, SearchPage, ComparisonPage, TimelinePage, NotFound
+├── components/       MapEngine, InfoCards, ProductionBrief (hosts the Low Impact
+│                     banner + confirm step + tier-switched ledger)
 ├── features/low-impact-precheck/
 │   ├── rules.ts        ACTIVITY_FLAGS (25), LOCATION_FLAGS (13), REVIEW_TRIGGERS (3),
-│   │                   THRESHOLDS, DEADLINES (incl. pilot sunset), FEE_MATH
-│   ├── evaluate.ts     evaluate(input) → state + blockers + reviewTriggers + feeMath
-│   ├── formSchema.ts   questionnaire definition (sections, labels, helpText)
+│   │                   REC_PARKS_SCOPED_ACTIVITY_IDS, THRESHOLDS, DEADLINES, FEE_MATH
+│   ├── evaluate.ts     evaluate(input) → state + blockers + reviewTriggers + timingNotices + feeMath
+│   ├── mainFlowAdapter.ts  ShootInputs → rules input · detectLowImpactPotential
+│   │                       (definitive-no only) · evaluateWithConfirm
+│   ├── LowImpactConfirmStep.tsx  confirm sheet (date, hours, location types,
+│   │                             Rec & Parks gate, additional activities)
+│   ├── formSchema.ts   field definitions + isFieldVisible/pruneHiddenFields
 │   ├── businessDays.ts holiday-aware (US-CA) business-day counting
 │   ├── suggest.ts      tiered "how to qualify" suggestions (e.g. split-the-shoot)
 │   ├── scenarios.ts    4 seed scenarios (qualifies / too-many-locations / drone / rec-parks)
 │   ├── copy.ts, disclaimers.ts, TermsOfUse.tsx
-│   └── __tests__/      21 evaluator tests
-├── lib/              feeCalculator.ts (+63 tests), jurisdiction.ts, cdtfa.ts, mapbox.ts
+│   └── __tests__/      evaluator, formSchema, mainFlowAdapter tests
+├── lib/              feeCalculator.ts (lowImpactTier switch; +73 tests), jurisdiction.ts, cdtfa.ts, mapbox.ts
 ├── data/             filmla-base-fees.json, jurisdictions.json, activities.json
 └── integrations/supabase/   client + generated types
 ```
@@ -66,15 +71,22 @@ Pricing formula: `350 + (filmingLocations × 156)` → 1 loc $506 · 2 loc $662 
 
 - **Pilot-expiry guard:** re-verify fees/availability on the FilmLA page ~2026-10-13; update `DEADLINES`/`FEE_MATH` or retire the feature per what FilmLA publishes.
 - **Deferred by decision 2026-07-23 (revisit after pilot window):** (a) the advance-window check approximates "a month" as 30 days — acceptable while no exact apply-date is shown to users; (b) a shoot dated past the pilot sunset can show both the sunset blocker and the too-early timing notice.
-- **Deferred (2026-07-23 review): no submit validation on the standalone form.** `required` flags are not enforced — a blank first-filming date or `locationCount: 0` still evaluates and can yield a misleading `doesNotQualify` ("minimum 3 business days notice") caused by the blank field, not the shoot. Deferred because the main-flow integration is expected to supply these inputs from its own validated state; if real users hit the standalone page before then, add a submit guard.
+- **Notification-fee granularity (UNVERIFIED):** the main flow's standard ledger charges one $232 notification "per radius" while the Low Impact tier (and the old pre-check comparison) charges per filming location. Verify FilmLA's billing granularity for multi-location standard shoots and reconcile.
+- ~~Deferred: no submit validation on the standalone form~~ **Resolved 2026-07-23 by the integration:** the standalone page was removed; the confirm step requires the filming date before evaluating, and all other inputs come from the Production Brief's own steppers (min 1).
 - ~~Known UI-state issue: hidden fields kept stale values~~ **Fixed 2026-07-23:** `pruneHiddenFields()` in `formSchema.ts` resets every hidden field to its default before evaluation (cascades through gate chains, e.g. locationTypes → isRecParkProperty → recParksActivities). Any future consumer of the form schema (incl. the main-flow confirm step) should prune before calling `evaluate()`.
 - **F1–F4 from the 2026-07-23 audit: fixed 2026-07-23** (full finding detail in AUDIT.md, Gabby's records; fix details in `docs/CHANGELOG.md`). Result surfaces now include a fourth list, `timingNotices`, alongside blockers and review triggers — the main-flow integration must render it too.
 
-## Direction decided 2026-07-23: integrate Low Impact into the main flow
+## Low Impact in the main flow (integrated 2026-07-23)
 
-The standalone `/low-impact-precheck` page will be **removed**. Low Impact becomes automatic tier detection inside the main flow (SearchPage → ProductionBrief → `feeCalculator`): the app evaluates the user's existing shoot inputs against the Low Impact rules engine and, when the shoot likely qualifies, surfaces the Low Impact fee with a short confirm step for inputs the main flow doesn't capture (prohibited location types + finer activity flags). Three-state logic (`qualifies / needsReview / doesNotQualify`) is preserved — main-flow inputs alone can prove a definitive "no", never an unconditional "yes".
+The standalone `/low-impact-precheck` page is **gone**. Low Impact is automatic tier detection inside the main flow (SearchPage → ProductionBrief → `feeCalculator`):
 
-Build order: (1) fix F1–F4 in the rules engine first, (2) then the integration PR — adapter mapping `ShootInputs` → rules-engine input, tier switch in `feeCalculator`, banner + confirm step in ProductionBrief, remove the standalone page and route. The rules engine module (`src/features/low-impact-precheck/`) stays — it is pure logic consumed by the main flow.
+1. **Detection** — `detectLowImpactPotential(briefInputs)` runs on every Production Brief change. It maps the brief's inputs to the rules engine (activities: street_closure→lane closures, gunfire_sfx→gunfire, pyrotechnics→special effects, drone_aerial→aerial, animals, stunts; Parks chip→`isRecParkProperty`; thresholds from days/crew/locations) and can prove a definitive "no" (no banner). It can NEVER prove a "yes" — deadline rules are excluded (the brief has no dates). Banner shows only for LA City motion, non-student, non-profit shoots (other tiers are already cheaper than $350).
+2. **Confirm step** — `LowImpactConfirmStep` collects what the brief doesn't capture: first filming date, hours, prohibited location types, the Rec & Parks gate + scoped activities, and the finer activity flags (`ADDITIONAL_ACTIVITY_OPTIONS`). Requires the date before submitting.
+3. **Evaluation** — `evaluateWithConfirm` merges both input sets and runs the full deterministic engine. Result re-computes automatically if brief inputs change afterward.
+4. **Tier switch** — on `qualifies`/`needsReview`, `calculateFees({ lowImpactTier: true })` swaps: application $931→$350, notification $232/radius→$156×filming locations, LAFD spot check $287→waived ($0 line). Eligibility is the caller's job; the flag is ignored for non-LA/student/non-profit/still inputs. All other line items (FilmLA monitor, parks fees, etc.) unchanged.
+5. The result card shows state badge, blockers/review triggers/timing notices, and the standard disclaimer.
+
+**Documented assumptions:** the brief's "Days" stepper is treated as consecutive filming days (no gap concept — 4+ days reads as a definitive no); `night_shoot` and `water_effects` deliberately map to nothing (hours asked in confirm; water not prohibited). Verified end-to-end in-browser 2026-07-23: Echo Park shoot, $2,028.50 standard → $1,084.50 Low Impact (delta $944 = 581+76+287).
 
 ## Sources
 

@@ -8,7 +8,23 @@ import { type JurisdictionResult, type SpecialConditionResult } from "@/lib/juri
 import type { LocationResult } from "@/components/MapEngine";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { getActivities, calculateFees, type ShootInputs, type FeeLineItem } from "@/lib/feeCalculator";
+import {
+  detectLowImpactPotential,
+  evaluateWithConfirm,
+  type LowImpactConfirmInputs,
+} from "@/features/low-impact-precheck/mainFlowAdapter";
+import LowImpactConfirmStep from "@/features/low-impact-precheck/LowImpactConfirmStep";
+import { RESULT_CARD_DISCLAIMER } from "@/features/low-impact-precheck/disclaimers";
 import posthog from "posthog-js";
+
+const todayISO = new Date().toISOString().split("T")[0];
+
+const LOW_IMPACT_BADGES: Record<string, string> = {
+  qualifies: "Likely Qualifies",
+  needsReview: "Needs FilmLA Review",
+  doesNotQualify: "Likely Does Not Qualify",
+  notApplicable: "Not Applicable",
+};
 
 interface ProductionBriefProps {
   jurisdiction: JurisdictionResult;
@@ -182,33 +198,53 @@ const ProductionBrief = ({ jurisdiction, location, neighborhood, onBack }: Produ
     });
   };
 
-  // Calculate fees
-  const feeResult = useMemo(() => {
-    const inputs: ShootInputs = {
-      jurisdictionSlug,
-      shootDays,
-      hoursPerDay,
-      crewSize,
-      isMotion,
-      isStudent,
-      isNonProfit,
-      selectedActivities: Array.from(selectedActivities),
-      isWeekend,
-      isParksLocation,
-      isBeachLocation,
-      isBuildingLocation: false,
-      isPortLocation,
-      isDWPLocation: false,
-      isFloodControlLocation,
-      numberOfLocations,
-      numberOfParkingSpaces,
-      cateringCrewSize: 0,
-      numberOfCars: 0,
-      prepDays,
-      strikeDays,
-    };
-    return calculateFees(inputs);
-  }, [jurisdictionSlug, shootDays, hoursPerDay, crewSize, isMotion, isStudent, isNonProfit, selectedActivities, isWeekend, isParksLocation, isBeachLocation, isPortLocation, isFloodControlLocation, numberOfLocations, numberOfParkingSpaces, prepDays, strikeDays]);
+  // Low Impact pilot state (answers from the confirm step)
+  const [lowImpactConfirm, setLowImpactConfirm] = useState<LowImpactConfirmInputs | null>(null);
+  const [lowImpactSheetOpen, setLowImpactSheetOpen] = useState(false);
+
+  const briefInputs = useMemo<ShootInputs>(() => ({
+    jurisdictionSlug,
+    shootDays,
+    hoursPerDay,
+    crewSize,
+    isMotion,
+    isStudent,
+    isNonProfit,
+    selectedActivities: Array.from(selectedActivities),
+    isWeekend,
+    isParksLocation,
+    isBeachLocation,
+    isBuildingLocation: false,
+    isPortLocation,
+    isDWPLocation: false,
+    isFloodControlLocation,
+    numberOfLocations,
+    numberOfParkingSpaces,
+    cateringCrewSize: 0,
+    numberOfCars: 0,
+    prepDays,
+    strikeDays,
+  }), [jurisdictionSlug, shootDays, hoursPerDay, crewSize, isMotion, isStudent, isNonProfit, selectedActivities, isWeekend, isParksLocation, isBeachLocation, isPortLocation, isFloodControlLocation, numberOfLocations, numberOfParkingSpaces, prepDays, strikeDays]);
+
+  // Deterministic rules-engine detection: brief inputs alone can prove a
+  // definitive "no", never an unconditional "yes" (see mainFlowAdapter.ts).
+  const lowImpactPotential = useMemo(
+    () => detectLowImpactPotential(briefInputs, todayISO),
+    [briefInputs],
+  );
+  // Re-evaluates automatically when brief inputs change after the confirm step.
+  const lowImpactResult = useMemo(
+    () => (lowImpactConfirm ? evaluateWithConfirm(briefInputs, lowImpactConfirm, todayISO) : null),
+    [briefInputs, lowImpactConfirm],
+  );
+  const lowImpactApplied =
+    lowImpactResult?.state === "qualifies" || lowImpactResult?.state === "needsReview";
+
+  // Calculate fees (Low Impact tier only after the rules engine likely-qualifies)
+  const feeResult = useMemo(
+    () => calculateFees({ ...briefInputs, lowImpactTier: lowImpactApplied }),
+    [briefInputs, lowImpactApplied],
+  );
 
   const { lineItems, estimatedTotal, subtotalFilmLA, subtotalJurisdiction, subtotalPersonnel, subtotalLocation, warnings, whatPeopleMiss } = feeResult;
 
@@ -225,6 +261,16 @@ const ProductionBrief = ({ jurisdiction, location, neighborhood, onBack }: Produ
       });
     }
   }, [lineItems, jurisdiction.jurisdiction, estimatedTotal]);
+
+  const hasTrackedLowImpactBanner = useRef(false);
+  useEffect(() => {
+    if (!hasTrackedLowImpactBanner.current && lowImpactPotential.potential) {
+      hasTrackedLowImpactBanner.current = true;
+      posthog.capture("low_impact_banner_shown", {
+        jurisdiction_name: jurisdiction.jurisdiction,
+      });
+    }
+  }, [lowImpactPotential.potential, jurisdiction.jurisdiction]);
 
   // Progress: count sections user has interacted with
   const sectionProgress = useMemo(() => {
@@ -419,6 +465,91 @@ const ProductionBrief = ({ jurisdiction, location, neighborhood, onBack }: Produ
                   ⚠️ {w}
                 </div>
               ))}
+            </div>
+          )}
+
+          {/* ── Low Impact pilot banner / result (logic-first UI — Lovable restyles) ── */}
+          {lowImpactPotential.potential && !lowImpactResult && (
+            <div
+              style={{
+                background: "hsla(213, 72%, 59%, 0.08)",
+                border: "1px solid hsla(213, 72%, 59%, 0.3)",
+                borderRadius: "8px",
+                padding: "10px 12px",
+                marginBottom: "12px",
+                fontFamily: "var(--font-sans)",
+                fontSize: "12px",
+                color: "hsl(213, 50%, 30%)",
+              }}
+            >
+              <p style={{ fontWeight: 600, marginBottom: "4px" }}>
+                🎬 This shoot may qualify for FilmLA&apos;s Low Impact Permit Pilot
+              </p>
+              <p style={{ marginBottom: "8px" }}>
+                Reduced fees for small shoots — e.g. $350 application instead of $931. A few extra
+                details are needed to check.
+              </p>
+              <button
+                type="button"
+                onClick={() => setLowImpactSheetOpen(true)}
+                className="cursor-pointer underline"
+                style={{ fontWeight: 600, color: "hsl(225, 100%, 50%)", minHeight: "32px" }}
+              >
+                Check eligibility →
+              </button>
+            </div>
+          )}
+
+          {lowImpactResult && (
+            <div
+              style={{
+                background:
+                  lowImpactResult.state === "doesNotQualify"
+                    ? "hsla(4, 78%, 56%, 0.06)"
+                    : "hsla(213, 72%, 59%, 0.08)",
+                border:
+                  lowImpactResult.state === "doesNotQualify"
+                    ? "1px solid hsla(4, 78%, 56%, 0.25)"
+                    : "1px solid hsla(213, 72%, 59%, 0.3)",
+                borderRadius: "8px",
+                padding: "10px 12px",
+                marginBottom: "12px",
+                fontFamily: "var(--font-sans)",
+                fontSize: "12px",
+                color: "hsl(0, 0%, 25%)",
+              }}
+            >
+              <p style={{ fontWeight: 700, marginBottom: "4px" }}>
+                Low Impact Pilot: {LOW_IMPACT_BADGES[lowImpactResult.state]}
+              </p>
+              {lowImpactApplied && (
+                <p style={{ marginBottom: "6px" }}>
+                  Low Impact pricing is applied to the estimate below
+                  {lowImpactResult.state === "needsReview" ? " — pending the review items:" : "."}
+                </p>
+              )}
+              {lowImpactResult.state === "doesNotQualify" && (
+                <p style={{ marginBottom: "6px" }}>Standard pricing shown. Blockers:</p>
+              )}
+              {[...lowImpactResult.blockers, ...lowImpactResult.reviewTriggers].map((r) => (
+                <p key={r.id} style={{ marginBottom: "2px" }}>
+                  {lowImpactResult.blockers.includes(r) ? "✕" : "?"} {r.label}
+                </p>
+              ))}
+              {lowImpactResult.timingNotices.map((t) => (
+                <p key={t.id} style={{ marginBottom: "2px" }}>⏱ {t.label}</p>
+              ))}
+              <p style={{ fontSize: "10.5px", color: "hsl(0, 0%, 45%)", marginTop: "6px" }}>
+                {RESULT_CARD_DISCLAIMER}
+              </p>
+              <button
+                type="button"
+                onClick={() => setLowImpactSheetOpen(true)}
+                className="cursor-pointer underline"
+                style={{ fontWeight: 600, color: "hsl(225, 100%, 50%)", minHeight: "32px", marginTop: "4px" }}
+              >
+                Edit answers
+              </button>
             </div>
           )}
 
@@ -714,6 +845,23 @@ const ProductionBrief = ({ jurisdiction, location, neighborhood, onBack }: Produ
             </Collapsible>
           )}
         </div>
+
+        {/* ─── Low Impact Confirm Sheet ─── */}
+        {lowImpactSheetOpen && (
+          <LowImpactConfirmStep
+            parksLocationFromMainFlow={isParksLocation}
+            initial={lowImpactConfirm}
+            onComplete={(answers) => {
+              setLowImpactConfirm(answers);
+              setLowImpactSheetOpen(false);
+              posthog.capture("low_impact_confirm_completed", {
+                jurisdiction_name: jurisdiction.jurisdiction,
+                result_state: evaluateWithConfirm(briefInputs, answers, todayISO).state,
+              });
+            }}
+            onCancel={() => setLowImpactSheetOpen(false)}
+          />
+        )}
 
         {/* ─── Full-Screen Ledger Drawer ─── */}
         {ledgerExpanded && (
