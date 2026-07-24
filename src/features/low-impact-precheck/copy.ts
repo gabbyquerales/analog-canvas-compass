@@ -3,7 +3,7 @@ export const RESULT_COPY = {
     headline: 'Your shoot likely qualifies for Low Impact',
     subhead: 'You can expect faster processing and significant savings.',
     bodyParagraph:
-      `Based on what you\u2019ve told us, your shoot hits the Low Impact Permit Pilot marks: a single location, three or fewer consecutive days, 30 or fewer on-set personnel, and no flagged activities. This likely means a lower permit fee, waived LAFD spot checks, and faster FilmLA coordination. Your estimated savings: see the fee comparison below. Before you file, verify your eligibility with FilmLA\u2014this is an estimate, not an approval.`,
+      `Based on what you\u2019ve told us, your shoot hits the Low Impact Permit Pilot marks: three or fewer filming locations, three or fewer consecutive days, 30 or fewer on-set personnel, and no flagged activities. This likely means a lower permit fee, waived LAFD spot checks, and faster FilmLA coordination. Your estimated savings: see the fee comparison below. Before you file, verify your eligibility with FilmLA\u2014this is an estimate, not an approval.`,
   },
 
   needsReview: {

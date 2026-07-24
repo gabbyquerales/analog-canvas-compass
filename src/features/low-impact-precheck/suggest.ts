@@ -20,10 +20,11 @@ export const SUGGESTIONS: Record<string, Suggestion> = {
     id: 'timing_fixes',
     tier: 2,
     headline: 'Adjust your submission or shoot timeline',
-    body: 'File at least 3 full business days before your first filming day. If you were planning to submit more than 1 month ahead, shift your first filming date within 30 days of submission. Standard hours: 7am–10pm weekdays, 9am–10pm weekends.',
+    // deadline_too_early is deliberately absent: since F3 it's a timing notice
+    // (not a blocker) and carries its own guidance on the result surface.
+    body: 'File at least 3 full business days before your first filming day. Standard hours: 7am–10pm weekdays, 9am–10pm weekends.',
     appliesTo: [
       'deadline_insufficient_notice',
-      'deadline_too_early',
       'hours_outside_standard',
     ],
   },

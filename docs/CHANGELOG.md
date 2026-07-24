@@ -4,6 +4,23 @@ Every PR appends an entry here. Format: date · change · why · what was learne
 
 ---
 
+## 2026-07-23 — Audit findings F1–F4 fixed
+
+**Change:**
+- **F1:** the six Rec & Parks-scoped activity rules (landscape alteration, sign/bench/fencing removal, digging/staking/drilling, nailing/bolting, vehicles on grass, condors/cranes/jibs) no longer fire as universal blockers. They are asked as one `recParksActivities` multiselect (values = rule IDs from `REC_PARKS_SCOPED_ACTIVITY_IDS`, same pattern as `locationTypes`), shown only when `isRecParkProperty` is true, and `evaluate.ts` gates them the same way. The six `hasX` booleans were removed from `ShootInput` (decided by Gabby 2026-07-23: one multiselect instead of six toggles — same per-rule blocker IDs for the suggestions engine, shorter form, fits the future main-flow confirm step). Companion change: `isRecParkProperty` is now shown for the `park` location type too (previously only `city_buildings`) via a new `visibleWhen.includesAny` — otherwise park shoots, the typical Rec & Parks case, would never have been asked and the six rules would silently never fire.
+- **F2:** qualifies copy now says "three or fewer filming locations" (was "a single location").
+- **F3:** applying >1 month ahead is no longer a `doesNotQualify` blocker. New rule category `timing` and result field `timingNotices: Rule[]` — the notice explains the submission window and never affects state. Rendered as a "Submission Timing" card on the results page. Deliberately shows no precise apply-on-or-after date: the window check approximates "a month" as 30 days, and surfacing an exact date would present that approximation as precise (deferred by Gabby 2026-07-23, revisit after the pilot window along with the sunset/timing message overlap).
+- **F4:** `locationCount` helpText now says parking/base camp locations are free and don't count.
+- **Self-review fix (hidden-field staleness):** hiding a form field is render-only, so a stale answer (e.g. `isRecParkProperty: true` after the park location type was deselected) could silently skew evaluation. New `pruneHiddenFields()` + `isFieldVisible()` in `formSchema.ts` reset hidden fields to defaults before `evaluate()`; the page's submit handler now prunes. Pre-existing bug, surfaced by red-team review because F1 made the gate field load-bearing.
+- **Review fixes (2026-07-23 full pass):** (a) removed the now-dead `deadline_too_early` mapping from the `timing_fixes` suggestion (timing notices are never passed to `rankSuggestions`; the timing card carries its own guidance) and added a guard test asserting every suggestion `appliesTo` id is actually reachable; (b) the fee-comparison table now reads Standard-tier figures from `FEE_MATH` instead of hardcoded `$931`/`$287` literals, so the October fee re-verification propagates to the UI (also fixed a `$$`/`$Waived` double-prefix in the spot-check cell). Submit validation on the standalone form deliberately deferred — see OVERVIEW § Open items.
+- Tests: 85 → 117 (per-flag F1 on/off Rec & Parks, F3 timing-notice scenarios incl. coexistence with real blockers, F2/F4 copy and schema assertions, form-gating checks, hidden-field pruning incl. the stale-toggle repro and gate-chain cascade, suggestion-reachability guard).
+
+**Why:** F1 wrongly disqualified shoots (e.g. a private stage nailing a temporary sign to its own set wall); F3 framed a wait-and-resubmit constraint as ineligibility; F2/F4 were misleading copy. All four verified against the live FilmLA KB page before editing rule logic, per CLAUDE.md sourcing rules (re-verified 2026-07-23: the six rules appear ONLY under "Limits Applying to Recreation & Parks Locations"; advance window is "up to a month in advance of your first activity date").
+
+**Learned:** gating questions behind a conditional field requires checking the *gate's own* visibility — `isRecParkProperty` was only shown for city buildings, so gating on it without widening its trigger would have traded over-blocking for silent under-blocking at parks. The `timingNotices` list is a new result surface; the main-flow integration must render it.
+
+---
+
 ## 2026-07-23 — Living docs established (this PR)
 
 **Change:** Added `CLAUDE.md` (rules of engagement), `docs/OVERVIEW.md` (as-built map + verified spec), this changelog. No code changes.

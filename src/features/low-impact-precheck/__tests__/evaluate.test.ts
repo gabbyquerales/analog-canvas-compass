@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { evaluate } from '../evaluate';
-import { rankSuggestions } from '../suggest';
+import { rankSuggestions, SUGGESTIONS } from '../suggest';
+import { ACTIVITY_FLAGS, LOCATION_FLAGS, REVIEW_TRIGGERS } from '../rules';
 import { countBusinessDays } from '../businessDays';
 import { heroSilverLake, tooManyLocations, droneDisqualifier, recParksAmbiguity } from '../scenarios';
 import type { ShootInput } from '../types';
@@ -158,6 +159,129 @@ describe('evaluate — Rec & Parks exemption', () => {
 });
 
 // ──────────────────────────────────────────────
+// Rec & Parks-scoped activity flags (F1 fix)
+// ──────────────────────────────────────────────
+
+describe('evaluate — Rec & Parks-scoped activities (F1)', () => {
+  const scopedIds = [
+    'act_landscape_alteration',
+    'act_sign_removal',
+    'act_digging_drilling',
+    'act_nailing_bolting',
+    'act_heavy_equipment_grass',
+    'act_cranes_jibs',
+  ];
+
+  for (const ruleId of scopedIds) {
+    it(`${ruleId} selected OFF Rec & Parks property → ignored, still qualifies`, () => {
+      const result = evaluate({
+        ...heroSilverLake,
+        recParksActivities: [ruleId],
+        isRecParkProperty: false,
+      });
+      expect(result.blockers.some((b) => b.id === ruleId)).toBe(false);
+      expect(result.state).toBe('qualifies');
+    });
+
+    it(`${ruleId} selected ON Rec & Parks property → blocker fires`, () => {
+      const result = evaluate({
+        ...heroSilverLake,
+        recParksActivities: [ruleId],
+        isRecParkProperty: true,
+      });
+      expect(result.blockers.some((b) => b.id === ruleId)).toBe(true);
+      expect(result.state).toBe('doesNotQualify');
+    });
+  }
+
+  it('all six selected off Rec & Parks (e.g. private stage nailing a set sign) → qualifies', () => {
+    const result = evaluate({
+      ...heroSilverLake,
+      recParksActivities: scopedIds,
+    });
+    expect(result.blockers).toHaveLength(0);
+    expect(result.state).toBe('qualifies');
+  });
+
+  it('all six selected on Rec & Parks → all six blockers fire', () => {
+    const result = evaluate({
+      ...heroSilverLake,
+      recParksActivities: scopedIds,
+      isRecParkProperty: true,
+    });
+    expect(result.blockers.map((b) => b.id)).toEqual(expect.arrayContaining(scopedIds));
+    expect(result.state).toBe('doesNotQualify');
+  });
+
+  it('stray non-scoped ID in recParksActivities → ignored', () => {
+    const result = evaluate({
+      ...heroSilverLake,
+      recParksActivities: ['act_gunfire'],
+      isRecParkProperty: true,
+    });
+    expect(result.blockers.some((b) => b.id === 'act_gunfire')).toBe(false);
+  });
+
+  it('empty selection on Rec & Parks → no activity blockers, needsReview from the rec-parks trigger', () => {
+    const result = evaluate({
+      ...heroSilverLake,
+      recParksActivities: [],
+      isRecParkProperty: true,
+    });
+    expect(result.blockers).toHaveLength(0);
+    expect(result.state).toBe('needsReview');
+  });
+});
+
+// ──────────────────────────────────────────────
+// Advance-window timing notice (F3 fix)
+// ──────────────────────────────────────────────
+
+describe('evaluate — >1 month ahead is a timing notice, not a blocker (F3)', () => {
+  it('submitting >1 month early → qualifies with timing notice, no deadline_too_early blocker', () => {
+    const result = evaluate({
+      ...heroSilverLake,
+      submissionDate: '2026-05-07',
+      firstFilmingDate: '2026-08-14',
+    });
+    expect(result.state).toBe('qualifies');
+    expect(result.blockers.some((b) => b.id === 'deadline_too_early')).toBe(false);
+    expect(result.timingNotices.some((t) => t.id === 'deadline_too_early')).toBe(true);
+  });
+
+  it('timing notice is non-disqualifying and does not claim a precise apply date', () => {
+    const result = evaluate({
+      ...heroSilverLake,
+      submissionDate: '2026-05-07',
+      firstFilmingDate: '2026-08-14',
+    });
+    const notice = result.timingNotices.find((t) => t.id === 'deadline_too_early');
+    expect(notice?.category).toBe('timing');
+    expect(notice?.disqualifier).toBe(false);
+    // The 1-month window is a 30-day approximation — no exact date shown (deferred 2026-07-23)
+    expect(notice?.label).not.toMatch(/\d{4}-\d{2}-\d{2}/);
+  });
+
+  it('within the window → no timing notice', () => {
+    const result = evaluate(heroSilverLake);
+    expect(result.timingNotices).toHaveLength(0);
+  });
+
+  it('too early AND a real blocker → doesNotQualify, timing notice still reported separately', () => {
+    const result = evaluate({
+      ...heroSilverLake,
+      hasAerialActivity: true,
+      submissionDate: '2026-05-07',
+      firstFilmingDate: '2026-08-14',
+    });
+    expect(result.state).toBe('doesNotQualify');
+    expect(result.blockers.some((b) => b.id === 'act_aerial_activity')).toBe(true);
+    expect(result.blockers.some((b) => b.id === 'deadline_too_early')).toBe(false);
+    expect(result.timingNotices.some((t) => t.id === 'deadline_too_early')).toBe(true);
+  });
+});
+
+// ──────────────────────────────────────────────
 // Business days (Hazard 4 fix)
 // ──────────────────────────────────────────────
 
@@ -214,5 +338,28 @@ describe('rankSuggestions', () => {
     const splitIdx = suggestions.findIndex((s) => s.id === 'split_the_shoot');
     const consolidateIdx = suggestions.findIndex((s) => s.id === 'location_consolidation');
     expect(splitIdx).toBeLessThan(consolidateIdx);
+  });
+
+  it('every appliesTo id is reachable via blockers or review triggers (no dead mappings)', () => {
+    // rankSuggestions only ever sees blocker + review-trigger ids. Timing-notice
+    // ids (e.g. deadline_too_early) are NOT passed in — a suggestion keyed to one
+    // would be dead code.
+    const reachable = new Set([
+      ...ACTIVITY_FLAGS.map((r) => r.id),
+      ...LOCATION_FLAGS.map((r) => r.id),
+      ...REVIEW_TRIGGERS.map((r) => r.id),
+      // Blockers constructed inline in evaluate.ts:
+      'threshold_locations',
+      'threshold_consecutive_days',
+      'threshold_on_set',
+      'hours_outside_standard',
+      'deadline_insufficient_notice',
+      'deadline_pilot_sunset',
+    ]);
+    for (const s of Object.values(SUGGESTIONS)) {
+      for (const id of s.appliesTo) {
+        expect(reachable.has(id), `${s.id} references unreachable id "${id}"`).toBe(true);
+      }
+    }
   });
 });

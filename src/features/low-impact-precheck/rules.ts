@@ -140,6 +140,9 @@ export const ACTIVITY_FLAGS: Rule[] = [
     disqualifier: true,
     sourceUrl: KB_URL,
   },
+  // The six rules below are scoped by FilmLA under "Limits Applying to
+  // Recreation & Parks Locations" — not universal. evaluate.ts and formSchema.ts
+  // gate them behind isRecParkProperty (F1 fix, verified 2026-07-23).
   {
     id: 'act_landscape_alteration',
     label: 'No alterations to landscape',
@@ -183,6 +186,18 @@ export const ACTIVITY_FLAGS: Rule[] = [
     sourceUrl: KB_URL,
   },
 ];
+
+// The six Rec & Parks-scoped rule IDs (F1). Must match the six rules above;
+// evaluate.ts only fires these when isRecParkProperty is true, and the form
+// asks them as the single recParksActivities multiselect.
+export const REC_PARKS_SCOPED_ACTIVITY_IDS = [
+  'act_landscape_alteration',
+  'act_sign_removal',
+  'act_digging_drilling',
+  'act_nailing_bolting',
+  'act_heavy_equipment_grass',
+  'act_cranes_jibs',
+] as const;
 
 export const LOCATION_FLAGS: Rule[] = [
   {

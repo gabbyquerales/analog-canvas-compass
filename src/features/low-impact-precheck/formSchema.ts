@@ -13,7 +13,48 @@ export interface Field {
   helpText?: string;
   options?: FieldOption[];
   section?: string;
-  visibleWhen?: { fieldId: string; equals?: any; includes?: string };
+  visibleWhen?: { fieldId: string; equals?: any; includes?: string; includesAny?: string[] };
+}
+
+export function isFieldVisible(fieldId: string, formData: Record<string, any>): boolean {
+  const field = FORM_FIELDS.find((f) => f.id === fieldId);
+  if (!field?.visibleWhen) return true;
+  const { fieldId: depId, equals, includes, includesAny } = field.visibleWhen;
+  const depValue = formData[depId];
+  if (equals !== undefined) return depValue === equals;
+  if (includes !== undefined && Array.isArray(depValue)) return depValue.includes(includes);
+  if (includesAny !== undefined && Array.isArray(depValue)) {
+    return includesAny.some((v) => depValue.includes(v));
+  }
+  return true;
+}
+
+export function defaultFieldValue(field: Field): any {
+  switch (field.type) {
+    case 'boolean':
+      return false;
+    case 'number':
+      return 0;
+    case 'multiselect':
+      return [];
+    default:
+      return '';
+  }
+}
+
+// Hidden fields keep their last value in form state (hiding is render-only), so a
+// stale answer could skew evaluation — e.g. isRecParkProperty left true after the
+// park/city-building location type is deselected. Reset every hidden field to its
+// default before evaluating. Single pass works because FORM_FIELDS declares gate
+// fields before their dependents (locationTypes → isRecParkProperty → recParksActivities).
+export function pruneHiddenFields(formData: Record<string, any>): Record<string, any> {
+  const pruned = { ...formData };
+  for (const field of FORM_FIELDS) {
+    if (!isFieldVisible(field.id, pruned)) {
+      pruned[field.id] = defaultFieldValue(field);
+    }
+  }
+  return pruned;
 }
 
 export const FORM_FIELDS: Field[] = [
@@ -72,7 +113,7 @@ export const FORM_FIELDS: Field[] = [
     type: 'number',
     required: true,
     section: 'Schedule',
-    helpText: 'Maximum 3 for Low Impact.',
+    helpText: 'Count filming locations only — cast/crew parking and base camp locations are free and don\'t count. Maximum 3 for Low Impact.',
   },
   {
     id: 'consecutiveFilmingDays',
@@ -136,8 +177,10 @@ export const FORM_FIELDS: Field[] = [
     type: 'boolean',
     required: false,
     section: 'Locations',
-    helpText: 'City-owned but potentially exempt. We\'ll flag for FilmLA confirmation.',
-    visibleWhen: { fieldId: 'locationTypes', includes: 'city_buildings' },
+    helpText: 'Rec & Parks property has extra restrictions (and city-owned buildings on it are potentially exempt). We\'ll flag for FilmLA confirmation.',
+    // Parks are the typical Rec & Parks case — this must show for them too,
+    // since the six Rec & Parks-scoped questions below are gated on it (F1).
+    visibleWhen: { fieldId: 'locationTypes', includesAny: ['city_buildings', 'park'] },
   },
 
   // Activities
@@ -290,46 +333,25 @@ export const FORM_FIELDS: Field[] = [
     required: true,
     section: 'Equipment',
   },
+  // F1 fix: the six Rec & Parks-scoped prohibitions (FilmLA "Limits Applying to
+  // Recreation & Parks Locations") are asked as one multiselect, only when
+  // isRecParkProperty is true. Values are rule IDs (same pattern as locationTypes);
+  // evaluate.ts gates on isRecParkProperty the same way. Empty selection = none apply.
   {
-    id: 'hasLandscapeAlteration',
-    label: 'Alterations to landscape?',
-    type: 'boolean',
-    required: true,
+    id: 'recParksActivities',
+    label: 'Will you do any of the following at the Rec & Parks location?',
+    type: 'multiselect',
+    required: false,
     section: 'Equipment',
-  },
-  {
-    id: 'hasSignRemoval',
-    label: 'Removal or replacement of signs, benches, or fencing?',
-    type: 'boolean',
-    required: true,
-    section: 'Equipment',
-  },
-  {
-    id: 'hasDiggingDrilling',
-    label: 'Digging, staking, or drilling into ground or structures?',
-    type: 'boolean',
-    required: true,
-    section: 'Equipment',
-  },
-  {
-    id: 'hasNailingBolting',
-    label: 'Nailing or bolting into buildings, structures, or trees?',
-    type: 'boolean',
-    required: true,
-    section: 'Equipment',
-  },
-  {
-    id: 'hasHeavyEquipmentOnGrass',
-    label: 'Vehicles or heavy equipment on grass?',
-    type: 'boolean',
-    required: true,
-    section: 'Equipment',
-  },
-  {
-    id: 'hasCranes',
-    label: 'Condors, cranes, or jib arms?',
-    type: 'boolean',
-    required: true,
-    section: 'Equipment',
+    helpText: 'Select all that apply — these are prohibited at Rec & Parks locations under Low Impact. Leave empty if none apply.',
+    visibleWhen: { fieldId: 'isRecParkProperty', equals: true },
+    options: [
+      { value: 'act_landscape_alteration', label: 'Alterations to landscape' },
+      { value: 'act_sign_removal', label: 'Removal or replacement of signs, benches, or fencing' },
+      { value: 'act_digging_drilling', label: 'Digging, staking, or drilling into ground or structures' },
+      { value: 'act_nailing_bolting', label: 'Nailing or bolting into buildings, structures, or trees' },
+      { value: 'act_heavy_equipment_grass', label: 'Vehicles or heavy equipment on grass' },
+      { value: 'act_cranes_jibs', label: 'Condors, cranes, or jib arms' },
+    ],
   },
 ];

@@ -53,22 +53,22 @@ Source: [FilmLA KB — Low Impact Permit Pilot Program](https://info.filmla.com/
 | LAFD spot check | Waived | `FEE_MATH.lowImpact.lafdSpotCheck = 0` |
 | Standard tier (comparison) | $931 app · $232/location · $287 spot check | `FEE_MATH.standard` — all on the KB fee table |
 | Eligibility | ≤3 filming locations · ≤3 consecutive days · ≤30 cast/crew on set · City of LA only | `THRESHOLDS` + jurisdiction gate |
-| Prohibited activities | 19 general (KB list, verbatim) + 6 Rec & Parks-scoped | `ACTIVITY_FLAGS` — see F1 below |
+| Prohibited activities | 19 general (KB list, verbatim) + 6 Rec & Parks-scoped | `ACTIVITY_FLAGS` — the 6 asked as one `recParksActivities` multiselect (rule-ID values), gated behind `isRecParkProperty` in form + evaluator (F1 fixed 2026-07-23) |
 | Prohibited locations | 13 (KB list, verbatim) | `LOCATION_FLAGS` |
 | Hours | Outside 7am–10pm wk / 9am–10pm wknd → Standard permit only | blocker `hours_outside_standard` — verified correct |
-| Advance window | Apply ≤1 month before first activity | blocker `deadline_too_early` — see F3 |
+| Advance window | Apply ≤1 month before first activity | timing notice `deadline_too_early` (`timingNotices` on the result — a submit-later constraint, never affects state; F3 fixed 2026-07-23) |
 | Lead time | 3 full business days (10am cutoff documented, not enforced — date-only input) | `businessDays.ts` |
 | Pilot window | Began 2026-04-27, six months. Exact end **UNVERIFIED**; code sunset 2026-10-31 (conservative) | `DEADLINES.sunsetISO` |
 
 Pricing formula: `350 + (filmingLocations × 156)` → 1 loc $506 · 2 loc $662 · 3 loc $818.
 
-## Open items (from 2026-07-23 audit — full detail in AUDIT.md, Gabby's records)
+## Open items
 
-- **F1 (bug, over-blocking):** the 6 Rec & Parks-scoped rules (landscape alteration, sign removal, digging, nailing/bolting, vehicles on grass, condors/cranes/jibs) fire as universal blockers for every shoot. FilmLA scopes them to "Limits Applying to Recreation & Parks Locations" only. Fix: gate form questions and evaluator checks behind `isRecParkProperty`.
-- **F2 (copy bug):** `copy.ts` qualifies text says "a single location"; program allows up to 3.
-- **F3 (framing):** applying >1 month early renders as `doesNotQualify`; it's a submit-later constraint, not ineligibility. Should be a distinct timing message.
-- **F4 (label):** `locationCount` form field doesn't tell users to exclude parking/base camp → inflated estimates, false 3-location trips.
 - **Pilot-expiry guard:** re-verify fees/availability on the FilmLA page ~2026-10-13; update `DEADLINES`/`FEE_MATH` or retire the feature per what FilmLA publishes.
+- **Deferred by decision 2026-07-23 (revisit after pilot window):** (a) the advance-window check approximates "a month" as 30 days — acceptable while no exact apply-date is shown to users; (b) a shoot dated past the pilot sunset can show both the sunset blocker and the too-early timing notice.
+- **Deferred (2026-07-23 review): no submit validation on the standalone form.** `required` flags are not enforced — a blank first-filming date or `locationCount: 0` still evaluates and can yield a misleading `doesNotQualify` ("minimum 3 business days notice") caused by the blank field, not the shoot. Deferred because the main-flow integration is expected to supply these inputs from its own validated state; if real users hit the standalone page before then, add a submit guard.
+- ~~Known UI-state issue: hidden fields kept stale values~~ **Fixed 2026-07-23:** `pruneHiddenFields()` in `formSchema.ts` resets every hidden field to its default before evaluation (cascades through gate chains, e.g. locationTypes → isRecParkProperty → recParksActivities). Any future consumer of the form schema (incl. the main-flow confirm step) should prune before calling `evaluate()`.
+- **F1–F4 from the 2026-07-23 audit: fixed 2026-07-23** (full finding detail in AUDIT.md, Gabby's records; fix details in `docs/CHANGELOG.md`). Result surfaces now include a fourth list, `timingNotices`, alongside blockers and review triggers — the main-flow integration must render it too.
 
 ## Direction decided 2026-07-23: integrate Low Impact into the main flow
 

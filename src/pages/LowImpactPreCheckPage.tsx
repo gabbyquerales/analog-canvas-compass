@@ -14,22 +14,13 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { evaluate } from '@/features/low-impact-precheck/evaluate';
+import { FEE_MATH } from '@/features/low-impact-precheck/rules';
 import { rankSuggestions } from '@/features/low-impact-precheck/suggest';
-import { FORM_FIELDS } from '@/features/low-impact-precheck/formSchema';
+import { FORM_FIELDS, isFieldVisible, pruneHiddenFields } from '@/features/low-impact-precheck/formSchema';
 import { RESULT_COPY } from '@/features/low-impact-precheck/copy';
 import { RESULT_CARD_DISCLAIMER, FOOTER_DISCLAIMER } from '@/features/low-impact-precheck/disclaimers';
 import type { ShootInput, EvaluationResult } from '@/features/low-impact-precheck/types';
 import type { Suggestion } from '@/features/low-impact-precheck/types';
-
-function isFieldVisible(fieldId: string, formData: Record<string, any>): boolean {
-  const field = FORM_FIELDS.find((f) => f.id === fieldId);
-  if (!field?.visibleWhen) return true;
-  const { fieldId: depId, equals, includes } = field.visibleWhen;
-  const depValue = formData[depId];
-  if (equals !== undefined) return depValue === equals;
-  if (includes !== undefined && Array.isArray(depValue)) return depValue.includes(includes);
-  return true;
-}
 
 const today = new Date().toISOString().split('T')[0];
 
@@ -89,12 +80,7 @@ function formDataToShootInput(data: Record<string, any>): ShootInput {
     hasPracticalStove: !!data.hasPracticalStove,
     hasGrillingFoodPrep: !!data.hasGrillingFoodPrep,
     hasStunts: !!data.hasStunts,
-    hasLandscapeAlteration: !!data.hasLandscapeAlteration,
-    hasSignRemoval: !!data.hasSignRemoval,
-    hasDiggingDrilling: !!data.hasDiggingDrilling,
-    hasNailingBolting: !!data.hasNailingBolting,
-    hasHeavyEquipmentOnGrass: !!data.hasHeavyEquipmentOnGrass,
-    hasCranes: !!data.hasCranes,
+    recParksActivities: data.recParksActivities || [],
     locationTypes: data.locationTypes || [],
     isRecParkProperty: !!data.isRecParkProperty,
     filmingOutsideBusinessHours: !!data.filmingOutsideBusinessHours,
@@ -136,7 +122,8 @@ export default function LowImpactPreCheckPage() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    const input = formDataToShootInput(formData);
+    // Hidden fields may hold stale answers — reset them before evaluating.
+    const input = formDataToShootInput(pruneHiddenFields(formData));
     const evalResult = evaluate(input);
     const ranked = rankSuggestions(
       evalResult.blockers.map((b) => b.id),
@@ -330,6 +317,25 @@ export default function LowImpactPreCheckPage() {
             </Card>
           )}
 
+          {/* Timing notices — submission-window constraints, not disqualifiers */}
+          {result.timingNotices.length > 0 && (
+            <Card className="border-2 bg-blue-50 border-blue-300">
+              <CardHeader className="pb-3">
+                <CardTitle className="text-lg">Submission Timing</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <ul className="space-y-2">
+                  {result.timingNotices.map((t) => (
+                    <li key={t.id} className="text-sm flex items-start gap-2">
+                      <span className="text-blue-500 mt-0.5">⏱</span>
+                      <span>{t.label}</span>
+                    </li>
+                  ))}
+                </ul>
+              </CardContent>
+            </Card>
+          )}
+
           {/* Review triggers */}
           {result.reviewTriggers.length > 0 && (
             <Card>
@@ -394,7 +400,7 @@ export default function LowImpactPreCheckPage() {
                   <tbody>
                     <tr className="border-b">
                       <td className="py-1">Application</td>
-                      <td className="text-right">${result.feeMath.standardTierEstimate > 0 ? 931 : 0}</td>
+                      <td className="text-right">${FEE_MATH.standard.application}</td>
                       <td className="text-right">${result.feeMath.applicationFee}</td>
                     </tr>
                     <tr className="border-b">
@@ -402,14 +408,14 @@ export default function LowImpactPreCheckPage() {
                       <td className="text-right">
                         ${result.state === 'doesNotQualify'
                           ? result.feeMath.notificationPerLocation
-                          : Math.round(result.feeMath.standardTierEstimate - 931 - 287)}
+                          : Math.round(result.feeMath.standardTierEstimate - FEE_MATH.standard.application - FEE_MATH.standard.lafdSpotCheck)}
                       </td>
                       <td className="text-right">${result.feeMath.notificationPerLocation}</td>
                     </tr>
                     <tr className="border-b">
                       <td className="py-1">LAFD Spot Check</td>
-                      <td className="text-right">$287</td>
-                      <td className="text-right">${result.feeMath.lafdSpotCheck === 0 ? 'Waived' : `$${result.feeMath.lafdSpotCheck}`}</td>
+                      <td className="text-right">${FEE_MATH.standard.lafdSpotCheck}</td>
+                      <td className="text-right">{result.feeMath.lafdSpotCheck === 0 ? 'Waived' : `$${result.feeMath.lafdSpotCheck}`}</td>
                     </tr>
                     <tr className="font-bold">
                       <td className="py-1">Total</td>

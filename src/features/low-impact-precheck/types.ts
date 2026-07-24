@@ -1,4 +1,4 @@
-export type RuleCategory = 'activity' | 'location' | 'threshold' | 'deadline' | 'hours' | 'review';
+export type RuleCategory = 'activity' | 'location' | 'threshold' | 'deadline' | 'hours' | 'review' | 'timing';
 export type ResultState = 'qualifies' | 'needsReview' | 'doesNotQualify' | 'notApplicable';
 
 export interface Rule {
@@ -38,12 +38,8 @@ export interface ShootInput {
   hasPracticalStove: boolean;
   hasGrillingFoodPrep: boolean;
   hasStunts: boolean;
-  hasLandscapeAlteration: boolean;
-  hasSignRemoval: boolean;
-  hasDiggingDrilling: boolean;
-  hasNailingBolting: boolean;
-  hasHeavyEquipmentOnGrass: boolean;
-  hasCranes: boolean;
+  /** Rule IDs from REC_PARKS_SCOPED_ACTIVITY_IDS. Only evaluated when isRecParkProperty is true (F1). */
+  recParksActivities?: string[];
   locationTypes: string[];
   isRecParkProperty?: boolean;
   filmingOutsideBusinessHours?: boolean;
@@ -72,6 +68,8 @@ export interface EvaluationResult {
   state: ResultState;
   blockers: Rule[];
   reviewTriggers: Rule[];
+  /** Submission-window constraints (e.g. applying too early). Not disqualifiers — never affect state. */
+  timingNotices: Rule[];
   appliedSuggestions: Suggestion[];
   feeMath: FeeBreakdown;
   primaryBlocker?: Rule;
