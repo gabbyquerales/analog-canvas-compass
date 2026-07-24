@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { FORM_FIELDS } from '../formSchema';
+import { FORM_FIELDS, isFieldVisible, pruneHiddenFields } from '../formSchema';
 import { REC_PARKS_SCOPED_ACTIVITY_IDS } from '../rules';
 import { RESULT_COPY } from '../copy';
 
@@ -43,6 +43,55 @@ describe('formSchema — Rec & Parks-scoped questions gated (F1)', () => {
     const vw = field('isRecParkProperty').visibleWhen;
     expect(vw?.includesAny).toContain('park');
     expect(vw?.includesAny).toContain('city_buildings');
+  });
+});
+
+// ──────────────────────────────────────────────
+// Hidden-field pruning — stale invisible answers must not reach evaluation
+// ──────────────────────────────────────────────
+
+describe('pruneHiddenFields', () => {
+  it('resets isRecParkProperty when no park/city-building location is selected (the stale-toggle repro)', () => {
+    const stale = {
+      locationTypes: ['residential'],
+      isRecParkProperty: true,
+      recParksActivities: ['act_cranes_jibs'],
+    };
+    const pruned = pruneHiddenFields(stale);
+    expect(pruned.isRecParkProperty).toBe(false);
+    // Cascade: with the gate reset, the dependent multiselect is cleared too
+    expect(pruned.recParksActivities).toEqual([]);
+  });
+
+  it('keeps values for visible fields', () => {
+    const data = {
+      locationTypes: ['park'],
+      isRecParkProperty: true,
+      recParksActivities: ['act_heavy_equipment_grass'],
+    };
+    const pruned = pruneHiddenFields(data);
+    expect(pruned.isRecParkProperty).toBe(true);
+    expect(pruned.recParksActivities).toEqual(['act_heavy_equipment_grass']);
+  });
+
+  it('clears a stale lighting self-assessment when hasLargeLighting is off', () => {
+    const pruned = pruneHiddenFields({
+      locationTypes: [],
+      hasLargeLighting: false,
+      hasLargeLightingAssessment: 'yes',
+    });
+    expect(pruned.hasLargeLightingAssessment).toBe('');
+  });
+
+  it('does not mutate the input object', () => {
+    const data = { locationTypes: ['residential'], isRecParkProperty: true };
+    pruneHiddenFields(data);
+    expect(data.isRecParkProperty).toBe(true);
+  });
+
+  it('isFieldVisible: recParksActivities hidden when isRecParkProperty is false', () => {
+    expect(isFieldVisible('recParksActivities', { isRecParkProperty: false })).toBe(false);
+    expect(isFieldVisible('recParksActivities', { isRecParkProperty: true })).toBe(true);
   });
 });
 

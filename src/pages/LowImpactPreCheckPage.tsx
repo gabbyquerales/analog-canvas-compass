@@ -15,24 +15,11 @@ import {
 } from '@/components/ui/select';
 import { evaluate } from '@/features/low-impact-precheck/evaluate';
 import { rankSuggestions } from '@/features/low-impact-precheck/suggest';
-import { FORM_FIELDS } from '@/features/low-impact-precheck/formSchema';
+import { FORM_FIELDS, isFieldVisible, pruneHiddenFields } from '@/features/low-impact-precheck/formSchema';
 import { RESULT_COPY } from '@/features/low-impact-precheck/copy';
 import { RESULT_CARD_DISCLAIMER, FOOTER_DISCLAIMER } from '@/features/low-impact-precheck/disclaimers';
 import type { ShootInput, EvaluationResult } from '@/features/low-impact-precheck/types';
 import type { Suggestion } from '@/features/low-impact-precheck/types';
-
-function isFieldVisible(fieldId: string, formData: Record<string, any>): boolean {
-  const field = FORM_FIELDS.find((f) => f.id === fieldId);
-  if (!field?.visibleWhen) return true;
-  const { fieldId: depId, equals, includes, includesAny } = field.visibleWhen;
-  const depValue = formData[depId];
-  if (equals !== undefined) return depValue === equals;
-  if (includes !== undefined && Array.isArray(depValue)) return depValue.includes(includes);
-  if (includesAny !== undefined && Array.isArray(depValue)) {
-    return includesAny.some((v) => depValue.includes(v));
-  }
-  return true;
-}
 
 const today = new Date().toISOString().split('T')[0];
 
@@ -134,7 +121,8 @@ export default function LowImpactPreCheckPage() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    const input = formDataToShootInput(formData);
+    // Hidden fields may hold stale answers — reset them before evaluating.
+    const input = formDataToShootInput(pruneHiddenFields(formData));
     const evalResult = evaluate(input);
     const ranked = rankSuggestions(
       evalResult.blockers.map((b) => b.id),

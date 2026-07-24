@@ -66,7 +66,7 @@ Pricing formula: `350 + (filmingLocations × 156)` → 1 loc $506 · 2 loc $662 
 
 - **Pilot-expiry guard:** re-verify fees/availability on the FilmLA page ~2026-10-13; update `DEADLINES`/`FEE_MATH` or retire the feature per what FilmLA publishes.
 - **Deferred by decision 2026-07-23 (revisit after pilot window):** (a) the advance-window check approximates "a month" as 30 days — acceptable while no exact apply-date is shown to users; (b) a shoot dated past the pilot sunset can show both the sunset blocker and the too-early timing notice.
-- **Known UI-state issue:** the pre-check form never clears hidden fields' values — e.g. toggling `isRecParkProperty` on, then removing the park/city-building location type, leaves `isRecParkProperty: true` in state and skews the result toward `needsReview`. Fix by pruning hidden fields in `formDataToShootInput`.
+- ~~Known UI-state issue: hidden fields kept stale values~~ **Fixed 2026-07-23:** `pruneHiddenFields()` in `formSchema.ts` resets every hidden field to its default before evaluation (cascades through gate chains, e.g. locationTypes → isRecParkProperty → recParksActivities). Any future consumer of the form schema (incl. the main-flow confirm step) should prune before calling `evaluate()`.
 - **F1–F4 from the 2026-07-23 audit: fixed 2026-07-23** (full finding detail in AUDIT.md, Gabby's records; fix details in `docs/CHANGELOG.md`). Result surfaces now include a fourth list, `timingNotices`, alongside blockers and review triggers — the main-flow integration must render it too.
 
 ## Direction decided 2026-07-23: integrate Low Impact into the main flow

@@ -16,6 +16,47 @@ export interface Field {
   visibleWhen?: { fieldId: string; equals?: any; includes?: string; includesAny?: string[] };
 }
 
+export function isFieldVisible(fieldId: string, formData: Record<string, any>): boolean {
+  const field = FORM_FIELDS.find((f) => f.id === fieldId);
+  if (!field?.visibleWhen) return true;
+  const { fieldId: depId, equals, includes, includesAny } = field.visibleWhen;
+  const depValue = formData[depId];
+  if (equals !== undefined) return depValue === equals;
+  if (includes !== undefined && Array.isArray(depValue)) return depValue.includes(includes);
+  if (includesAny !== undefined && Array.isArray(depValue)) {
+    return includesAny.some((v) => depValue.includes(v));
+  }
+  return true;
+}
+
+export function defaultFieldValue(field: Field): any {
+  switch (field.type) {
+    case 'boolean':
+      return false;
+    case 'number':
+      return 0;
+    case 'multiselect':
+      return [];
+    default:
+      return '';
+  }
+}
+
+// Hidden fields keep their last value in form state (hiding is render-only), so a
+// stale answer could skew evaluation — e.g. isRecParkProperty left true after the
+// park/city-building location type is deselected. Reset every hidden field to its
+// default before evaluating. Single pass works because FORM_FIELDS declares gate
+// fields before their dependents (locationTypes → isRecParkProperty → recParksActivities).
+export function pruneHiddenFields(formData: Record<string, any>): Record<string, any> {
+  const pruned = { ...formData };
+  for (const field of FORM_FIELDS) {
+    if (!isFieldVisible(field.id, pruned)) {
+      pruned[field.id] = defaultFieldValue(field);
+    }
+  }
+  return pruned;
+}
+
 export const FORM_FIELDS: Field[] = [
   // Jurisdiction Gate
   {
