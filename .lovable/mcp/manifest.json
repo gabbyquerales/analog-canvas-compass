@@ -1,0 +1,291 @@
+{
+  "version": 1,
+  "sdk_version": "0.24.0",
+  "path": "/functions/v1/mcp",
+  "auth": {
+    "type": "none"
+  },
+  "mcp": {
+    "server": {
+      "name": "kairo-mcp",
+      "version": "0.1.0",
+      "title": "KAIRO — Film Permit Intelligence"
+    },
+    "tools": [
+      {
+        "name": "evaluate_low_impact_precheck",
+        "title": "Evaluate FilmLA Low Impact Pre-Check",
+        "description": "Run KAIRO's deterministic FilmLA Low Impact Permit Pilot Program pre-check. Given a planned City of Los Angeles shoot, returns whether it likely qualifies (qualifies / needsReview / doesNotQualify / notApplicable), all disqualifying blockers, review triggers, timing notices, and a Low-Impact vs Standard fee comparison. Sourced from the FilmLA KB — this is an estimate, not a permit approval.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "type": "object",
+          "properties": {
+            "firstFilmingDate": {
+              "type": "string",
+              "description": "First filming day, ISO date (YYYY-MM-DD)."
+            },
+            "submissionDate": {
+              "description": "Application submission date, ISO date (YYYY-MM-DD). Defaults to today.",
+              "type": "string"
+            },
+            "jurisdiction": {
+              "description": "Shoot jurisdiction. Low Impact only applies to City of LA.",
+              "type": "string",
+              "enum": [
+                "cityOfLA",
+                "other",
+                "unsure",
+                "notApplicable"
+              ]
+            },
+            "locationCount": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 9007199254740991,
+              "description": "Number of filming locations (parking/base camp don't count)."
+            },
+            "consecutiveFilmingDays": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 9007199254740991,
+              "description": "Consecutive filming days."
+            },
+            "isConsecutiveDays": {
+              "description": "Whether the filming days are consecutive.",
+              "type": "boolean"
+            },
+            "onSetCount": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 9007199254740991,
+              "description": "Total cast & crew physically on set."
+            },
+            "filmingOutsideBusinessHours": {
+              "description": "True if any filming happens outside 7am–10pm weekdays or 9am–10pm weekends.",
+              "type": "boolean"
+            },
+            "hasSpecialEffects": {
+              "type": "boolean"
+            },
+            "hasGunfire": {
+              "type": "boolean"
+            },
+            "hasOfficerImpersonation": {
+              "type": "boolean"
+            },
+            "hasLaneClosures": {
+              "type": "boolean"
+            },
+            "hasTrafficControl": {
+              "type": "boolean"
+            },
+            "hasDrivingShots": {
+              "type": "boolean"
+            },
+            "hasAerialActivity": {
+              "description": "Drones, helicopters, planes.",
+              "type": "boolean"
+            },
+            "hasAnimalActivity": {
+              "type": "boolean"
+            },
+            "hasAmplifiedMusic": {
+              "type": "boolean"
+            },
+            "hasLargeLighting": {
+              "type": "boolean"
+            },
+            "hasLargeLightingAssessment": {
+              "description": "Self-assessment when hasLargeLighting is true.",
+              "type": "string",
+              "enum": [
+                "yes",
+                "no",
+                "unsure"
+              ]
+            },
+            "hasGenerators": {
+              "type": "boolean"
+            },
+            "hasOpenFlames": {
+              "type": "boolean"
+            },
+            "hasPropaneHeaters": {
+              "type": "boolean"
+            },
+            "hasSmokeMachines": {
+              "type": "boolean"
+            },
+            "hasAlarmBypass": {
+              "type": "boolean"
+            },
+            "hasSmoking": {
+              "type": "boolean"
+            },
+            "hasPracticalStove": {
+              "type": "boolean"
+            },
+            "hasGrillingFoodPrep": {
+              "type": "boolean"
+            },
+            "hasStunts": {
+              "type": "boolean"
+            },
+            "locationTypes": {
+              "description": "Prohibited location type IDs present at the shoot. Any of: schools, city_buildings, neighborhood_conditions, rooftops, hotels, interior_business, airports, basements, multistory_apartments, high_rises, brush, harbor, helipads.",
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "isRecParkProperty": {
+              "description": "True if any location is on LA Rec & Parks property.",
+              "type": "boolean"
+            },
+            "recParksActivities": {
+              "description": "Rec & Parks-scoped activity rule IDs, only evaluated when isRecParkProperty is true.",
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "projectName": {
+              "description": "Optional project label; not used in evaluation.",
+              "type": "string"
+            }
+          },
+          "required": [
+            "firstFilmingDate",
+            "locationCount",
+            "consecutiveFilmingDays",
+            "onSetCount"
+          ]
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "calculate_permit_fees",
+        "title": "Calculate film permit fees",
+        "description": "Estimate itemized film permit fees for a planned shoot in a supported jurisdiction (e.g. City of Los Angeles, LA County). Combines FilmLA base fees with jurisdiction-specific personnel and location surcharges. Returns line items, subtotals, an estimated total, warnings, and estimated lead time. Optionally applies FilmLA Low Impact pilot pricing (LA City motion only). Estimate only — not a quote.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "type": "object",
+          "properties": {
+            "jurisdictionSlug": {
+              "type": "string",
+              "description": "Jurisdiction slug, e.g. 'los-angeles', 'los-angeles-county'."
+            },
+            "shootDays": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 9007199254740991,
+              "description": "Number of shoot days."
+            },
+            "hoursPerDay": {
+              "type": "number",
+              "minimum": 1,
+              "maximum": 24,
+              "description": "Hours per shoot day."
+            },
+            "crewSize": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 9007199254740991,
+              "description": "Crew size."
+            },
+            "isMotion": {
+              "type": "boolean",
+              "description": "True for motion filming, false for still photo."
+            },
+            "isStudent": {
+              "type": "boolean"
+            },
+            "isNonProfit": {
+              "type": "boolean"
+            },
+            "selectedActivities": {
+              "description": "Activity IDs, e.g. street_closure, gunfire_sfx, pyrotechnics, drone_aerial.",
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "isWeekend": {
+              "type": "boolean"
+            },
+            "isParksLocation": {
+              "type": "boolean"
+            },
+            "isBeachLocation": {
+              "type": "boolean"
+            },
+            "isBuildingLocation": {
+              "type": "boolean"
+            },
+            "isPortLocation": {
+              "type": "boolean"
+            },
+            "isDWPLocation": {
+              "type": "boolean"
+            },
+            "isFloodControlLocation": {
+              "type": "boolean"
+            },
+            "numberOfLocations": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 9007199254740991
+            },
+            "numberOfParkingSpaces": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 9007199254740991
+            },
+            "cateringCrewSize": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 9007199254740991
+            },
+            "numberOfCars": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 9007199254740991
+            },
+            "prepDays": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 9007199254740991
+            },
+            "strikeDays": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 9007199254740991
+            },
+            "lowImpactTier": {
+              "description": "Apply FilmLA Low Impact pilot pricing. Only affects LA City motion, non-student, non-profit shoots; ignored otherwise. Confirm eligibility with evaluate_low_impact_precheck first.",
+              "type": "boolean"
+            }
+          },
+          "required": [
+            "jurisdictionSlug",
+            "shootDays",
+            "hoursPerDay",
+            "crewSize",
+            "isMotion"
+          ]
+        },
+        "outputSchema": null
+      }
+    ]
+  }
+}
