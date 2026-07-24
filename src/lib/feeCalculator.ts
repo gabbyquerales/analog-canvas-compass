@@ -252,12 +252,17 @@ export function calculateFees(inputs: ShootInputs): FeeCalculationResult {
       note: 'Cast/crew parking & base camp locations are free',
     });
   } else {
+    // FilmLA bills notification per radius; its Low Impact fee table publishes the
+    // standard rate as "$232 / location" (verified 2026-07-23). Estimate one radius
+    // per filming location — nearby locations sharing a radius may reduce this.
     lineItems.push({
       id: 'filmla_notification',
       name: 'Notification Fee',
-      amount: baseFees.notification_fee.rate,
-      per: 'radius',
+      amount: baseFees.notification_fee.rate * inputs.numberOfLocations,
+      per: `notification radius (est. 1 per location × ${inputs.numberOfLocations})`,
       category: 'filmla',
+      note: 'Billed per notification radius — typically one per filming location; locations sharing a radius may lower this.',
+      isEstimate: inputs.numberOfLocations > 1,
     });
   }
 

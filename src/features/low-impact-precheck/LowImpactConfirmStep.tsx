@@ -15,6 +15,12 @@ import { RESULT_CARD_DISCLAIMER } from './disclaimers';
 interface LowImpactConfirmStepProps {
   /** Prefill: main flow already flagged a Rec & Parks location. */
   parksLocationFromMainFlow: boolean;
+  /**
+   * Prefill: "Night Shoot" was selected in the brief. It can't PROVE filming
+   * past 10pm (so it never blocks detection) — instead the hours toggle starts
+   * ON and the user flips it off if they wrap within standard hours.
+   */
+  nightShootFromMainFlow: boolean;
   /** Previous answers when reopening to edit. */
   initial?: LowImpactConfirmInputs | null;
   onComplete: (answers: LowImpactConfirmInputs) => void;
@@ -29,6 +35,7 @@ function schemaField(id: string) {
 
 export default function LowImpactConfirmStep({
   parksLocationFromMainFlow,
+  nightShootFromMainFlow,
   initial,
   onComplete,
   onCancel,
@@ -42,7 +49,7 @@ export default function LowImpactConfirmStep({
   );
   const [recParksActivities, setRecParksActivities] = useState<string[]>(initial?.recParksActivities ?? []);
   const [filmingOutsideBusinessHours, setFilmingOutsideBusinessHours] = useState(
-    initial?.filmingOutsideBusinessHours ?? false,
+    initial?.filmingOutsideBusinessHours ?? nightShootFromMainFlow,
   );
   const [additionalActivities, setAdditionalActivities] = useState<string[]>(
     initial?.additionalActivities ?? [],
@@ -112,6 +119,11 @@ export default function LowImpactConfirmStep({
               <span className="text-sm">
                 Filming outside standard hours?
                 <span className="block text-xs text-gray-500">7am–10pm weekdays, 9am–10pm weekends</span>
+                {nightShootFromMainFlow && !initial && (
+                  <span className="block text-xs text-gray-500">
+                    Pre-set from your Night Shoot selection — turn off if you wrap by 10pm.
+                  </span>
+                )}
               </span>
               <Switch checked={filmingOutsideBusinessHours} onCheckedChange={setFilmingOutsideBusinessHours} />
             </label>

@@ -850,6 +850,7 @@ const ProductionBrief = ({ jurisdiction, location, neighborhood, onBack }: Produ
         {lowImpactSheetOpen && (
           <LowImpactConfirmStep
             parksLocationFromMainFlow={isParksLocation}
+            nightShootFromMainFlow={selectedActivities.has("night_shoot")}
             initial={lowImpactConfirm}
             onComplete={(answers) => {
               setLowImpactConfirm(answers);

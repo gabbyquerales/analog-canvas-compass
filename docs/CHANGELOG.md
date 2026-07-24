@@ -14,7 +14,8 @@ Every PR appends an entry here. Format: date · change · why · what was learne
 - The brief already captures more Low Impact signal than expected: 6 of 8 special activities map directly to prohibition flags, and the Parks chip maps to `isRecParkProperty`. Only dates, hours, prohibited location types, and 14 finer flags needed the confirm step.
 - Detection must exclude deadline rules (the brief has no dates) and must skip student/non-profit/still-photo shoots — their existing tiers are cheaper than the $350 Low Impact application, so the banner would be a disservice.
 - `night_shoot` is deliberately unmapped: it can't prove "outside 7am–10pm", so blocking on it would repeat the F1 over-blocking mistake. The hours question lives in the confirm step.
-- The main flow's standard ledger charges ONE $232 notification "per radius"; the pre-check's standard comparison charged $232×locations. Not reconciled here (UNVERIFIED which FilmLA billing granularity is right for multi-location shoots) — flagged as an open item.
+- The main flow's standard ledger charged ONE flat $232 notification regardless of location count — **fixed in this PR after re-verifying both sources** (Basic Fees List: "per Radius"; Low Impact KB fee table: "$232 / location"): now $232 × filming locations, marked as an estimate when >1 with a shared-radius caveat. The flat charge had been silently under-charging multi-location standard shoots.
+- Review follow-up: `night_shoot` now prefills the confirm step's hours toggle to ON (user can flip it off if wrapping by 10pm) — keeps the F1 lesson (never block on an ambiguous signal) without losing the signal.
 - Tests 152 → run `npx vitest run`: adapter mapping/detection/confirm (25), fee tier switch (10), plus all prior suites. Verified in-browser: $2,028.50 → $1,084.50 (delta $944, exact).
 
 ---

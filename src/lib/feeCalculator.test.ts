@@ -120,9 +120,15 @@ describe('calculateFees — FilmLA base fees', () => {
     expect(item(r, 'filmla_app')!.amount).toBe(73);
   });
 
-  it('always charges $232 notification fee', () => {
+  it('charges $232 notification per filming location (1 location)', () => {
     const r = calculateFees(shoot({ jurisdictionSlug: 'los-angeles' }));
     expect(item(r, 'filmla_notification')!.amount).toBe(232);
+  });
+
+  it('charges $232 notification per filming location (3 locations)', () => {
+    const r = calculateFees(shoot({ jurisdictionSlug: 'los-angeles', numberOfLocations: 3 }));
+    expect(item(r, 'filmla_notification')!.amount).toBe(232 * 3);
+    expect(item(r, 'filmla_notification')!.isEstimate).toBe(true);
   });
 
   it('computes monitor as (hoursPerDay + 1) × $44.50 × shootDays', () => {
@@ -617,18 +623,18 @@ describe('calculateFees — lowImpactTier', () => {
     expect(spot?.name).toMatch(/waived/i);
   });
 
-  it('total reflects the swap: 350 + 156×2 vs standard 931 + 232 + 287', () => {
+  it('total reflects the swap: 350 + 156×2 vs standard 931 + 232×2 + 287', () => {
     const low = calculateFees(shoot(base));
     const std = calculateFees(shoot({ ...base, lowImpactTier: false }));
     // Only app, notification, and spot check differ; monitor etc. unchanged
     const delta = std.estimatedTotal - low.estimatedTotal;
-    expect(delta).toBe((931 - 350) + (232 - 156 * 2) + (287 - 0));
+    expect(delta).toBe((931 - 350) + (232 * 2 - 156 * 2) + (287 - 0));
   });
 
   it('ignored for student productions (cheaper tier already)', () => {
     const r = calculateFees(shoot({ ...base, isStudent: true }));
     expect(item(r, 'filmla_app')?.name).toContain('Student');
-    expect(item(r, 'filmla_notification')?.amount).toBe(232);
+    expect(item(r, 'filmla_notification')?.amount).toBe(232 * 2);
   });
 
   it('ignored for non-profit productions', () => {
@@ -644,7 +650,7 @@ describe('calculateFees — lowImpactTier', () => {
   it('ignored outside LA City', () => {
     const r = calculateFees(shoot({ ...base, jurisdictionSlug: 'culver-city' }));
     expect(item(r, 'filmla_app')?.amount).toBe(931);
-    expect(item(r, 'filmla_notification')?.amount).toBe(232);
+    expect(item(r, 'filmla_notification')?.amount).toBe(232 * 2);
   });
 
   it('crews under 16 have no spot check line either way', () => {
