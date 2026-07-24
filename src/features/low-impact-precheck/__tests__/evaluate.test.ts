@@ -158,6 +158,105 @@ describe('evaluate — Rec & Parks exemption', () => {
 });
 
 // ──────────────────────────────────────────────
+// Rec & Parks-scoped activity flags (F1 fix)
+// ──────────────────────────────────────────────
+
+describe('evaluate — Rec & Parks-scoped activity flags (F1)', () => {
+  const scopedFlags: Array<[keyof ShootInput, string]> = [
+    ['hasLandscapeAlteration', 'act_landscape_alteration'],
+    ['hasSignRemoval', 'act_sign_removal'],
+    ['hasDiggingDrilling', 'act_digging_drilling'],
+    ['hasNailingBolting', 'act_nailing_bolting'],
+    ['hasHeavyEquipmentOnGrass', 'act_heavy_equipment_grass'],
+    ['hasCranes', 'act_cranes_jibs'],
+  ];
+
+  for (const [inputKey, ruleId] of scopedFlags) {
+    it(`${inputKey} OFF Rec & Parks property → no blocker, still qualifies`, () => {
+      const result = evaluate({
+        ...heroSilverLake,
+        [inputKey]: true,
+        isRecParkProperty: false,
+      });
+      expect(result.blockers.some((b) => b.id === ruleId)).toBe(false);
+      expect(result.state).toBe('qualifies');
+    });
+
+    it(`${inputKey} ON Rec & Parks property → blocker fires`, () => {
+      const result = evaluate({
+        ...heroSilverLake,
+        [inputKey]: true,
+        isRecParkProperty: true,
+      });
+      expect(result.blockers.some((b) => b.id === ruleId)).toBe(true);
+      expect(result.state).toBe('doesNotQualify');
+    });
+  }
+
+  it('all six flags true off Rec & Parks (e.g. private stage nailing a set sign) → qualifies', () => {
+    const result = evaluate({
+      ...heroSilverLake,
+      hasLandscapeAlteration: true,
+      hasSignRemoval: true,
+      hasDiggingDrilling: true,
+      hasNailingBolting: true,
+      hasHeavyEquipmentOnGrass: true,
+      hasCranes: true,
+    });
+    expect(result.blockers).toHaveLength(0);
+    expect(result.state).toBe('qualifies');
+  });
+});
+
+// ──────────────────────────────────────────────
+// Advance-window timing notice (F3 fix)
+// ──────────────────────────────────────────────
+
+describe('evaluate — >1 month ahead is a timing notice, not a blocker (F3)', () => {
+  it('submitting >1 month early → qualifies with timing notice, no deadline_too_early blocker', () => {
+    const result = evaluate({
+      ...heroSilverLake,
+      submissionDate: '2026-05-07',
+      firstFilmingDate: '2026-08-14',
+    });
+    expect(result.state).toBe('qualifies');
+    expect(result.blockers.some((b) => b.id === 'deadline_too_early')).toBe(false);
+    expect(result.timingNotices.some((t) => t.id === 'deadline_too_early')).toBe(true);
+  });
+
+  it('timing notice includes the apply-on-or-after date', () => {
+    const result = evaluate({
+      ...heroSilverLake,
+      submissionDate: '2026-05-07',
+      firstFilmingDate: '2026-08-14',
+    });
+    const notice = result.timingNotices.find((t) => t.id === 'deadline_too_early');
+    // 2026-08-14 minus 30 days = 2026-07-15
+    expect(notice?.label).toContain('2026-07-15');
+    expect(notice?.category).toBe('timing');
+    expect(notice?.disqualifier).toBe(false);
+  });
+
+  it('within the window → no timing notice', () => {
+    const result = evaluate(heroSilverLake);
+    expect(result.timingNotices).toHaveLength(0);
+  });
+
+  it('too early AND a real blocker → doesNotQualify, timing notice still reported separately', () => {
+    const result = evaluate({
+      ...heroSilverLake,
+      hasAerialActivity: true,
+      submissionDate: '2026-05-07',
+      firstFilmingDate: '2026-08-14',
+    });
+    expect(result.state).toBe('doesNotQualify');
+    expect(result.blockers.some((b) => b.id === 'act_aerial_activity')).toBe(true);
+    expect(result.blockers.some((b) => b.id === 'deadline_too_early')).toBe(false);
+    expect(result.timingNotices.some((t) => t.id === 'deadline_too_early')).toBe(true);
+  });
+});
+
+// ──────────────────────────────────────────────
 // Business days (Hazard 4 fix)
 // ──────────────────────────────────────────────
 

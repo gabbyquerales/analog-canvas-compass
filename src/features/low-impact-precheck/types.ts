@@ -1,4 +1,4 @@
-export type RuleCategory = 'activity' | 'location' | 'threshold' | 'deadline' | 'hours' | 'review';
+export type RuleCategory = 'activity' | 'location' | 'threshold' | 'deadline' | 'hours' | 'review' | 'timing';
 export type ResultState = 'qualifies' | 'needsReview' | 'doesNotQualify' | 'notApplicable';
 
 export interface Rule {
@@ -72,6 +72,8 @@ export interface EvaluationResult {
   state: ResultState;
   blockers: Rule[];
   reviewTriggers: Rule[];
+  /** Submission-window constraints (e.g. applying too early). Not disqualifiers — never affect state. */
+  timingNotices: Rule[];
   appliedSuggestions: Suggestion[];
   feeMath: FeeBreakdown;
   primaryBlocker?: Rule;

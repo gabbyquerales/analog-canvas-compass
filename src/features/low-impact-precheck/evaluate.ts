@@ -30,6 +30,7 @@ export function evaluate(input: ShootInput): EvaluationResult {
       state: 'notApplicable',
       blockers: [],
       reviewTriggers: [],
+      timingNotices: [],
       appliedSuggestions: [],
       feeMath: { applicationFee: 0, notificationPerLocation: 0, lafdSpotCheck: 0, estimatedTotal: 0, savingsPercent: 0, standardTierEstimate: 0 },
     };
@@ -37,6 +38,7 @@ export function evaluate(input: ShootInput): EvaluationResult {
 
   const blockers: Rule[] = [];
   const reviewTriggers: Rule[] = [];
+  const timingNotices: Rule[] = [];
 
   // Hazard 2 fix: id-based lookup for all activity checks
   if (input.hasSpecialEffects) blockers.push(findActivity('act_special_effects'));
@@ -64,12 +66,17 @@ export function evaluate(input: ShootInput): EvaluationResult {
   if (input.hasPracticalStove) blockers.push(findActivity('act_practical_stove'));
   if (input.hasGrillingFoodPrep) blockers.push(findActivity('act_grilling_food_prep'));
   if (input.hasStunts) blockers.push(findActivity('act_stunts'));
-  if (input.hasLandscapeAlteration) blockers.push(findActivity('act_landscape_alteration'));
-  if (input.hasSignRemoval) blockers.push(findActivity('act_sign_removal'));
-  if (input.hasDiggingDrilling) blockers.push(findActivity('act_digging_drilling'));
-  if (input.hasNailingBolting) blockers.push(findActivity('act_nailing_bolting'));
-  if (input.hasHeavyEquipmentOnGrass) blockers.push(findActivity('act_heavy_equipment_grass'));
-  if (input.hasCranes) blockers.push(findActivity('act_cranes_jibs'));
+
+  // F1 fix: FilmLA scopes these six under "Limits Applying to Recreation & Parks
+  // Locations" — they are NOT universal prohibitions. Only fire on Rec & Parks property.
+  if (input.isRecParkProperty) {
+    if (input.hasLandscapeAlteration) blockers.push(findActivity('act_landscape_alteration'));
+    if (input.hasSignRemoval) blockers.push(findActivity('act_sign_removal'));
+    if (input.hasDiggingDrilling) blockers.push(findActivity('act_digging_drilling'));
+    if (input.hasNailingBolting) blockers.push(findActivity('act_nailing_bolting'));
+    if (input.hasHeavyEquipmentOnGrass) blockers.push(findActivity('act_heavy_equipment_grass'));
+    if (input.hasCranes) blockers.push(findActivity('act_cranes_jibs'));
+  }
 
   // Hazard 1 fix: location checks use IDs directly (form stores IDs via value field)
   const locTypes = input.locationTypes || [];
@@ -159,14 +166,19 @@ export function evaluate(input: ShootInput): EvaluationResult {
     });
   }
 
+  // F3 fix: applying >1 month ahead is a submission-window constraint, not
+  // ineligibility — the shoot may still qualify; the user just has to apply later.
   const daysUntilShoot = Math.floor((firstFilmDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
   const monthsUntilShoot = daysUntilShoot / 30;
   if (monthsUntilShoot > DEADLINES.maxMonthsAhead) {
-    blockers.push({
+    const earliestSubmission = new Date(firstFilmDate);
+    earliestSubmission.setDate(earliestSubmission.getDate() - DEADLINES.maxMonthsAhead * 30);
+    const earliestISO = earliestSubmission.toISOString().split('T')[0];
+    timingNotices.push({
       id: 'deadline_too_early',
-      label: `Applications accepted no more than ${DEADLINES.maxMonthsAhead} month in advance`,
-      category: 'deadline',
-      disqualifier: true,
+      label: `Too early to submit — applications are accepted no more than ${DEADLINES.maxMonthsAhead} month before your first filming day. Apply on or after ${earliestISO}.`,
+      category: 'timing',
+      disqualifier: false,
       sourceUrl: KB_URL,
     });
   }
@@ -196,6 +208,7 @@ export function evaluate(input: ShootInput): EvaluationResult {
     state,
     blockers: blockers.slice(),
     reviewTriggers: reviewTriggers.slice(),
+    timingNotices: timingNotices.slice(),
     appliedSuggestions: [],
     feeMath,
     primaryBlocker: blockers.length > 0 ? blockers[0] : undefined,

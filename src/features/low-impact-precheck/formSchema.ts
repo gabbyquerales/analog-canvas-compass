@@ -13,7 +13,7 @@ export interface Field {
   helpText?: string;
   options?: FieldOption[];
   section?: string;
-  visibleWhen?: { fieldId: string; equals?: any; includes?: string };
+  visibleWhen?: { fieldId: string; equals?: any; includes?: string; includesAny?: string[] };
 }
 
 export const FORM_FIELDS: Field[] = [
@@ -72,7 +72,7 @@ export const FORM_FIELDS: Field[] = [
     type: 'number',
     required: true,
     section: 'Schedule',
-    helpText: 'Maximum 3 for Low Impact.',
+    helpText: 'Count filming locations only — cast/crew parking and base camp locations are free and don\'t count. Maximum 3 for Low Impact.',
   },
   {
     id: 'consecutiveFilmingDays',
@@ -136,8 +136,10 @@ export const FORM_FIELDS: Field[] = [
     type: 'boolean',
     required: false,
     section: 'Locations',
-    helpText: 'City-owned but potentially exempt. We\'ll flag for FilmLA confirmation.',
-    visibleWhen: { fieldId: 'locationTypes', includes: 'city_buildings' },
+    helpText: 'Rec & Parks property has extra restrictions (and city-owned buildings on it are potentially exempt). We\'ll flag for FilmLA confirmation.',
+    // Parks are the typical Rec & Parks case — this must show for them too,
+    // since the six Rec & Parks-scoped questions below are gated on it (F1).
+    visibleWhen: { fieldId: 'locationTypes', includesAny: ['city_buildings', 'park'] },
   },
 
   // Activities
@@ -290,46 +292,55 @@ export const FORM_FIELDS: Field[] = [
     required: true,
     section: 'Equipment',
   },
+  // F1 fix: the six questions below only apply at Rec & Parks locations
+  // (FilmLA "Limits Applying to Recreation & Parks Locations") — only asked
+  // when isRecParkProperty is true, and evaluate.ts gates them the same way.
   {
     id: 'hasLandscapeAlteration',
     label: 'Alterations to landscape?',
     type: 'boolean',
-    required: true,
+    required: false,
     section: 'Equipment',
+    visibleWhen: { fieldId: 'isRecParkProperty', equals: true },
   },
   {
     id: 'hasSignRemoval',
     label: 'Removal or replacement of signs, benches, or fencing?',
     type: 'boolean',
-    required: true,
+    required: false,
     section: 'Equipment',
+    visibleWhen: { fieldId: 'isRecParkProperty', equals: true },
   },
   {
     id: 'hasDiggingDrilling',
     label: 'Digging, staking, or drilling into ground or structures?',
     type: 'boolean',
-    required: true,
+    required: false,
     section: 'Equipment',
+    visibleWhen: { fieldId: 'isRecParkProperty', equals: true },
   },
   {
     id: 'hasNailingBolting',
     label: 'Nailing or bolting into buildings, structures, or trees?',
     type: 'boolean',
-    required: true,
+    required: false,
     section: 'Equipment',
+    visibleWhen: { fieldId: 'isRecParkProperty', equals: true },
   },
   {
     id: 'hasHeavyEquipmentOnGrass',
     label: 'Vehicles or heavy equipment on grass?',
     type: 'boolean',
-    required: true,
+    required: false,
     section: 'Equipment',
+    visibleWhen: { fieldId: 'isRecParkProperty', equals: true },
   },
   {
     id: 'hasCranes',
     label: 'Condors, cranes, or jib arms?',
     type: 'boolean',
-    required: true,
+    required: false,
     section: 'Equipment',
+    visibleWhen: { fieldId: 'isRecParkProperty', equals: true },
   },
 ];

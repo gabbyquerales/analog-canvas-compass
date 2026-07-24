@@ -24,10 +24,13 @@ import type { Suggestion } from '@/features/low-impact-precheck/types';
 function isFieldVisible(fieldId: string, formData: Record<string, any>): boolean {
   const field = FORM_FIELDS.find((f) => f.id === fieldId);
   if (!field?.visibleWhen) return true;
-  const { fieldId: depId, equals, includes } = field.visibleWhen;
+  const { fieldId: depId, equals, includes, includesAny } = field.visibleWhen;
   const depValue = formData[depId];
   if (equals !== undefined) return depValue === equals;
   if (includes !== undefined && Array.isArray(depValue)) return depValue.includes(includes);
+  if (includesAny !== undefined && Array.isArray(depValue)) {
+    return includesAny.some((v) => depValue.includes(v));
+  }
   return true;
 }
 
@@ -323,6 +326,25 @@ export default function LowImpactPreCheckPage() {
                     <li key={b.id} className="text-sm flex items-start gap-2">
                       <span className="text-red-500 mt-0.5">✕</span>
                       <span>{b.label}</span>
+                    </li>
+                  ))}
+                </ul>
+              </CardContent>
+            </Card>
+          )}
+
+          {/* Timing notices — submission-window constraints, not disqualifiers */}
+          {result.timingNotices.length > 0 && (
+            <Card className="border-2 bg-blue-50 border-blue-300">
+              <CardHeader className="pb-3">
+                <CardTitle className="text-lg">Submission Timing</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <ul className="space-y-2">
+                  {result.timingNotices.map((t) => (
+                    <li key={t.id} className="text-sm flex items-start gap-2">
+                      <span className="text-blue-500 mt-0.5">⏱</span>
+                      <span>{t.label}</span>
                     </li>
                   ))}
                 </ul>
