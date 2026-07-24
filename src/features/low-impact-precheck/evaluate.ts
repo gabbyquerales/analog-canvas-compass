@@ -169,13 +169,12 @@ export function evaluate(input: ShootInput): EvaluationResult {
   // ineligibility — the shoot may still qualify; the user just has to apply later.
   const daysUntilShoot = Math.floor((firstFilmDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
   const monthsUntilShoot = daysUntilShoot / 30;
+  // Approximates "a month" as 30 days — deliberately NOT surfaced as a precise
+  // apply-on-or-after date (calendar-month vs 30-day nuance deferred, 2026-07-23).
   if (monthsUntilShoot > DEADLINES.maxMonthsAhead) {
-    const earliestSubmission = new Date(firstFilmDate);
-    earliestSubmission.setDate(earliestSubmission.getDate() - DEADLINES.maxMonthsAhead * 30);
-    const earliestISO = earliestSubmission.toISOString().split('T')[0];
     timingNotices.push({
       id: 'deadline_too_early',
-      label: `Too early to submit — applications are accepted no more than ${DEADLINES.maxMonthsAhead} month before your first filming day. Apply on or after ${earliestISO}.`,
+      label: `Too early to submit — applications are accepted no more than ${DEADLINES.maxMonthsAhead} month before your first filming day. Apply closer to your filming date.`,
       category: 'timing',
       disqualifier: false,
       sourceUrl: KB_URL,

@@ -248,17 +248,17 @@ describe('evaluate — >1 month ahead is a timing notice, not a blocker (F3)', (
     expect(result.timingNotices.some((t) => t.id === 'deadline_too_early')).toBe(true);
   });
 
-  it('timing notice includes the apply-on-or-after date', () => {
+  it('timing notice is non-disqualifying and does not claim a precise apply date', () => {
     const result = evaluate({
       ...heroSilverLake,
       submissionDate: '2026-05-07',
       firstFilmingDate: '2026-08-14',
     });
     const notice = result.timingNotices.find((t) => t.id === 'deadline_too_early');
-    // 2026-08-14 minus 30 days = 2026-07-15
-    expect(notice?.label).toContain('2026-07-15');
     expect(notice?.category).toBe('timing');
     expect(notice?.disqualifier).toBe(false);
+    // The 1-month window is a 30-day approximation — no exact date shown (deferred 2026-07-23)
+    expect(notice?.label).not.toMatch(/\d{4}-\d{2}-\d{2}/);
   });
 
   it('within the window → no timing notice', () => {
