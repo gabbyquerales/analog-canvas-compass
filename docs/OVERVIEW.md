@@ -16,7 +16,7 @@ Vite + React + TypeScript SPA (Lovable-originated, shadcn/ui + Tailwind). **All 
 | Frontend | React SPA, routes in `src/App.tsx` |
 | Rules engine | `src/features/low-impact-precheck/` — pure functions, data-driven rules |
 | Fee data | `src/data/filmla-base-fees.json` — sourced, per-fee `last_verified` dates |
-| Supabase | **Only** a `cdtfa-proxy` edge function (`supabase/functions/`). No tables, no permit data model. |
+| Supabase | **Only** a `cdtfa-proxy` edge function (`supabase/functions/`). No tables, no permit data model. The app points at Gabby's own project (`ehxaweuopfqcxubryiju`, via `.env`) — briefly switched to a Lovable-managed project on 2026-07-24 and reverted the same day (see changelog). |
 | Tests | Vitest — 85 tests passing as of 2026-07-23 (`npx vitest run`) |
 
 ## Map
