@@ -4,6 +4,18 @@ Every PR appends an entry here. Format: date · change · why · what was learne
 
 ---
 
+## 2026-07-24 — MCP server added via Lovable, then removed same day
+
+**Change:** A Lovable session (commits `83b5158`…`fd12b11`, direct to main, no PR/changelog — retroactive entry) added a public MCP server: a ~2,800-line `supabase/functions/mcp` edge function plus `src/lib/mcp/` tool wrappers exposing `calculate-permit-fees` and `evaluate-low-impact-precheck`, a `.lovable/mcp` manifest, the `@lovable.dev/mcp-js` dependency, and dependency upgrades (`supabase-js`, `posthog-js`, `zod` 3→4 — **kept**). It also switched the app's Supabase project to a Lovable-managed one (`xmtjjymbpolzzfryfsah`) — **kept**; `cdtfa-proxy` is deployed there and responding. This PR removes the MCP code, manifest, vite plugin, and dependency.
+
+**Why:** Intent was to let Claude access KAIRO's fee/eligibility tools. Gabby decided to remove it during the pilot window (minimal-footprint preference; the endpoint was public and unreviewed). Note the design was sound where it counts: the MCP tools *wrapped* the deterministic engine rather than reimplementing it.
+
+**Learned:**
+- Lovable's MCP **toggle does not remove code or undeploy the function** — after disabling, the repo was unchanged and the public endpoint still answered JSON-RPC (HTTP 200, verified 2026-07-24). Code removal needs a repo PR (this one); **undeployment must be requested explicitly in Lovable chat** since the function runs on Lovable's managed project, not Gabby's Supabase account. Endpoint status at time of writing: still live — re-check after asking Lovable to delete it.
+- Lovable commits directly to main and skips the living-docs contract — for non-styling features, prefer asking Lovable to work on a branch, or expect to write retroactive entries like this one.
+
+---
+
 ## 2026-07-23 — Low Impact integrated into the main flow; standalone page removed
 
 **Change:** Implemented the decided direction (OVERVIEW § Low Impact in the main flow). New `mainFlowAdapter.ts` (ShootInputs→rules mapping, `detectLowImpactPotential` definitive-no detection, `evaluateWithConfirm`); `lowImpactTier` switch in `feeCalculator` ($350 app / $156×filming-location notification / spot check waived, sourced from `FEE_MATH`); banner + `LowImpactConfirmStep` + result card in ProductionBrief (functional styling — Lovable to restyle); deleted `LowImpactPreCheckPage` + `/low-impact-precheck` route. Rules engine module untouched and consumed as pure logic. Analytics: `low_impact_banner_shown`, `low_impact_confirm_completed`.
